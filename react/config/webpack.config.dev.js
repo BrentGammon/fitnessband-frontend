@@ -123,6 +123,17 @@ module.exports = {
         ],
         include: paths.appSrc,
       },
+      //sass preloader
+      {
+        test: /\.scss$/,
+            use: [{
+                loader: "style-loader" // creates style nodes from JS strings
+            }, {
+                loader: "css-loader" // translates CSS into CommonJS
+            }, {
+                loader: "sass-loader" // compiles Sass to CSS
+            }]
+      },
       // ** ADDING/UPDATING LOADERS **
       // The "file" loader handles all assets unless explicitly excluded.
       // The `exclude` list *must* be updated with every change to loader extensions.
@@ -142,6 +153,8 @@ module.exports = {
           /\.gif$/,
           /\.jpe?g$/,
           /\.png$/,
+          /\.sass$/,
+          /\.scss$/,
         ],
         loader: require.resolve('file-loader'),
         options: {
