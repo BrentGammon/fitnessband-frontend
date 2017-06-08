@@ -7,7 +7,7 @@ cache:
 before_script: 
   cd react
   npm install 
-script:
+scripts:
   npm test
 notifications:
     slack: co600project:Bskp23tcCyS4znC1HJqQROW3
