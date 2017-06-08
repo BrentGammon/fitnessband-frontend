@@ -4,6 +4,10 @@ node_js:
 cache:
   directories:
     - "node_modules"
-before_script: cd react
-script:
+before_script: 
+  cd react
   npm install 
+script:
+  npm test
+notifications:
+    slack: co600project:Bskp23tcCyS4znC1HJqQROW3
