@@ -4,6 +4,6 @@ node_js:
 cache:
   directories:
     - "node_modules"
-before_script: cd project
+before_script: cd react
 script:
   npm install 
