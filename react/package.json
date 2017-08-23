@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "firebase": "^4.2.0",
+    "re-base": "^3.0.3",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "react-router-dom": "^4.1.2"
   },
   "devDependencies": {
     "autoprefixer": "7.1.0",
