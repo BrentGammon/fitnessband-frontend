@@ -22,7 +22,7 @@ class Home extends Component {
             const {uid} = firebase.auth().currentUser
             this.setState({uid})
             this.setState({login: true})
-            base.syncState(`/users/${uid}`, {
+            base.bindToState(`/users/${uid}`, {
                 context: this,
                 state: 'user'
             }
@@ -58,7 +58,7 @@ class Home extends Component {
         this.setState({login: true})
         this.setState({uid});
 
-        base.syncState(`/users/${uid}`, {
+        base.bindToState(`/users/${uid}`, {
             context: this,
              state: 'user'
           })
@@ -83,12 +83,11 @@ class Home extends Component {
     }
 
     signout(){
-        base.remove(`/users/${this.state.uid}`, (err) =>{
-            if(err){
-                console.log("removing data");
-            }
-            
-        });
+        // base.remove(`/users/${this.state.uid}`, (err) =>{
+        //     if(err){
+        //         console.log("removing data");
+        //     } 
+        // });
         firebase.auth().signOut().then(() => {
             console.log('Signed Out');
             this.setState({login:false});
