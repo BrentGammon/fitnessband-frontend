@@ -40,6 +40,7 @@ class Home extends Component {
         let provider = new firebase.auth.FacebookAuthProvider();
         const result = firebase.auth().signInWithPopup(provider)
         .then((result) => {
+       
         // This gives you a Facebook Access Token. You can use it to access the Facebook API.
         const token = result.credential.accessToken;
         // The signed-in user info.
@@ -49,7 +50,8 @@ class Home extends Component {
             data: {
                 name: displayName,
                 email,
-                photoURL
+                photoURL,
+                uid
             },
             then(err){
                 console.log(err);
@@ -129,6 +131,7 @@ class Home extends Component {
             {this.state.user ? <img src={this.state.user.photoURL} alt="" /> : ''}
             {this.state.user ? <h1>{this.state.user.name}</h1> : ''}
             {this.state.user? <h1>{this.state.user.email}</h1> : ''}
+            {this.state.user? <h1>{this.state.user.uid}</h1> : ''}
           
         </div>
         );
