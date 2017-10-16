@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import UserInputItem from "../../form/UserInputItem";
 import Button from "../../shared/button/Button";
 import axios from "axios";
+import firebase from "firebase";
+
 class Record extends Component {
   constructor() {
     super();
@@ -9,10 +11,20 @@ class Record extends Component {
       stress: null,
       tiredness: null,
       active: null,
-      healthy: null
+      healthy: null,
+      uid: null
     };
     this.updateState = this.updateState.bind(this);
     this.clickHandler = this.clickHandler.bind(this);
+  }
+
+  componentWillMount() {
+    //this.setState({uid : })
+
+    if (firebase.auth().currentUser) {
+      this.setState({ uid: firebase.auth().currentUser.uid });
+    }
+    console.log("qwertyuiop");
   }
 
   updateState(key, value) {
@@ -21,10 +33,14 @@ class Record extends Component {
 
   clickHandler() {
     let object = {
-      stress: this.state.stress,
-      tiredness: this.state.tiredness,
-      active: this.state.active,
-      healthy: this.state.healthy
+      user: {
+        uid: this.state.uid,
+        stress: this.state.stress,
+        tiredness: this.state.tiredness,
+        active: this.state.active,
+        healthy: this.state.healthy
+      },
+      date: new Date().toISOString()
     };
     axios
       .post("http://localhost:3005/user/mood", object)
