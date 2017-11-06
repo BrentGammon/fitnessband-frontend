@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import "./App.scss";
 import Home from "./component/home/Home";
 import Record from "./component/pages/record/Record";
+import QueryPage from "./component/pages/queryPage/QueryPage";
 
 import base from "./base";
 import firebase from "firebase";
@@ -129,6 +130,7 @@ class Routing extends Component {
             )}
           />
           <Route path="/record" render={() => <Record />} />
+          <Route path="/queryPage" render={() => <QueryPage uid={this.state.uid} />}/>
         </div>
       </Router>
     );
