@@ -32,6 +32,7 @@ class Home extends Component {
           User Signed in
         </button>
         <NavLink to="/record">Record</NavLink>
+        <NavLink to="/queryPage">QueryPage</NavLink>
         <br />
         <br />
 
