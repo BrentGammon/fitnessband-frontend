@@ -37,8 +37,11 @@ class QueryPage extends Component {
           this.setState({ error: null });
           this.setState({ result: response.data });
         })
-        .catch(function(error) {
-          console.log(error);
+        .catch(error => {
+          console.log("hello world");
+          console.log(error.response.data.message);
+          this.setState({ result: null });
+          this.setState({ error: error.response.data.message });
         });
     } else {
       this.setState({ error: "Time peroid can't be the same" });
