@@ -12,33 +12,37 @@ class QueryPage extends Component {
       endTime: "",
       comparision: "",
       mood: "",
-      result: null
+      result: null,
+      error: null
     };
     this.clickHandler = this.clickHandler.bind(this);
     this.resultTag = this.resultTag.bind(this);
   }
 
   clickHandler(sd, ed, c, m) {
-    console.log("querfront");
-    let object = {
-      user: {
-        uid: this.props.uid,
-        mood: m,
-        startTime: sd,
-        endTime: ed,
-        comparision: c
-      }
-    };
-    console.log(object);
-    axios
-      .post("http://localhost:3005/fitness/queryPage", object)
-      .then(response => {
-        console.log(response.data);
-        this.setState({ result: response.data });
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    if (sd !== ed) {
+      let object = {
+        user: {
+          uid: this.props.uid,
+          mood: m,
+          startTime: sd,
+          endTime: ed,
+          comparision: c
+        }
+      };
+      axios
+        .post("http://localhost:3005/fitness/queryPage", object)
+        .then(response => {
+          console.log(response.data);
+          this.setState({ error: null });
+          this.setState({ result: response.data });
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    } else {
+      this.setState({ error: "Time peroid can't be the same" });
+    }
   }
 
   clicked() {
@@ -57,6 +61,7 @@ class QueryPage extends Component {
   }
 
   render() {
+    //conditional rendering
     return (
       <div>
         <p>I feel</p>
@@ -107,6 +112,8 @@ class QueryPage extends Component {
         ) : (
           ""
         )}
+
+        {this.state.error ? <p>{this.state.error}</p> : ""}
       </div>
     );
   }
