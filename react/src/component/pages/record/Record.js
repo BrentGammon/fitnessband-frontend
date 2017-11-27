@@ -12,10 +12,6 @@ class Record extends Component {
       tiredness: null,
       active: null,
       healthy: null,
-      alertness: null,
-      happy: null,
-      energy: null,
-      calm: null,
       uid: null
     };
     this.updateState = this.updateState.bind(this);
@@ -42,11 +38,7 @@ class Record extends Component {
         stress: this.state.stress,
         tiredness: this.state.tiredness,
         active: this.state.active,
-        healthy: this.state.healthy,
-        alert: this.state.alert,
-        happy: this.state.happy,
-        energy: this.state.energy,
-        calm: this.state.calm
+        healthy: this.state.healthy
       },
       date: new Date().toISOString()
     };
@@ -68,50 +60,30 @@ class Record extends Component {
         <UserInputItem
           updateState={this.updateState}
           name={"stress"}
-          title={"How stressed do you feel?"}
+          title={"How stressed do you feel at the moment?"}
+          subTitle={"1 = Not stressed at all, 10 = Extremely stressed"}
           value={this.state.stress}
         />
         <UserInputItem
           updateState={this.updateState}
           name={"tiredness"}
-          title={"How tired do you feel?"}
+          title={"How tired do you feel at the moment?"}
+          subTitle={"1 = Not tired at all, 10 = Extremely tired"}
           value={this.state.tiredness}
         />
         <UserInputItem
           updateState={this.updateState}
           name={"active"}
-          title={"How active have you been?"}
+          title={"How active do you think you have been?"}
+          subTitle={"1 = Not active at all, 10 = Extremely active"}
           value={this.state.active}
         />
         <UserInputItem
           updateState={this.updateState}
           name={"healthy"}
-          title={"How healthy do you feel?"}
+          title={"How healthy do you feel at the moment?"}
+          subTitle={"1 = Not healthy at all, 10 = Extremely healthy"}
           value={this.state.healthy}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"alert"}
-          title={"How alert do you feel?"}
-          value={this.state.alert}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"happy"}
-          title={"How happy do you feel?"}
-          value={this.state.happy}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"energy"}
-          title={"How much energy do you have?"}
-          value={this.state.energy}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"calm"}
-          title={"How calm do you feel?"}
-          value={this.state.calm}
         />
         <Button text={"Submit"} clickEvent={this.clickHandler} />
       </div>

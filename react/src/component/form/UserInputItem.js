@@ -14,6 +14,7 @@ class UserInputItem extends Component {
     return (
       <div>
         <h2>{this.props.title}</h2>
+        <p>{this.props.subTitle}</p>
         <input
           onChange={this.updateValue}
           type="range"
