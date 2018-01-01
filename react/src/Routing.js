@@ -5,6 +5,8 @@ import Home from "./component/home/Home";
 import Record from "./component/pages/record/Record";
 import QueryPage from "./component/pages/queryPage/QueryPage";
 
+import RDemo from "./component/pages/rdemo/RDemo";
+
 import base from "./base";
 import firebase from "firebase";
 
@@ -130,7 +132,11 @@ class Routing extends Component {
             )}
           />
           <Route path="/record" render={() => <Record />} />
-          <Route path="/queryPage" render={() => <QueryPage uid={this.state.uid} />}/>
+          <Route
+            path="/queryPage"
+            render={() => <QueryPage uid={this.state.uid} />}
+          />
+          <Route path="/rDemo" render={() => <RDemo />} />
         </div>
       </Router>
     );
