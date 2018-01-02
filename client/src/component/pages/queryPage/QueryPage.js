@@ -79,10 +79,6 @@ class QueryPage extends Component {
           <option value="tiredness">tiredness</option>
           <option value="active">active</option>
           <option value="healthy">healthy</option>
-          <option value="alertness">alertness</option>
-          <option value="happiness">happiness</option>
-          <option value="energy">energy</option>
-          <option value="calmness">calmness</option>
         </select>
 
         <select ref="time1">
