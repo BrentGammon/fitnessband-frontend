@@ -50,7 +50,8 @@ class Routing extends Component {
         // This gives you a Facebook Access Token. You can use it to access the Facebook API.
         const token = result.credential.accessToken;
         // The signed-in user info.
-        const { email, displayName, uid, photoURL } = result.user;
+        const { email, displayName, uid } = result.user;
+        const photoURL = result.user.providerData["0"].photoURL;
 
         base.post(`/users/${uid}`, {
           data: {
