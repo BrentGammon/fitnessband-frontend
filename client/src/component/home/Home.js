@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import logo from "../../logo.svg";
+
 import firebase from "firebase";
 import { NavLink } from "react-router-dom";
+import Header from "../menu/Header";
+import "./home.scss";
+import "./loginbuttons.scss";
 class Home extends Component {
   constructor() {
     super();
@@ -9,30 +12,40 @@ class Home extends Component {
   }
   renderLogIn() {
     return (
-      <button onClick={() => this.props.authenticate()}>facebook login</button>
+      <button
+        className="loginBtn loginBtn--facebook"
+        onClick={() => this.props.authenticate()}
+      >
+        facebook login
+      </button>
     );
   }
 
   render() {
     return (
       <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React new version</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        {/*{console.log(this.state.login)}*/}
+        <Header />
         {!this.props.login ? this.renderLogIn() : ""}
 
-        <button onClick={() => this.props.syncData()}>firebase put data</button>
-        <button onClick={() => this.props.signout()}>sign out</button>
-        <button onClick={() => console.log(firebase.auth().currentUser)}>
+        {/* <button onClick={() => this.props.syncData()}>firebase put data</button> */}
+        {this.props.login ? (
+          <button onClick={() => this.props.signout()}>sign out</button>
+        ) : (
+          ""
+        )}
+
+        {/* <button onClick={() => console.log(firebase.auth().currentUser)}>
           User Signed in
-        </button>
-        <NavLink to="/record">Record</NavLink>
-        <NavLink to="/queryPage">QueryPage</NavLink>
+        </button> */}
+        {this.props.login ? (
+          <div>
+            <NavLink to="/record">Record</NavLink>
+            <NavLink to="/queryPage">QueryPage</NavLink>
+          </div>
+        ) : (
+          ""
+        )}
+
         <br />
         <br />
 
