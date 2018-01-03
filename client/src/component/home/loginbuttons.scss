@@ -54,3 +54,22 @@
   margin-top: 100px;
   display: block;
 }
+
+.signoutBtn {
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 5px;
+  margin-left: auto;
+  margin-top: 10px;
+  margin-right: 10px;
+  display: block;
+}
+
+.signoutBtn:hover {
+  background-color: #d9d9d9;
+  color: #ffffff;
+}
+
+.signoutBtn--text {
+  padding-left: 5px;
+}

@@ -29,7 +29,10 @@ class Home extends Component {
 
         {/* <button onClick={() => this.props.syncData()}>firebase put data</button> */}
         {this.props.login ? (
-          <button onClick={() => this.props.signout()}>sign out</button>
+          <button className="signoutBtn" onClick={() => this.props.signout()}>
+            <i className="fa fa-sign-out" aria-hidden="true" />
+            <span className="signoutBtn--text">Sign Out</span>
+          </button>
         ) : (
           ""
         )}
