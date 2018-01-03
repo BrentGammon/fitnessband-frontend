@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 import Header from "../menu/Header";
 import "./home.scss";
 import "./loginbuttons.scss";
+
 class Home extends Component {
   constructor() {
     super();
@@ -24,7 +25,6 @@ class Home extends Component {
   render() {
     return (
       <div className="App">
-        <Header />
         {!this.props.login ? this.renderLogIn() : ""}
 
         {/* <button onClick={() => this.props.syncData()}>firebase put data</button> */}
@@ -55,7 +55,6 @@ class Home extends Component {
         {this.props.user ? <img src={this.props.user.photoURL} alt="" /> : ""}
         {this.props.user ? <h1>{this.props.user.name}</h1> : ""}
         {this.props.user ? <h1>{this.props.user.email}</h1> : ""}
-        {this.props.user ? <h1>{this.props.user.uid}</h1> : ""}
       </div>
     );
   }

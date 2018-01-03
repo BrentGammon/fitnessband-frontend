@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import Home from "./component/home/Home";
 import Record from "./component/pages/record/Record";
 import QueryPage from "./component/pages/queryPage/QueryPage";
+import Header from "./component/menu/Header";
 
 import RDemo from "./component/pages/rdemo/RDemo";
 
@@ -117,6 +118,7 @@ class Routing extends Component {
     return (
       <Router>
         <div>
+          <Header />
           <Route
             exact
             path="/"
