@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import "./button.scss";
 class Button extends Component {
   constructor() {
     super();
@@ -12,7 +12,11 @@ class Button extends Component {
   }
 
   render() {
-    return <button onClick={this.clickHandler}>{this.props.text}</button>;
+    return (
+      <button className="btn" onClick={this.clickHandler}>
+        {this.props.text}
+      </button>
+    );
   }
 }
 
