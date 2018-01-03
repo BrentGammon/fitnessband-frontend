@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-
 import firebase from "firebase";
-import { NavLink } from "react-router-dom";
 import Header from "../menu/Header";
 import "./home.scss";
 import "./loginbuttons.scss";
@@ -26,20 +24,6 @@ class Home extends Component {
     return (
       <div className="App">
         {!this.props.login ? this.renderLogIn() : ""}
-
-        {/* <button onClick={() => this.props.syncData()}>firebase put data</button> */}
-
-        {/* <button onClick={() => console.log(firebase.auth().currentUser)}>
-          User Signed in
-        </button> */}
-        {this.props.login ? (
-          <div>
-            <NavLink to="/record">Record</NavLink>
-            <NavLink to="/queryPage">QueryPage</NavLink>
-          </div>
-        ) : (
-          ""
-        )}
 
         <br />
         <br />

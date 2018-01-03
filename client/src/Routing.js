@@ -4,9 +4,9 @@ import Home from "./component/home/Home";
 import Record from "./component/pages/record/Record";
 import QueryPage from "./component/pages/queryPage/QueryPage";
 import Header from "./component/menu/Header";
-
+import Navbar from "./component/menu/Navbar";
 import RDemo from "./component/pages/rdemo/RDemo";
-
+import "./routing.scss";
 import base from "./base";
 import firebase from "firebase";
 
@@ -120,13 +120,17 @@ class Routing extends Component {
         <div>
           <Header />
           {this.state.login ? (
-            <button className="signoutBtn" onClick={() => this.signout()}>
-              <i className="fa fa-sign-out" aria-hidden="true" />
-              <span className="signoutBtn--text">Sign Out</span>
-            </button>
+            <div className="topbar">
+              <Navbar />
+              <button className="signoutBtn" onClick={() => this.signout()}>
+                <i className="fa fa-sign-out" aria-hidden="true" />
+                <span className="signoutBtn--text">Sign Out</span>
+              </button>
+            </div>
           ) : (
             ""
           )}
+
           <Route
             exact
             path="/"
