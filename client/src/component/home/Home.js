@@ -3,7 +3,7 @@ import firebase from "firebase";
 import Header from "../menu/Header";
 import "./home.scss";
 import "./loginbuttons.scss";
-
+import UserProfile from "../userprofile/UserProfile";
 class Home extends Component {
   constructor() {
     super();
@@ -24,13 +24,15 @@ class Home extends Component {
     return (
       <div className="App">
         {!this.props.login ? this.renderLogIn() : ""}
-
-        <br />
-        <br />
-
-        {this.props.user ? <img src={this.props.user.photoURL} alt="" /> : ""}
-        {this.props.user ? <h1>{this.props.user.name}</h1> : ""}
-        {this.props.user ? <h1>{this.props.user.email}</h1> : ""}
+        {this.props.user ? (
+          <UserProfile
+            profileImage={this.props.user.photoURL}
+            name={this.props.user.name}
+            email={this.props.user.email}
+          />
+        ) : (
+          ""
+        )}
       </div>
     );
   }

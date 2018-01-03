@@ -6,16 +6,19 @@ import fs from "fs";
 class RDemo extends Component {
   constructor() {
     super();
-    let image = null;
+    this.state = {
+      image: null
+    };
+
     this.displayImage = this.displayImage.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     console.log("hello");
     axios
       .get("http://localhost:3005/demochart")
       .then(response => {
-        this.image = response.data;
+        this.setState({ image: response.data });
       })
       .catch(err => {
         console.log(err);
@@ -23,15 +26,15 @@ class RDemo extends Component {
   }
 
   displayImage() {
-    return this.image;
+    return this.state.image;
   }
 
   render() {
     return (
       <div>
         <p>Hello world</p>
-        {this.image ? (
-          <img src={`data:image/png;base64, ${this.image}`} />
+        {this.state.image ? (
+          <img src={`data:image/png;base64, ${this.state.image}`} />
         ) : (
           console.log("null")
         )}
