@@ -119,6 +119,14 @@ class Routing extends Component {
       <Router>
         <div>
           <Header />
+          {this.state.login ? (
+            <button className="signoutBtn" onClick={() => this.signout()}>
+              <i className="fa fa-sign-out" aria-hidden="true" />
+              <span className="signoutBtn--text">Sign Out</span>
+            </button>
+          ) : (
+            ""
+          )}
           <Route
             exact
             path="/"
