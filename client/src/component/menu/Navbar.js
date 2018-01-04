@@ -7,7 +7,7 @@ class NavBar extends Component {
       <div className="navbar">
         <NavLink to="/">Home</NavLink>
         <NavLink to="/record">Record</NavLink>
-        <NavLink to="/queryPage">QueryPage</NavLink>
+        <NavLink to="/queryPage">Query</NavLink>
         <NavLink to="/rDemo">rDemo</NavLink>
       </div>
     );
