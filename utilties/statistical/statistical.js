@@ -3,14 +3,16 @@ const ttest = require("ttest");
 const Correlation = require("node-correlation");
 
 function welchTTest(dataset1, dataset2, alt) {
+  console.log("WEWEWEWEWEWEWEWEWEWEWEWEWEWE");
   console.log(
     ttest(dataset1, dataset2, {
       mu: 0,
       varEqual: true,
       alpha: 0.3,
       alternative: alt
-    }).pValue()
+    })
   );
+  console.log("WEWEWEWEWEWEWEWEWEWEWEWEWEWE");
   return ttest(dataset1, dataset2, {
     mu: 0,
     varEqual: true,

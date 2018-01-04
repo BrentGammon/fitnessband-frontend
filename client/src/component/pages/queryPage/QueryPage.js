@@ -48,10 +48,8 @@ class QueryPage extends Component {
           this.setState({ result: response.data });
         })
         .catch(error => {
-          console.log("hello world");
-          console.log(error.response.data.message);
           this.setState({ result: null });
-          this.setState({ error: error.response.data.message });
+          this.setState({ error: error.response.data });
         });
     } else {
       this.setState({ error: "Time peroid can't be the same" });
@@ -175,7 +173,11 @@ class QueryPage extends Component {
           ""
         )}
 
-        {this.state.error ? <p>{this.state.error}</p> : ""}
+        {this.state.error ? (
+          <p className="error_text">{this.state.error}</p>
+        ) : (
+          ""
+        )}
       </div>
     );
   }

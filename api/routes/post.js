@@ -479,7 +479,6 @@ routes.post("/fitness/queryPage", async function(req, res) {
 
   const data1 = await client.query(dateOne);
   const data2 = await client.query(dateTwo);
-
   const data1Array = data1.rows;
   const data2Array = data2.rows;
 
@@ -490,15 +489,13 @@ routes.post("/fitness/queryPage", async function(req, res) {
     return item[mood];
   });
 
-  console.log(data1Values);
-  console.log(data2Values);
   //make call here to function that will anayalse the data returned from the database
   await client.end();
 
-  console.log(welchTTest(data1Values, data2Values, comparision));
+  //console.log(welchTTest(data1Values, data2Values, comparision));
 
-  if (data1Values.length === 0 || data2Values.length === 0) {
-    res.status(400).send({ message: "Not enough data to test" });
+  if (data1Values.length < 2 || data2Values.length < 2) {
+    res.status(500).send("Not enough data to test");
   } else {
     res.send(welchTTest(data1Values, data2Values, comparision));
   }
