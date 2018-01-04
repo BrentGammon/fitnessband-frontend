@@ -5,6 +5,7 @@ import axios from "axios";
 import firebase from "firebase";
 import "./record.scss";
 import mapkeys from "lodash.mapkeys";
+import { Redirect } from "react-router";
 class Record extends Component {
   constructor() {
     super();
@@ -148,6 +149,7 @@ class Record extends Component {
         ) : (
           ""
         )}
+        {!this.props.login ? <Redirect to="/" /> : ""}
       </div>
     );
   }

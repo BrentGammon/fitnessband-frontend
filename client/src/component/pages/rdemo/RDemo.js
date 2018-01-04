@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import loadImage from "blueimp-load-image";
+import { Redirect } from "react-router";
 import fs from "fs";
 
 class RDemo extends Component {
@@ -32,6 +33,7 @@ class RDemo extends Component {
   render() {
     return (
       <div>
+        {!this.props.login ? <Redirect to="/" /> : ""}
         <p>Hello world</p>
         {this.state.image ? (
           <img src={`data:image/png;base64, ${this.state.image}`} />

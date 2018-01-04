@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Button from "../../shared/button/Button";
 import axios from "axios";
+import { Redirect } from "react-router";
 
 class QueryPage extends Component {
   constructor() {
@@ -67,6 +68,7 @@ class QueryPage extends Component {
     //conditional rendering
     return (
       <div>
+        {!this.props.login ? <Redirect to="/" /> : ""}
         <p>I feel</p>
 
         <select ref="comparision">

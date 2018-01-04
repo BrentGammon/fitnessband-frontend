@@ -145,12 +145,20 @@ class Routing extends Component {
               />
             )}
           />
-          <Route path="/record" render={() => <Record />} />
+          <Route
+            path="/record"
+            render={() => <Record login={this.state.login} />}
+          />
           <Route
             path="/queryPage"
-            render={() => <QueryPage uid={this.state.uid} />}
+            render={() => (
+              <QueryPage login={this.state.login} uid={this.state.uid} />
+            )}
           />
-          <Route path="/rDemo" render={() => <RDemo />} />
+          <Route
+            path="/rDemo"
+            render={() => <RDemo login={this.state.login} />}
+          />
         </div>
       </Router>
     );
