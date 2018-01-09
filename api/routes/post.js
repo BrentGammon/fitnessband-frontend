@@ -4,20 +4,43 @@ const conString = "postgres://postgres:password@localhost:5432/fitnessInfo";
 const format = require("pg-format");
 const moment = require("moment");
 const cors = require("cors");
+const fs = require("fs");
+const _ = require("lodash");
 
 const { welchTTest } = require("../../utilties/statistical/statistical");
 
 routes.use(cors());
 
-routes.post("/user/sleepData", async function(req, res) {
+routes.post("/user/sleepData", async function (req, res) {
   console.log("sleepData");
   if (req.body.data) {
     const dataModel = req.body.data;
     let sleepObject = {};
     let userID = {};
+    //fs.writeFileSync("DATA.sql", dataModel);
 
-    const values = dataModel.map(item => {
+    //filter out duration of 0
+    const filteredDuration = dataModel.filter(item => {
       const data = JSON.parse(item);
+      userID = Object.keys(data)[0];
+      // console.log("+++++++++++++++++++++++++++++++");
+      // console.log(item);
+      // console.log("+++++++++++++++++++++++++++++++");
+      if (data[userID].hasOwnProperty("sleep_duration") && data[userID].sleep_duration.value !== 0) {
+        return data;
+      }
+      if (data[userID].hasOwnProperty("metadata")) {
+        return data;
+      }
+    });
+
+
+    console.log(1);
+    fs.writeFileSync("filteredDATA.sql", filteredDuration);
+    fs.writeFileSync("DATA.sql", dataModel);
+    const values = filteredDuration.map(item => {
+      const data = JSON.parse(item);
+      //console.log(data[userID]);
       userID = Object.keys(data)[0];
       const endDate = moment(
         data[userID].effective_time_frame.time_interval.end_date_time
@@ -31,6 +54,8 @@ routes.post("/user/sleepData", async function(req, res) {
       }
       return data;
     });
+
+    console.log(2);
     //console.log("=========================");
     const timeKeys = Object.keys(sleepObject);
 
@@ -48,11 +73,11 @@ routes.post("/user/sleepData", async function(req, res) {
                 [item]: { sleepDuration: sleepValue },
                 startTime:
                   items[userID]["effective_time_frame"]["time_interval"][
-                    "start_date_time"
+                  "start_date_time"
                   ],
                 endTime:
                   items[userID]["effective_time_frame"]["time_interval"][
-                    "end_date_time"
+                  "end_date_time"
                   ]
               };
             }
@@ -63,11 +88,11 @@ routes.post("/user/sleepData", async function(req, res) {
                 [item]: { ahr: ahr },
                 startTime:
                   items[userID]["effective_time_frame"]["time_interval"][
-                    "start_date_time"
+                  "start_date_time"
                   ],
                 endTime:
                   items[userID]["effective_time_frame"]["time_interval"][
-                    "end_date_time"
+                  "end_date_time"
                   ]
               };
             }
@@ -77,11 +102,11 @@ routes.post("/user/sleepData", async function(req, res) {
                 [item]: { deepSleep: deepSleep },
                 startTime:
                   items[userID]["effective_time_frame"]["time_interval"][
-                    "start_date_time"
+                  "start_date_time"
                   ],
                 endTime:
                   items[userID]["effective_time_frame"]["time_interval"][
-                    "end_date_time"
+                  "end_date_time"
                   ]
               };
             }
@@ -93,18 +118,18 @@ routes.post("/user/sleepData", async function(req, res) {
               [item]: { sleepDuration: sleepValue },
               startTime:
                 items[userID]["effective_time_frame"]["time_interval"][
-                  "start_date_time"
+                "start_date_time"
                 ],
               endTime:
                 items[userID]["effective_time_frame"]["time_interval"][
-                  "end_date_time"
+                "end_date_time"
                 ]
             }
           ];
         }
       });
     });
-
+    console.log(3);
     let sleepArray = [];
     let deepSleepArray = [];
     let sleepHeartRateArray = [];
@@ -136,6 +161,7 @@ routes.post("/user/sleepData", async function(req, res) {
         }
       });
     });
+    console.log(4);
     saveSleepData(sleepArray);
     saveDeepSleepData(deepSleepArray);
     saveSleepHeartRate(sleepHeartRateArray);
@@ -150,8 +176,10 @@ async function saveSleepData(array) {
     "INSERT INTO sleep (userid, duration, startdate, enddate) VALUES %L",
     array
   );
+  fs.writeFileSync("sleepData.sql", query);
   const data = await client.query(query);
   await client.end();
+  console.log(5);
 }
 
 async function saveDeepSleepData(array) {
@@ -162,8 +190,10 @@ async function saveDeepSleepData(array) {
     "INSERT INTO deepSleep (userid, duration, startdate, enddate) VALUES %L",
     array
   );
+  fs.writeFileSync("deepsleepData.sql", query);
   const data = await client.query(query);
   await client.end();
+  console.log(6);
 }
 
 async function saveSleepHeartRate(array) {
@@ -174,11 +204,13 @@ async function saveSleepHeartRate(array) {
     "INSERT INTO sleepHeartRate (userid, value, startdate, enddate) VALUES %L",
     array
   );
+  fs.writeFileSync("sleepheartrateData.sql", query);
   const data = await client.query(query);
   await client.end();
+  console.log(7);
 }
 
-routes.post("/user/walkingRunningDistance", async function(req, res) {
+routes.post("/user/walkingRunningDistance", async function (req, res) {
   console.log("walking");
   if (req.body.data) {
     const client = new pg.Client(conString);
@@ -201,14 +233,15 @@ routes.post("/user/walkingRunningDistance", async function(req, res) {
       "INSERT INTO walkingrunningdistance (userid, total, startdate, enddate) VALUES %L",
       values
     );
+    fs.writeFileSync("runningdistance.sql", query);
     const data = await client.query(query);
     await client.end();
     res.send(true);
   }
 });
 
-routes.post("/user/activeEnergyBurned", async function(req, res) {
-  //console.log("activeEnergyBurned");
+routes.post("/user/activeEnergyBurned", async function (req, res) {
+  console.log("activeEnergyBurned");
   if (req.body.data) {
     const client = new pg.Client(conString);
     await client.connect();
@@ -228,13 +261,14 @@ routes.post("/user/activeEnergyBurned", async function(req, res) {
       "INSERT INTO activeenergyburned (userid, total, startdate, enddate) VALUES %L",
       values
     );
+    fs.writeFileSync("energyburned.sql", query);
     const data = await client.query(query);
     await client.end();
     res.send(true);
   }
 });
 
-routes.post("/user/flightsClimbed", async function(req, res) {
+routes.post("/user/flightsClimbed", async function (req, res) {
   console.log("flightsClimbed");
   if (req.body.data) {
     const client = new pg.Client(conString);
@@ -253,13 +287,14 @@ routes.post("/user/flightsClimbed", async function(req, res) {
       "INSERT INTO flightsclimbed (userid, total, collectiondate) VALUES %L",
       values
     );
+    fs.writeFileSync("flightsclimbed.sql", query);
     const data = await client.query(query);
     await client.end();
     res.send(true);
   }
 });
 
-routes.post("/user/stepCounter", async function(req, res, next) {
+routes.post("/user/stepCounter", async function (req, res, next) {
   console.log(req);
   if (req.body.data) {
     console.log("stepCounter");
@@ -285,14 +320,14 @@ routes.post("/user/stepCounter", async function(req, res, next) {
       "INSERT INTO stepcounter (userid, total, startdate, enddate) VALUES %L",
       values
     );
-
+    fs.writeFileSync("stepcounter.sql", query);
     const data = await client.query(query);
     await client.end();
     res.send(true);
   }
 });
 
-routes.post("/user/heartrate", async function(req, res) {
+routes.post("/user/heartrate", async function (req, res) {
   console.log(req.body.data);
   console.log("hereing heartrate");
   if (req.body.data) {
@@ -313,14 +348,14 @@ routes.post("/user/heartrate", async function(req, res) {
       values
     );
 
-    fs.writeFileSync("data.sql", query); //temp item to create data for nik
+    fs.writeFileSync("heartrate.sql", query); //temp item to create data for nik
 
     const data = await client.query(query);
     await client.end();
   }
 });
 
-routes.post("/user/mood", async function(req, res) {
+routes.post("/user/mood", async function (req, res) {
   console.log(req.body.user);
   const {
     uid,
@@ -363,7 +398,7 @@ routes.post("/user/mood", async function(req, res) {
   res.send(values);
 });
 
-routes.post("/fitness/queryPage", async function(req, res) {
+routes.post("/fitness/queryPage", async function (req, res) {
   //edit this
   console.log("queryPageTest");
   const client = new pg.Client(conString);
@@ -384,8 +419,8 @@ routes.post("/fitness/queryPage", async function(req, res) {
     case "Today":
       dateOne = format(
         "SELECT " +
-          mood +
-          " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
+        mood +
+        " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
         moment().format("YYYY-MM-DD"), //first selection
         moment()
           .add(1, "days")
@@ -397,8 +432,8 @@ routes.post("/fitness/queryPage", async function(req, res) {
     case "This Week":
       dateOne = format(
         "SELECT " +
-          mood +
-          " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
+        mood +
+        " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
         moment()
           .day("Monday")
           .format("YYYY-MM-DD"), //second selection
@@ -410,8 +445,8 @@ routes.post("/fitness/queryPage", async function(req, res) {
     case "Last Week":
       dateOne = format(
         "SELECT " +
-          mood +
-          " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
+        mood +
+        " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
         moment()
           .subtract(7, "days")
           .format("YYYY-MM-DD"), //second selection
@@ -426,8 +461,8 @@ routes.post("/fitness/queryPage", async function(req, res) {
     case "Today":
       dateTwo = format(
         "SELECT " +
-          mood +
-          " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
+        mood +
+        " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
         moment().format("YYYY-MM-DD"), //first selection
         moment()
           .add(1, "days")
@@ -440,8 +475,8 @@ routes.post("/fitness/queryPage", async function(req, res) {
       //timePeriodComparision = moment().day("Monday");
       dateTwo = format(
         "SELECT " +
-          mood +
-          " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
+        mood +
+        " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
         moment()
           .day("Monday")
           .format("YYYY-MM-DD"), //second selection
@@ -454,8 +489,8 @@ routes.post("/fitness/queryPage", async function(req, res) {
       //timePeriodComparision = moment(today).subtract(7, "days");
       dateTwo = format(
         "SELECT " +
-          mood +
-          " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
+        mood +
+        " FROM userinput WHERE collectiondate BETWEEN %L AND %L AND userid = %L", //edit
         moment()
           .subtract(7, "days")
           .format("YYYY-MM-DD"), //second selection
@@ -504,7 +539,7 @@ routes.post("/fitness/queryPage", async function(req, res) {
   //if none rows are returned send error
 });
 
-routes.post("/user/lastSync/:userid", async function(req, res) {
+routes.post("/user/lastSync/:userid", async function (req, res) {
   console.log("here");
   const client = new pg.Client(conString);
   await client.connect();
