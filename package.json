@@ -2,14 +2,14 @@
   "name": "express_server",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
   "scripts": {
     "client-install": "cd client && npm install",
     "install-dep": "npm install && npm run client-install",
-    "start": "node server.js",
-    "server": "nodemon server.js",
+    "start": "cd server && node index.js",
+    "server": "cd server && nodemon index.js",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "prod": "cd client && npm run build && cd .. && node server/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "lodash": "^4.17.4",
     "lodash.has": "^4.5.2",
     "moment": "^2.19.1",
+    "morgan": "^1.9.0",
     "node-correlation": "^1.0.2",
     "pg": "^7.3.0",
     "pg-format": "^1.0.4",

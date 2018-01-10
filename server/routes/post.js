@@ -1,4 +1,5 @@
 const routes = require("express").Router();
+const express = require("express");
 const pg = require("pg");
 const conString = "postgres://postgres:password@localhost:5432/fitnessInfo";
 const format = require("pg-format");
@@ -6,7 +7,8 @@ const moment = require("moment");
 const cors = require("cors");
 const fs = require("fs");
 const _ = require("lodash");
-
+const app = express();
+app.disable('view cache');
 const { welchTTest } = require("../../utilties/statistical/statistical");
 
 routes.use(cors());
@@ -370,7 +372,7 @@ routes.post("/user/mood", async function (req, res) {
   } = req.body.user;
   const date = req.body.date;
   if (uid) {
-    //console.log("here");
+    console.log("here");
     const client = new pg.Client(conString);
     await client.connect();
     values = [
@@ -539,7 +541,7 @@ routes.post("/fitness/queryPage", async function (req, res) {
   //if none rows are returned send error
 });
 
-routes.post("/user/lastSync/:userid", async function (req, res) {
+routes.post("/user/updateSync/:userid", async function (req, res) {
   console.log("here");
   const client = new pg.Client(conString);
   await client.connect();

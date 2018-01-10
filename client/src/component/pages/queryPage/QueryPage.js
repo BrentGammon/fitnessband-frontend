@@ -41,7 +41,7 @@ class QueryPage extends Component {
         }
       };
       axios
-        .post("http://localhost:3005/fitness/queryPage", object)
+        .post("/api/post/fitness/queryPage", object)
         .then(response => {
           console.log(response.data);
           this.setState({ error: null });
@@ -167,17 +167,17 @@ class QueryPage extends Component {
           this.state.result ? (
             <p>Result: True</p>
           ) : (
-            <p>Result: False</p>
-          )
+              <p>Result: False</p>
+            )
         ) : (
-          ""
-        )}
+            ""
+          )}
 
         {this.state.error ? (
           <p className="error_text">{this.state.error}</p>
         ) : (
-          ""
-        )}
+            ""
+          )}
       </div>
     );
   }

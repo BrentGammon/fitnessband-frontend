@@ -17,7 +17,7 @@ class RDemo extends Component {
   componentDidMount() {
     console.log("hello");
     axios
-      .get("http://localhost:3005/demochart")
+      .get("/api/get/demochart")
       .then(response => {
         this.setState({ image: response.data });
       })
@@ -38,8 +38,8 @@ class RDemo extends Component {
         {this.state.image ? (
           <img src={`data:image/png;base64, ${this.state.image}`} />
         ) : (
-          console.log("null")
-        )}
+            console.log("null")
+          )}
       </div>
     );
   }

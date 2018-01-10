@@ -39,6 +39,7 @@ class Record extends Component {
   }
 
   clickHandler() {
+    console.log("clickly click mother fucker")
     let object = {
       user: {
         uid: this.state.uid,
@@ -53,15 +54,15 @@ class Record extends Component {
       },
       date: new Date().toISOString()
     };
-    const keyValues = Object.values(object).includes(null);
-    console.log(keyValues);
-    if (keyValues !== false) {
+    const keyValues = Object.values(object.user).includes(null);
+    if (!keyValues) {
+      this.setState({ error: [] });
       axios
-        .post("http://localhost:3005/user/mood", object)
-        .then(function(response) {
+        .post("/api/post/user/mood", object)
+        .then(function (response) {
           console.log(response);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     } else {
@@ -147,8 +148,8 @@ class Record extends Component {
         {this.state.error.length > 0 ? (
           <h1>The questions marked in red are mandatory</h1>
         ) : (
-          ""
-        )}
+            ""
+          )}
         {!this.props.login ? <Redirect to="/" /> : ""}
       </div>
     );
