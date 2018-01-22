@@ -364,11 +364,7 @@ routes.post("/user/mood", async function (req, res) {
     stress,
     tiredness,
     active,
-    healthy,
-    alert,
-    happy,
-    energy,
-    calm
+    healthy
   } = req.body.user;
   const date = req.body.date;
   if (uid) {
@@ -381,16 +377,12 @@ routes.post("/user/mood", async function (req, res) {
         stress,
         tiredness,
         active,
-        healthy,
-        alert,
-        happy,
-        energy,
-        calm,
+        healthy
         date
       ]
     ];
     const query = format(
-      "INSERT INTO userinput (userid, stresslevel,tirednesslevel,activitylevel,healthinesslevel,alertnesslevel,happinesslevel,energylevel,calmnesslevel,collectiondate) VALUES %L",
+      "INSERT INTO userinput (userid, stresslevel,tirednesslevel,activitylevel,healthinesslevel,collectiondate) VALUES %L",
       values
     );
     console.log(query);
@@ -523,7 +515,7 @@ routes.post("/fitness/queryPage", async function (req, res) {
     return item[mood];
   });
   const data2Values = data2Array.map(item => {
-    return item[mood];
+    return item[mood];x
   });
 
   //make call here to function that will anayalse the data returned from the database
