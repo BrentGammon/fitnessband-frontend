@@ -377,7 +377,7 @@ routes.post("/user/mood", async function (req, res) {
         stress,
         tiredness,
         active,
-        healthy
+        healthy,
         date
       ]
     ];
