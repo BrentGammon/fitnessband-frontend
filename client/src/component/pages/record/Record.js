@@ -14,10 +14,6 @@ class Record extends Component {
       tiredness: null,
       active: null,
       healthy: null,
-      alertness: null,
-      happy: null,
-      energy: null,
-      calm: null,
       uid: null,
       error: []
     };
@@ -46,11 +42,7 @@ class Record extends Component {
         stress: this.state.stress,
         tiredness: this.state.tiredness,
         active: this.state.active,
-        healthy: this.state.healthy,
-        alert: this.state.alertness,
-        happy: this.state.happy,
-        energy: this.state.energy,
-        calm: this.state.calm
+        healthy: this.state.healthy
       },
       date: new Date().toISOString()
     };
@@ -115,34 +107,6 @@ class Record extends Component {
           title={"How healthy do you feel?"}
           value={this.state.healthy}
           error={this.state.error.includes("healthy")}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"alertness"}
-          title={"How alert do you feel?"}
-          value={this.state.alertness}
-          error={this.state.error.includes("alert")}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"happy"}
-          title={"How happy do you feel?"}
-          value={this.state.happy}
-          error={this.state.error.includes("happy")}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"energy"}
-          title={"How much energy do you have?"}
-          value={this.state.energy}
-          error={this.state.error.includes("energy")}
-        />
-        <UserInputItem
-          updateState={this.updateState}
-          name={"calm"}
-          title={"How calm do you feel?"}
-          value={this.state.calm}
-          error={this.state.error.includes("calm")}
         />
         <Button text={"Submit"} clickEvent={this.clickHandler} />
         {this.state.error.length > 0 ? (
