@@ -96,6 +96,7 @@ class QueryPage extends Component {
       query2mood: "",
       query2watch: "",
       query2date: "",
+      query2duration: "",
     };
     this.clickHandler = this.clickHandler.bind(this);
     this.resultTag = this.resultTag.bind(this);
@@ -167,13 +168,14 @@ class QueryPage extends Component {
     }
   }
 
-  clickHandlerq2(q2m, q2w, q2d){
+  clickHandlerq2(q2m, q2w, q2d, q2du){
     let object = {
       user: {
         uid: this.props.uid,
         query2mood: q2m,
         query2watch: q2w,
         query2date: q2d,
+        query2duration: q2du,
       }
     };
     axios
@@ -202,7 +204,8 @@ class QueryPage extends Component {
     this.clickHandlerq2(
       this.refs.query2mood.value,
       this.refs.query2watch.value,
-      this.state.query2date,     
+      this.state.query2date,
+      this.refs.query2duration.value,     
    );
   }  
 
@@ -426,6 +429,12 @@ class QueryPage extends Component {
           </DatePicker>
         </div>
       </div>
+      <span>for the duration of</span>
+      <select ref="query2duration">
+          <option value="Today">Today</option>
+          <option value="Week">Week</option>
+          <option value="Month">Month</option>
+        </select>     
 
       <button
           className="btn"
