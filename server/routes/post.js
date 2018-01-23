@@ -99,6 +99,7 @@ routes.post("/user/sleepData", async function (req, res) {
               };
             }
             if (i.key === "Deep Sleep") {
+              console.log("deep sleep");
               const deepSleep = i["value"];
               return {
                 [item]: { deepSleep: deepSleep },
