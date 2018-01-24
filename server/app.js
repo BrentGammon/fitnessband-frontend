@@ -11,7 +11,7 @@ const moment = require("moment");
 const _ = require("lodash");
 const morgan = require('morgan');
 const api = require('./routes/api');
-
+const firebase = require('firebase');
 
 const app = express();
 app.disable('view cache');
@@ -27,9 +27,17 @@ app.use(
 );
 app.use(bodyParser.json({ type: "application/*+json" }));
 
+const app_fire = firebase.initializeApp({
+    apiKey: "AIzaSyB7X6pOPyEnb7yFS8FuE4CdzqFSiEe7Ec4",
+    authDomain: "reactdemo-b1425.firebaseapp.com",
+    databaseURL: "https://reactdemo-b1425.firebaseio.com/",
+})
 
+
+// adding the api routes to express
 app.use('/api', api);
 
+// disaling cors for lcoal development 
 app.use(cors());
 
 // logging
@@ -38,7 +46,7 @@ app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:htt
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '..', './client/build')));
 
-
+// if not using api endpoint default will server the static react app 
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '..', './client/build', 'index.html'));
 });

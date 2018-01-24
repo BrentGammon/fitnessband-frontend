@@ -12,25 +12,41 @@ const app = express();
 app.disable('view cache');
 routes.use(cors());
 
-routes.get('/test', (req, res) => {
-  res.send('get api worked!');
+//const base = require("../../client/src/base");
+const firebase = require("firebase");
+
+
+// const app_fire = firebase.initializeApp({
+//   apiKey: "AIzaSyB7X6pOPyEnb7yFS8FuE4CdzqFSiEe7Ec4",
+//   authDomain: "reactdemo-b1425.firebaseapp.com",
+//   databaseURL: "https://reactdemo-b1425.firebaseio.com/",
+// })
+
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   databaseURL: "https://reactdemo-b1425.firebaseio.com"
+// });
+
+const admin = require('../firebaseconfig/firebaseAdmin');
+
+
+routes.get('/test/:id', async (req, res) => {
+  const result = firebase.auth();
+  const idToken = req.params.id;
+  //console.log(admin.auth().verifyIdToken(req.params.id, true));
+  await admin.admin.auth().verifyIdToken(idToken)
+    .then(function (decodedToken) {
+      var uid = decodedToken.uid;
+      console.log("++++++++++++++++++++++++++++++++++++++")
+      console.log(uid);
+      res.send('get api worked!');
+      console.log("++++++++++++++++++++++++++++++++++++++")
+    }).catch(function (error) {
+      res.status(401).send("Unauthorized");
+    });
 });
 
-// routes.get("/test", async function(req, res) {
-//   const client = new pg.Client(conString);
-//   await client.connect();
-//   const data = await client.query("SELECT * FROM userid");
-//   await client.end();
-//   //console.log(data.rows[0]);
-//   res.send(data.rows[0]);
-// });
-
-//end point
-// routes.get("", async function(req, res) {
-//   await client.connect();
-//   const data = await client.query("SELECT * FROM userid");
-//   await client.end();
-// });
 
 routes.get("/user/lastSync/:userid", async function (req, res) {
   const client = new pg.Client(conString);

@@ -4,6 +4,10 @@ import axios from "axios";
 import { Redirect } from "react-router";
 import "./querypage.scss";
 
+
+import base from "../../../base";
+import firebase from "firebase";
+
 class QueryPage extends Component {
   constructor() {
     super();
@@ -27,6 +31,37 @@ class QueryPage extends Component {
     this.timeOptions2 = this.timeOptions2.bind(this);
     this.filterOption1 = this.filterOption1.bind(this);
     this.filterOption2 = this.filterOption2.bind(this);
+  }
+
+  componentWillMount() {
+    let provider = new firebase.auth.FacebookAuthProvider();
+    firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
+      console.log(idToken);
+      axios.get('/api/get/test/' + idToken).then(response => {
+        console.log(response)
+      }).catch(error => {
+        console.log(error);
+      })
+    }).catch(function (error) {
+      console.log(error);
+    })
+
+
+    // .signInWithPopup(provider)
+    // .then(result => {
+    //   // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+    //   const token = result.credential.accessToken;
+
+    // }).catch(function (error) {
+    //   console.log(error);
+    // });
+    // axios.get('/api/get/test')
+    //   .then(response => {
+    //     console.log(response);
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
   }
 
   clickHandler(sd, ed, c, m) {

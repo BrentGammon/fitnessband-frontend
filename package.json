@@ -19,6 +19,8 @@
     "concurrently": "^3.5.1",
     "cors": "^2.8.4",
     "express": "^4.16.2",
+    "firebase": "^4.8.2",
+    "firebase-admin": "^5.8.0",
     "jStat": "^1.7.1",
     "lodash": "^4.17.4",
     "lodash.has": "^4.5.2",
@@ -27,6 +29,7 @@
     "node-correlation": "^1.0.2",
     "pg": "^7.3.0",
     "pg-format": "^1.0.4",
+    "re-base": "^3.2.1",
     "ttest": "^1.1.0"
   },
   "devDependencies": {
