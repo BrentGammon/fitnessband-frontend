@@ -106,19 +106,24 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const data1 = await client.query(query1);
     const data2 = await client.query(query2);
     await client.end();
-
-    axios.get('http://localhost:8000/correlation', {
-        dataset1: data1,
-        dataset2: data2
+    console.log(data1.rows[0]);
+    axios.post('http://localhost:8000/correlation', {
+        dataset1: data1.rows,
+        dataset2: data2.rows
     }).then(response => {
-        console.log(response.data);
+        console.log("Response");
+        //console.log(response);
+        res.send(response.data);
     }).catch(error => {
-        console.log(error.data);
+        console.log("Error");
+       // console.log(error);
+        res.send(error.data);
     });
 
     const response1 = data1.rows;
     const response2 = data2.rows;
-    res.send(response1 + response2);
+
+    //res.send(r);
 });
 
 
