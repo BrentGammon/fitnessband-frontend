@@ -145,19 +145,22 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     //fs.writeFileSync("dataset1.json", data1.rows);
     // fs.writeFileSync("dataset2.json", data2.rows);
 
-    axios.post('http://localhost:8000/correlation', {
-        dataset1: data1.rows,
-        dataset2: data2.rows
-    }).then(response => {
-        console.log("Response");
-        //console.log(response);
-        //res.send(response.data);
-        res.send(new Buffer(response.data, "binary").toString("base64"))
-    }).catch(error => {
-        console.log("Error");
-        // console.log(error);
-        res.send(error.data);
-    });
+    // axios.post('http://localhost:8000/correlation', {
+    //     dataset1: data1.rows,
+    //     dataset2: data2.rows
+    // }).then(response => {
+    //     console.log("Response");
+    //     //console.log(response);
+    //     //res.send(response.data);
+    //     res.send(await getBase64("http://localhost:8000/", 'get'));
+    // }).catch(error => {
+    //     console.log("Error");
+    //     // console.log(error);
+    //     res.send(error.data);
+    // });
+    res.send(await getBase64("http://localhost:8000/correlation", 'post', 
+        data1.rows,
+       data2.rows));
     //res.send(await getBase64("http://localhost:8000/correlation", 'post', { data1, data2 }));
 
 
@@ -166,9 +169,9 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
 
 
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
-async function getBase64(url, httpMethod, data) {
+async function getBase64(url, httpMethod, data1,data2) {
     let value = null;
-    let info = {};
+    let data = {};
     if (data !== null) {
         if (httpMethod === 'get') {
             params: {
@@ -177,13 +180,15 @@ async function getBase64(url, httpMethod, data) {
         }
 
         if (httpMethod === 'post') {
-            data: data
+            data = {dataset1: data1,
+            dataset2: data2
+            }
         }
     }
     return await axios({
         method: httpMethod,
         url,
-        info,
+        data,
         responseType: "arraybuffer"
     }).then(
         response =>
