@@ -11,7 +11,7 @@ const axios = require("axios");
 const app = express();
 app.disable('view cache');
 routes.use(cors());
-
+const fs = require('fs');
 
 //const base = require("../../client/src/base");
 const firebase = require("firebase");
@@ -80,16 +80,19 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     let data1 = req.query.data1.map(item => {
         return parseInt(item);
     });
+    fs.writeFileSync("dataset1.json", data1);
+
     let data2 = req.query.data2.map(item => {
         return parseInt(item);
     });
+    fs.writeFileSync("dataset2.json", data2);
     let result = stats.correlation(data1, data2);
     console.log(result);
     res.send(result);
 });
 
 routes.get("/demoChart", async function (req, res) {
-    res.send(await getBase64("http://localhost:8000/plot"));
+    res.send(await getBase64("http://localhost:8000/plot", 'get'));
 });
 
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async function (req, res) {
@@ -106,7 +109,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     switch (duration) {
         case "Week":
             enddate = moment(new Date(startdate) - 7).format("YYYY-MM-DD");
-            console.log(enddate);
+            //console.log(enddate);
             break;
         case "Month":
             enddate = moment(new Date(startdate) - 30).format("YYYY-MM-DD");
@@ -121,42 +124,78 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
         "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
 
+
+    console.log(query1);
+
     const data1 = await client.query(query1);
     const data2 = await client.query(query2);
     await client.end();
-    console.log(data1.rows[0]);
+    //console.log(data1.rows[0]);
+
+    // save to file so we can play with R
+
+
+    //
+    // data1.rows.map(item => {
+    //     fs.appendFile('dataset1.json', JSON.stringify(item))
+    //     fs.appendFile('dataset1.json', '\n')
+    // })
+
+    //console.log(JSON.parse(data1.rows));
+    //fs.writeFileSync("dataset1.json", data1.rows);
+    // fs.writeFileSync("dataset2.json", data2.rows);
+
     axios.post('http://localhost:8000/correlation', {
         dataset1: data1.rows,
         dataset2: data2.rows
     }).then(response => {
         console.log("Response");
         //console.log(response);
-        res.send(response.data);
+        //res.send(response.data);
+        res.send(new Buffer(response.data, "binary").toString("base64"))
     }).catch(error => {
         console.log("Error");
         // console.log(error);
         res.send(error.data);
     });
+    //res.send(await getBase64("http://localhost:8000/correlation", 'post', { data1, data2 }));
 
-    const response1 = data1.rows;
-    const response2 = data2.rows;
 
     //res.send(r);
 });
 
 
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
-async function getBase64(url) {
+async function getBase64(url, httpMethod, data) {
     let value = null;
-    return await axios
-        .get(url, {
-            responseType: "arraybuffer"
-        })
-        .then(
+    let info = {};
+    if (data !== null) {
+        if (httpMethod === 'get') {
+            params: {
+                data
+            }
+        }
+
+        if (httpMethod === 'post') {
+            data: data
+        }
+    }
+    return await axios({
+        method: httpMethod,
+        url,
+        info,
+        responseType: "arraybuffer"
+    }).then(
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
-        );
+        ).catch(error => {
+            console.log("Error");
+            // console.log(error);
+            res.send(error.data);
+        });
     return value;
 }
 
+
 module.exports = routes;
+
