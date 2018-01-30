@@ -21,6 +21,7 @@ import TimePickerPanel from 'rc-time-picker/lib/Panel';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import 'moment/locale/en-gb';
+import loadImage from "blueimp-load-image";
 
 const format = 'YYYY-MM-DD HH:mm:ss';
 const cn = location.search.indexOf('cn') !== -1;
@@ -95,24 +96,27 @@ class QueryPage extends Component {
       showDateInput: true,
       disabled: false,
       value: props.defaultValue,
-      query2mood: "",
-      query2watch: "",
-      query2date: "",
-      query2duration: "",
+      query1watch: "",
+      query1watch2: "",
+      query1date: "",
+      query1duration: "",
+      image: null,
     };
     this.clickHandler = this.clickHandler.bind(this);
+    this.clickHandlerq1 = this.clickHandlerq1.bind(this);
     this.resultTag = this.resultTag.bind(this);
     this.timeOptions1 = this.timeOptions1.bind(this);
     this.timeOptions2 = this.timeOptions2.bind(this);
     this.filterOption1 = this.filterOption1.bind(this);
     this.filterOption2 = this.filterOption2.bind(this);
     this.dateState = this.dateState.bind(this);
+    //this.displayImage = this.displayImage.bind(this);
   }
 
   dateState(e) {
     console.log("date picker")
     this.setState({
-      //query2date: e.target.value
+      //query1date: e.target.value
     });
   }
 
@@ -122,7 +126,7 @@ class QueryPage extends Component {
     this.setState({
       value
     });
-    this.setState({ query2date: value.format(format) });
+    this.setState({ query1date: value.format(format) });
   }
 
   onShowTimeChange = (e) => {
@@ -201,22 +205,31 @@ class QueryPage extends Component {
     }
   }
 
-  clickHandlerq2(q2m, q2w, q2d, q2du) {
+  clickHandlerq1(q1w, q1w2, q1d, q1du) {
     let object = {
       user: {
         uid: this.props.uid,
-        query2mood: q2m,
-        query2watch: q2w,
-        query2date: q2d,
-        query2duration: q2du,
+        query1watch: q1w,
+        query1watch2: q1w2,
+        query1date: q1d,
+        query1duration: q1du,
       }
     };
     axios
-      .get("/api/get/fitness/queryPage", object)
+      .get("/api/get/query1/", {
+        params : {
+          userid : object.user.uid,
+          parameter1 : object.user.query1watch,
+          parameter2 : object.user.query1watch2,
+          date : object.user.query1date,
+          duration : object.user.query1duration
+        }
+      })
       .then(response => {
-        console.log(response.data);
-        this.setState({ error: null });
-        this.setState({ result: response.data });
+        this.setState({ image: response.data });
+        //console.log(response.data);
+        //this.setState({ error: null });
+        //this.setState({ result: response.data });
       })
       .catch(error => {
         this.setState({ result: null });
@@ -233,12 +246,12 @@ class QueryPage extends Component {
     );
   }
 
-  clickedq2() {
-    this.clickHandlerq2(
-      this.refs.query2mood.value,
-      this.refs.query2watch.value,
-      this.state.query2date,
-      this.refs.query2duration.value,
+  clickedq1() {
+    this.clickHandlerq1(
+      this.refs.query1watch.value,
+      this.refs.query1watch2.value,
+      this.state.query1date,
+      this.refs.query1duration.value,
     );
   }
 
@@ -374,27 +387,28 @@ class QueryPage extends Component {
             ""
           )}
 
-        <h2>Query 2:</h2>
+        <h2>Query 1:</h2>
         <span>I would like to see if</span>
-        <select ref="query2mood">
-          <option value="stress">Stress</option>
-          <option value="tiredness">Tiredness</option>
-          <option value="active">Activity Level</option>
-          <option value="healthy">Health</option>
-          <option value="alert">Alertness</option>
-          <option value="happy">Happiness</option>
-          <option value="energy">Energy Level</option>
-          <option value="calm">Calmness</option>
+        <select ref="query1watch">
+        <option value="activeenergyburned">ActivityLevel</option>
+        <option value="deepsleep">DeepSleep</option>
+        <option value="flightsclimbed">FlightsClimbed</option>
+        <option value="heartrate">HeartRate</option>
+        <option value="sleep">Sleep</option>
+        <option value="sleepheartrate">SleepHeartRate</option>
+        <option value="stepcounter">StepCounter</option>
+        <option value="walkingrunningdistance">WalkingRunningDistance</option>
         </select>
         <span>is related to</span>
-        <select ref="query2watch">
-          <option value="Active">Activity Level</option>
-          <option value="DeepSleep">DeepSleep</option>
-          <option value="FlightsClimbed">FlightsClimbed</option>
-          <option value="HeartRate">HeartRate</option>
-          <option value="Sleep">Sleep</option>
-          <option value="SleepHeartRate">SleepHeartRate</option>
-          <option value="WalkingRunningDistance">WalkingRunningDistance</option>
+        <select ref="query1watch2">
+          <option value="activeenergyburned">ActivityLevel</option>
+          <option value="deepsleep">DeepSleep</option>
+          <option value="flightsclimbed">FlightsClimbed</option>
+          <option value="heartrate">HeartRate</option>
+          <option value="sleep">Sleep</option>
+          <option value="sleepheartrate">SleepHeartRate</option>
+          <option value="stepcounter">StepCounter</option>
+          <option value="walkingrunningdistance">WalkingRunningDistance</option>
         </select>
         <span>during</span>
 
@@ -446,7 +460,7 @@ class QueryPage extends Component {
                 ({ value }) => {
                   return (
                     <span tabIndex="0">
-                      <input ref="query2DateValue" onChange={this.dateState}
+                      <input ref="query1DateValue" onChange={this.dateState}
                         placeholder="please select"
                         style={{ width: 250 }}
                         disabled={state.disabled}
@@ -463,7 +477,7 @@ class QueryPage extends Component {
           </div>
         </div>
         <span>for the duration of</span>
-        <select ref="query2duration">
+        <select ref="query1duration">
           <option value="Today">Today</option>
           <option value="Week">Week</option>
           <option value="Month">Month</option>
@@ -472,12 +486,19 @@ class QueryPage extends Component {
         <button
           className="btn"
           onClick={e => {
-            this.clickedq2();
+            this.clickedq1();
           }}
         >
           Submit
         </button>
 
+
+        {this.state.image ? (
+          <img src={`data:image/png;base64, ${this.state.image}`} />
+        ) : (
+            console.log("null")
+          )}
+      
       </div>
     );
   }

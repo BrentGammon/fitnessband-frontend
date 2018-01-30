@@ -160,7 +160,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     // });
     res.send(await getBase64("http://localhost:8000/correlation", 'post', 
         data1.rows,
-       data2.rows));
+       data2.rows, parameter1, parameter2));
     //res.send(await getBase64("http://localhost:8000/correlation", 'post', { data1, data2 }));
 
 
@@ -169,7 +169,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
 
 
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
-async function getBase64(url, httpMethod, data1,data2) {
+async function getBase64(url, httpMethod, data1,data2,parameter1,parameter2) {
     let value = null;
     let data = {};
     if (data !== null) {
@@ -181,7 +181,9 @@ async function getBase64(url, httpMethod, data1,data2) {
 
         if (httpMethod === 'post') {
             data = {dataset1: data1,
-            dataset2: data2
+            dataset2: data2,
+            parameter1,
+            parameter2
             }
         }
     }
