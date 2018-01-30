@@ -17,7 +17,6 @@ const fs = require('fs');
 const firebase = require("firebase");
 
 
-
 // const app_fire = firebase.initializeApp({
 //   apiKey: "AIzaSyB7X6pOPyEnb7yFS8FuE4CdzqFSiEe7Ec4",
 //   authDomain: "reactdemo-b1425.firebaseapp.com",
@@ -107,14 +106,13 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     let enddate;
 
     switch (duration) {
-        case "Week":
+        case "week":
             enddate = moment(new Date(startdate) - 7).format("YYYY-MM-DD");
-            //console.log(enddate);
             break;
-        case "Month":
+        case "month":
             enddate = moment(new Date(startdate) - 30).format("YYYY-MM-DD");
             break;
-        case "Day":
+        case "day":
             enddate = moment(new Date(startdate) - 1).format("YYYY-MM-DD");
     }
 
@@ -130,37 +128,13 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const data1 = await client.query(query1);
     const data2 = await client.query(query2);
     await client.end();
-    //console.log(data1.rows[0]);
 
-    // save to file so we can play with R
-
-
-    //
-    // data1.rows.map(item => {
-    //     fs.appendFile('dataset1.json', JSON.stringify(item))
-    //     fs.appendFile('dataset1.json', '\n')
-    // })
-
-    //console.log(JSON.parse(data1.rows));
-    //fs.writeFileSync("dataset1.json", data1.rows);
-    // fs.writeFileSync("dataset2.json", data2.rows);
-
-    // axios.post('http://localhost:8000/correlation', {
-    //     dataset1: data1.rows,
-    //     dataset2: data2.rows
-    // }).then(response => {
-    //     console.log("Response");
-    //     //console.log(response);
-    //     //res.send(response.data);
-    //     res.send(await getBase64("http://localhost:8000/", 'get'));
-    // }).catch(error => {
-    //     console.log("Error");
-    //     // console.log(error);
-    //     res.send(error.data);
-    // });
-    res.send(await getBase64("http://localhost:8000/correlation", 'post', 
+    res.send(await getBase64("http://localhost:8000/correlation", 'post',
         data1.rows,
-       data2.rows));
+        data2.rows,
+        parameter1,
+        parameter2
+    ));
     //res.send(await getBase64("http://localhost:8000/correlation", 'post', { data1, data2 }));
 
 
@@ -169,7 +143,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
 
 
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
-async function getBase64(url, httpMethod, data1,data2) {
+async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) {
     let value = null;
     let data = {};
     if (data !== null) {
@@ -180,8 +154,11 @@ async function getBase64(url, httpMethod, data1,data2) {
         }
 
         if (httpMethod === 'post') {
-            data = {dataset1: data1,
-            dataset2: data2
+            data = {
+                dataset1: data1,
+                dataset2: data2,
+                parameter1:parameter1,
+                parameter2:parameter2
             }
         }
     }
@@ -193,11 +170,11 @@ async function getBase64(url, httpMethod, data1,data2) {
     }).then(
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
-        ).catch(error => {
-            console.log("Error");
-            // console.log(error);
-            res.send(error.data);
-        });
+    ).catch(error => {
+        console.log("Error");
+        // console.log(error);
+        res.send(error.data);
+    });
     return value;
 }
 
