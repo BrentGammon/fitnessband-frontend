@@ -102,26 +102,27 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
     const startdate = req.params.date;
-    const duration = req.params.duration;
+    const duration = req.params.duration.toLowerCase();
     let enddate;
 
 
     if (duration === "month") {
         enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
+        console.log("monthy")
     } else if (duration === "week") {
+        console.log("weeky")
         enddate = moment(new Date(startdate)).subtract(7, 'days').format("YYYY-MM-DD");
     } else if (duration === "day ") {
+        console.log("day")
         enddate = moment(new Date(startdate)).subtract(1, 'days').format("YYYY-MM-DD");
     }
+
 
     const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
         "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
 
     const query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
         "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
-
-
-    console.log(query1);
 
     const data1 = await client.query(query1);
     const data2 = await client.query(query2);
@@ -164,11 +165,11 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
     }).then(
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
-    ).catch(error => {
-        console.log("Error");
-        // console.log(error);
-        res.send(error.data);
-    });
+        ).catch(error => {
+            console.log("Error");
+            // console.log(error);
+            res.send(error.data);
+        });
     return value;
 }
 

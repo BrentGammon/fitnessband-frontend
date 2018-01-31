@@ -147,36 +147,38 @@ class QueryPage extends Component {
     });
   }
 
-  componentWillMount() {
-    let provider = new firebase.auth.FacebookAuthProvider();
-    firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
-      console.log(idToken);
-      axios.get('/api/get/test/' + idToken).then(response => {
-        console.log(response)
-      }).catch(error => {
-        console.log(error);
-      })
-    }).catch(function (error) {
-      console.log(error);
-    })
+
+  //DONT DELETE 
+  // componentWillMount() {
+  //   let provider = new firebase.auth.FacebookAuthProvider();
+  //   firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
+  //     console.log(idToken);
+  //     axios.get('/api/get/test/' + idToken).then(response => {
+  //       console.log(response)
+  //     }).catch(error => {
+  //       console.log(error);
+  //     })
+  //   }).catch(function (error) {
+  //     console.log(error);
+  //   })
 
 
-    // .signInWithPopup(provider)
-    // .then(result => {
-    //   // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-    //   const token = result.credential.accessToken;
+  // .signInWithPopup(provider)
+  // .then(result => {
+  //   // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+  //   const token = result.credential.accessToken;
 
-    // }).catch(function (error) {
-    //   console.log(error);
-    // });
-    // axios.get('/api/get/test')
-    //   .then(response => {
-    //     console.log(response);
-    //   })
-    //   .catch(err => {
-    //     console.log(err);
-    //   });
-  }
+  // }).catch(function (error) {
+  //   console.log(error);
+  // });
+  // axios.get('/api/get/test')
+  //   .then(response => {
+  //     console.log(response);
+  //   })
+  //   .catch(err => {
+  //     console.log(err);
+  //   });
+  //}
 
   clickHandler(sd, ed, c, m) {
     if (sd !== ed) {
@@ -206,25 +208,27 @@ class QueryPage extends Component {
   }
 
   clickHandlerq1(q1w, q1w2, q1d, q1du) {
-    let object = {
-      user: {
-        uid: this.props.uid,
-        query1watch: q1w,
-        query1watch2: q1w2,
-        query1date: q1d,
-        query1duration: q1du,
-      }
+    let data = {
+      uid: this.props.uid,
+      query1watch: q1w,
+      query1watch2: q1w2,
+      query1date: q1d.split('+')[0],
+      query1duration: q1du,
     };
+
+
     axios
-      .get("/api/get/query1/", {
-        params : {
-          userid : object.user.uid,
-          parameter1 : object.user.query1watch,
-          parameter2 : object.user.query1watch2,
-          date : object.user.query1date,
-          duration : object.user.query1duration
-        }
-      })
+      .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}/${data.query1duration}`)
+
+      // {
+      //   params: {
+      //     userid: object.user.uid,
+      //     parameter1: object.user.query1watch,
+      //     parameter2: object.user.query1watch2,
+      //     date: object.user.query1date,
+      //     duration: object.user.query1duration
+      //   }
+      // })
       .then(response => {
         this.setState({ image: response.data });
         //console.log(response.data);
@@ -233,7 +237,7 @@ class QueryPage extends Component {
       })
       .catch(error => {
         this.setState({ result: null });
-        this.setState({ error: error.response.data });
+        this.setState({ error: error.response });
       });
   }
 
@@ -390,14 +394,14 @@ class QueryPage extends Component {
         <h2>Query 1:</h2>
         <span>I would like to see if</span>
         <select ref="query1watch">
-        <option value="activeenergyburned">ActivityLevel</option>
-        <option value="deepsleep">DeepSleep</option>
-        <option value="flightsclimbed">FlightsClimbed</option>
-        <option value="heartrate">HeartRate</option>
-        <option value="sleep">Sleep</option>
-        <option value="sleepheartrate">SleepHeartRate</option>
-        <option value="stepcounter">StepCounter</option>
-        <option value="walkingrunningdistance">WalkingRunningDistance</option>
+          <option value="activeenergyburned">ActivityLevel</option>
+          <option value="deepsleep">DeepSleep</option>
+          <option value="flightsclimbed">FlightsClimbed</option>
+          <option value="heartrate">HeartRate</option>
+          <option value="sleep">Sleep</option>
+          <option value="sleepheartrate">SleepHeartRate</option>
+          <option value="stepcounter">StepCounter</option>
+          <option value="walkingrunningdistance">WalkingRunningDistance</option>
         </select>
         <span>is related to</span>
         <select ref="query1watch2">
@@ -498,7 +502,7 @@ class QueryPage extends Component {
         ) : (
             console.log("null")
           )}
-      
+
       </div>
     );
   }
