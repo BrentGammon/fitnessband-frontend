@@ -105,15 +105,13 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const duration = req.params.duration;
     let enddate;
 
-    switch (duration) {
-        case "week":
-            enddate = moment(new Date(startdate) - 7).format("YYYY-MM-DD");
-            break;
-        case "month":
-            enddate = moment(new Date(startdate) - 30).format("YYYY-MM-DD");
-            break;
-        case "day":
-            enddate = moment(new Date(startdate) - 1).format("YYYY-MM-DD");
+
+    if (duration === "month") {
+        enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
+    } else if (duration === "week") {
+        enddate = moment(new Date(startdate)).subtract(7, 'days').format("YYYY-MM-DD");
+    } else if (duration === "day ") {
+        enddate = moment(new Date(startdate)).subtract(1, 'days').format("YYYY-MM-DD");
     }
 
     const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
@@ -135,10 +133,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
         parameter1,
         parameter2
     ));
-    //res.send(await getBase64("http://localhost:8000/correlation", 'post', { data1, data2 }));
-
-
-    //res.send(r);
 });
 
 
@@ -157,8 +151,8 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
             data = {
                 dataset1: data1,
                 dataset2: data2,
-                parameter1:parameter1,
-                parameter2:parameter2
+                parameter1: parameter1,
+                parameter2: parameter2
             }
         }
     }
