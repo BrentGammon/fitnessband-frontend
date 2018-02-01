@@ -120,43 +120,58 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
         enddate = moment(new Date(startdate)).subtract(1, 'days').format("YYYY-MM-DD");
     }
 
+    const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepSleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
+    //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
 
-    if(parameter1 === "activeenergyburned" || "stepcounter" || "deepSleep" || "sleep" || "sleepheartrate" || "walkingrunningdistance"){
-         query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-        "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
+    if (startdateColumn.includes(parameter1)) {
+        query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+            "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
+        console.log('')
         console.log(query1);
-    }else if(parameter1 === "flightsclimbed" || "heartrate"){
-         query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-        "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+    } else {
+        query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
+            "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+        console.log(query1);
     }
 
-
-    if(parameter2 === "activeenergyburned" || "stepcounter" || "deepSleep" || "sleep" || "sleepheartrate" || "walkingrunningdistance"){
+    if (startdateColumn.includes(parameter2)) {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-        "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
-    }else if(parameter2 === "flightsclimbed" || "heartrate"){
+            "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
+        console.log('')
+        console.log(query2);
+    } else {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-        "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
+            "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+        console.log(query2);
     }
 
-
-    //const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-        //"< %L AND startdate > %L", parameter1, userid, startdate, enddate);
-
-    //const query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-        //"< %L AND startdate > %L", parameter2, userid, startdate, enddate);
 
     const data1 = await client.query(query1);
     const data2 = await client.query(query2);
+
     await client.end();
 
+    const data1Filtered = objectReplace(data1.rows, 'collectiondate', 'startdate');
+    const data2Filtered = objectReplace(data2.rows, 'collectiondate', 'startdate');
+
+
     res.send(await getBase64("http://localhost:8000/correlation", 'post',
-        data1.rows,
-        data2.rows,
+        data1Filtered,
+        data2Filtered,
         parameter1,
         parameter2
     ));
 });
+
+
+function objectkeyReplace(obj, keyToBeReplace, keyReplacedWith) {
+    var i;
+    for (i = 0; i < array.length; i++) {
+        obj[i].startdate = obj[i].keyToBeReplace;
+        delete obj[i].keyToBeReplace;
+    }
+    return array;
+}
 
 
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
