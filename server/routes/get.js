@@ -126,23 +126,23 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     if (startdateColumn.includes(parameter1)) {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
-        console.log('')
-        console.log(query1);
+        // console.log('')
+        // console.log(query1);
     } else {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
             "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
-        console.log(query1);
+        // console.log(query1);
     }
 
     if (startdateColumn.includes(parameter2)) {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
-        console.log('')
-        console.log(query2);
+        // console.log('')
+        // console.log(query2);
     } else {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
             "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
-        console.log(query2);
+        // console.log(query2);
     }
 
 
@@ -153,27 +153,75 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     if (!Object.keys(data1.rows[0]).includes('startdate')) {
         data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
     }
+    console.log(1);
 
     if (!Object.keys(data2.rows[0]).includes('startdate')) {
         data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
     }
+    console.log(2);
+    const genericData1Format = genericFormatForR(data1);
+    console.log(3);
+    const genericData2Format = genericFormatForR(data2);
 
-    console.log(data1.rows);
-
+    console.log(4);
+    ///console.log(genericData1Format.rows)
     res.send(await getBase64("http://localhost:8000/correlation", 'post',
-        data1.rows,
-        data2.rows,
+        genericData1Format.rows,
+        genericData2Format.rows,
         parameter1,
         parameter2
     ));
 });
 
+//data values in database 
+//heart rate   - heartrate
+//sleep - duration - NOT WORKING
+//deepsleep - duration - NOT WORKING
+//sleepheartrate - value
+
+//format is fine
+//activeenegry - total
+//walkingrunningdistance -  total
+//stepcounter  - total 
+//flights climbed - total
+
+function genericFormatForR(data) {
+    console.log(Object.keys(data.rows[0]));
+    //need to check the data thats does not contain total 
+    if (!Object.keys(data.rows[0]).includes('total')) {
+        //check the first object as the data SHOULD be the same format throughout the object as the data has been retuend from the database
+
+        //check for possbile keys need to add duplicate data for total key
+        if (Object.keys(data.rows[0]).includes('heartrate')) {
+            console.log("HERERERERERERERR")
+            //heart rate 
+            for (let i = 0; i < data.rows.length; i++) {
+                data.rows[i].total = data.rows[i]['heartrate'];
+            }
+        }
+        if (Object.keys(data.rows[0]).includes('duration')) {
+            //sleep and deep sleep
+            for (let i = 0; i < data.rows.length; i++) {
+                data.rows[i].total = data.rows[i]['duration'];
+            }
+        }
+        if (Object.keys(data.rows[0]).includes('value')) {
+            //sleep heart rate 
+            for (let i = 0; i < data.rows.length; i++) {
+                data.rows[i].total = data.rows[i]['value'];
+            }
+        }
+
+    }
+    console.log(Object.keys(data.rows[0]));
+    return data
+}
 
 function objectkeyReplace(obj, collectionDate) {
-    var i;
-    for (i = 0; i < obj.length; i++) {
+    for (let i = 0; i < obj.length; i++) {
         obj[i].startdate = obj[i][collectionDate];
-        obj[i].enddate = obj[i][collectionDate];
+        obj[i].enddate = obj[i][collectionDate];//R needs a enddate key
+
     }
     return obj;
 }
@@ -207,11 +255,11 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
     }).then(
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
-    ).catch(error => {
-        console.log("Error");
-        // console.log(error);
-        res.send(error.data);
-    });
+        ).catch(error => {
+            console.log("Error");
+            // console.log(error);
+            res.send(error.data);
+        });
     return value;
 }
 
