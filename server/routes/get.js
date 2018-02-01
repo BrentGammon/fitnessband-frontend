@@ -136,12 +136,12 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
 
     if (startdateColumn.includes(parameter2)) {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-            "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
+            "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
         console.log('')
         console.log(query2);
     } else {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-            "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+            "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
         console.log(query2);
     }
 
@@ -150,27 +150,32 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const data2 = await client.query(query2);
 
     await client.end();
+    if (!Object.keys(data1.rows[0]).includes('startdate')) {
+        data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+    }
 
-    const data1Filtered = objectReplace(data1.rows, 'collectiondate', 'startdate');
-    const data2Filtered = objectReplace(data2.rows, 'collectiondate', 'startdate');
+    if (!Object.keys(data2.rows[0]).includes('startdate')) {
+        data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
+    }
 
+    console.log(data1.rows);
 
     res.send(await getBase64("http://localhost:8000/correlation", 'post',
-        data1Filtered,
-        data2Filtered,
+        data1.rows,
+        data2.rows,
         parameter1,
         parameter2
     ));
 });
 
 
-function objectkeyReplace(obj, keyToBeReplace, keyReplacedWith) {
+function objectkeyReplace(obj, collectionDate) {
     var i;
-    for (i = 0; i < array.length; i++) {
-        obj[i].startdate = obj[i].keyToBeReplace;
-        delete obj[i].keyToBeReplace;
+    for (i = 0; i < obj.length; i++) {
+        obj[i].startdate = obj[i][collectionDate];
+        obj[i].enddate = obj[i][collectionDate];
     }
-    return array;
+    return obj;
 }
 
 
@@ -202,32 +207,13 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
     }).then(
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
-        ).catch(error => {
-            console.log("Error");
-            // console.log(error);
-            res.send(error.data);
-        });
+    ).catch(error => {
+        console.log("Error");
+        // console.log(error);
+        res.send(error.data);
+    });
     return value;
 }
-
-
-//async function querydb(parameter, userid, startdate, enddate){
-//    const client = new pg.Client(conString);
-//    await client.connect();
-//
-//    if(parameter === "activeenergyburned" || "stepcounter" || "deepSleep" || "sleep" || "sleepheartrate"){
-//        const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-//        "< %L AND startdate > %L", parameter, userid, startdate, enddate);
-//    }else if(parameter === "flightsclimbed" || "heartrate"){
-//        const query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-//        "< %L AND collectiondate > %L", parameter, userid, startdate, enddate);
-//    }
-//
-//    const data1 = await client.query(query1);
-//
-//    await client.end();
-//}
-
 
 module.exports = routes;
 
