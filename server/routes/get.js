@@ -105,6 +105,9 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const duration = req.params.duration.toLowerCase();
     let enddate;
 
+    let query1;
+    let query2;
+
 
     if (duration === "month") {
         enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
@@ -118,11 +121,30 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     }
 
 
-    const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+    if(parameter1 === "activeenergyburned" || "stepcounter" || "deepSleep" || "sleep" || "sleepheartrate" || "walkingrunningdistance"){
+         query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
         "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
+        console.log(query1);
+    }else if(parameter1 === "flightsclimbed" || "heartrate"){
+         query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
+        "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+    }
 
-    const query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+
+    if(parameter2 === "activeenergyburned" || "stepcounter" || "deepSleep" || "sleep" || "sleepheartrate" || "walkingrunningdistance"){
+        query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
         "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
+    }else if(parameter2 === "flightsclimbed" || "heartrate"){
+        query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
+        "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
+    }
+
+
+    //const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+        //"< %L AND startdate > %L", parameter1, userid, startdate, enddate);
+
+    //const query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+        //"< %L AND startdate > %L", parameter2, userid, startdate, enddate);
 
     const data1 = await client.query(query1);
     const data2 = await client.query(query2);
@@ -172,6 +194,24 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
         });
     return value;
 }
+
+
+//async function querydb(parameter, userid, startdate, enddate){
+//    const client = new pg.Client(conString);
+//    await client.connect();
+//
+//    if(parameter === "activeenergyburned" || "stepcounter" || "deepSleep" || "sleep" || "sleepheartrate"){
+//        const query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+//        "< %L AND startdate > %L", parameter, userid, startdate, enddate);
+//    }else if(parameter === "flightsclimbed" || "heartrate"){
+//        const query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
+//        "< %L AND collectiondate > %L", parameter, userid, startdate, enddate);
+//    }
+//
+//    const data1 = await client.query(query1);
+//
+//    await client.end();
+//}
 
 
 module.exports = routes;
