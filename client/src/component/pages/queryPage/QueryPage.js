@@ -2,15 +2,11 @@
 /* global location */
 /* eslint no-restricted-globals: ["off", "location"] */
 
-import React, { Component } from "react";
-import Button from "../../shared/button/Button";
+import React, {Component} from "react";
 import axios from "axios";
-import { Redirect } from "react-router";
+import {Redirect} from "react-router";
 import "./querypage.scss";
-import base from "../../../base";
-import firebase from "firebase";
 import 'rc-calendar/assets/index.css';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Calendar from 'rc-calendar';
 import DatePicker from 'rc-calendar/lib/Picker';
@@ -21,26 +17,25 @@ import TimePickerPanel from 'rc-time-picker/lib/Panel';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import 'moment/locale/en-gb';
-import loadImage from "blueimp-load-image";
 
 const format = 'YYYY-MM-DD HH:mm:ss';
 const cn = location.search.indexOf('cn') !== -1;
 
 const now = moment();
 if (cn) {
-  now.locale('zh-cn').utcOffset(8);
+    now.locale('zh-cn').utcOffset(8);
 } else {
-  now.locale('en-gb').utcOffset(0);
+    now.locale('en-gb').utcOffset(0);
 }
 
 function getFormat(time) {
-  return time ? format : 'YYYY-MM-DD';
+    return time ? format : 'YYYY-MM-DD';
 }
 
 const defaultCalendarValue = now.clone();
 defaultCalendarValue.add(-1, 'month');
 
-const timePickerElement = <TimePickerPanel defaultValue={moment('00:00:00', 'HH:mm:ss')} />;
+const timePickerElement = <TimePickerPanel defaultValue={moment('00:00:00', 'HH:mm:ss')}/>;
 
 // function disabledTime(date){
 //   console.log('disabledTime', date);
@@ -72,440 +67,442 @@ const timePickerElement = <TimePickerPanel defaultValue={moment('00:00:00', 'HH:
 
 
 class QueryPage extends Component {
-  static propTypes = {
-    defaultValue: PropTypes.object,
-    defaultCalendarValue: PropTypes.object,
-  }
+    static propTypes = {
+        defaultValue: PropTypes.object,
+        defaultCalendarValue: PropTypes.object,
+    }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: "",
-      timePeriod: "",
-      startTime: "",
-      endTime: "",
-      comparision: "",
-      mood: "",
-      result: null,
-      error: null,
-      timeOptions1: ["Today", "Last Week", "This Week"],
-      timeOptions2: ["Today", "Last Week", "This Week"],
-      timeOptions1Current: "Today",
-      timeOptions2Current: "Last Week",
-      showTime: true,
-      showDateInput: true,
-      disabled: false,
-      value: props.defaultValue,
-      query1watch: "",
-      query1watch2: "",
-      query1date: "",
-      query1duration: "",
-      image: null,
-    };
-    this.clickHandler = this.clickHandler.bind(this);
-    this.clickHandlerq1 = this.clickHandlerq1.bind(this);
-    this.resultTag = this.resultTag.bind(this);
-    this.timeOptions1 = this.timeOptions1.bind(this);
-    this.timeOptions2 = this.timeOptions2.bind(this);
-    this.filterOption1 = this.filterOption1.bind(this);
-    this.filterOption2 = this.filterOption2.bind(this);
-    this.dateState = this.dateState.bind(this);
-    //this.displayImage = this.displayImage.bind(this);
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            text: "",
+            timePeriod: "",
+            startTime: "",
+            endTime: "",
+            comparision: "",
+            mood: "",
+            result: null,
+            error: null,
+            timeOptions1: ["Today", "Last Week", "This Week"],
+            timeOptions2: ["Today", "Last Week", "This Week"],
+            timeOptions1Current: "Today",
+            timeOptions2Current: "Last Week",
+            showTime: true,
+            showDateInput: true,
+            disabled: false,
+            value: props.defaultValue,
+            query1watch: "",
+            query1watch2: "",
+            query1date: "",
+            //query1duration: "",
+            image: null,
+        };
+        this.clickHandler = this.clickHandler.bind(this);
+        this.clickHandlerq1 = this.clickHandlerq1.bind(this);
+        this.resultTag = this.resultTag.bind(this);
+        this.timeOptions1 = this.timeOptions1.bind(this);
+        this.timeOptions2 = this.timeOptions2.bind(this);
+        this.filterOption1 = this.filterOption1.bind(this);
+        this.filterOption2 = this.filterOption2.bind(this);
+        this.dateState = this.dateState.bind(this);
+        //this.displayImage = this.displayImage.bind(this);
+    }
 
-  dateState(e) {
-    console.log("date picker")
-    this.setState({
-      //query1date: e.target.value
-    });
-  }
-
-  onChange = (value) => {
-    console.log('DatePicker change: ', (value && value.format(format)));
-    //const x: (value && value.format(format))
-    this.setState({
-      value
-    });
-    this.setState({ query1date: value.format(format) });
-  }
-
-  onShowTimeChange = (e) => {
-    this.setState({
-      showTime: e.target.checked,
-    });
-  }
-
-  onShowDateInputChange = (e) => {
-    this.setState({
-      showDateInput: e.target.checked,
-    });
-  }
-
-  toggleDisabled = () => {
-    this.setState({
-      disabled: !this.state.disabled,
-    });
-  }
-
-
-  //DONT DELETE 
-  // componentWillMount() {
-  //   let provider = new firebase.auth.FacebookAuthProvider();
-  //   firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
-  //     console.log(idToken);
-  //     axios.get('/api/get/test/' + idToken).then(response => {
-  //       console.log(response)
-  //     }).catch(error => {
-  //       console.log(error);
-  //     })
-  //   }).catch(function (error) {
-  //     console.log(error);
-  //   })
-
-
-  // .signInWithPopup(provider)
-  // .then(result => {
-  //   // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-  //   const token = result.credential.accessToken;
-
-  // }).catch(function (error) {
-  //   console.log(error);
-  // });
-  // axios.get('/api/get/test')
-  //   .then(response => {
-  //     console.log(response);
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //   });
-  //}
-
-  clickHandler(sd, ed, c, m) {
-    if (sd !== ed) {
-      let object = {
-        user: {
-          uid: this.props.uid,
-          mood: m,
-          startTime: sd,
-          endTime: ed,
-          comparision: c
-        }
-      };
-      axios
-        .post("/api/post/fitness/queryPage", object)
-        .then(response => {
-          console.log(response.data);
-          this.setState({ error: null });
-          this.setState({ result: response.data });
-        })
-        .catch(error => {
-          this.setState({ result: null });
-          this.setState({ error: error.response.data });
+    dateState(e) {
+        console.log("date picker")
+        this.setState({
+            //query1date: e.target.value
         });
-    } else {
-      this.setState({ error: "Time peroid can't be the same" });
     }
-  }
 
-  clickHandlerq1(q1w, q1w2, q1d, q1du) {
-    let data = {
-      uid: this.props.uid,
-      query1watch: q1w,
-      query1watch2: q1w2,
-      query1date: q1d.split('+')[0],
-      query1duration: q1du,
-    };
-
-
-    axios
-      .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}/${data.query1duration}`)
-
-      // {
-      //   params: {
-      //     userid: object.user.uid,
-      //     parameter1: object.user.query1watch,
-      //     parameter2: object.user.query1watch2,
-      //     date: object.user.query1date,
-      //     duration: object.user.query1duration
-      //   }
-      // })
-      .then(response => {
-        this.setState({ image: response.data });
-        //console.log(response.data);
-        //this.setState({ error: null });
-        //this.setState({ result: response.data });
-      })
-      .catch(error => {
-        this.setState({ result: null });
-        this.setState({ error: error.response });
-      });
-  }
-
-  clicked() {
-    this.clickHandler(
-      this.refs.time1.value,
-      this.refs.time2.value,
-      this.refs.comparision.value,
-      this.refs.mood1.value
-    );
-  }
-
-  clickedq1() {
-    this.clickHandlerq1(
-      this.refs.query1watch.value,
-      this.refs.query1watch2.value,
-      this.state.query1date,
-      this.refs.query1duration.value,
-    );
-  }
-
-  resultTag() {
-    if (this.state.result !== null) {
-      return <p>Result:{this.state.result}</p>;
+    onChange = (value) => {
+        console.log('DatePicker change: ', (value && value.format(format)));
+        //const x: (value && value.format(format))
+        this.setState({
+            value
+        });
+        this.setState({query1date: value.format(format)});
     }
-  }
 
-  timeOptions1(item) {
-    let core = ["Today", "Last Week", "This Week"];
-    let values = this.state.timeOptions1;
-    if (item !== undefined || item !== null) {
-      values = values.filter(i => {
-        if (i !== this.state.timeOptions2Current) {
-          return i;
+    onShowTimeChange = (e) => {
+        this.setState({
+            showTime: e.target.checked,
+        });
+    }
+
+    onShowDateInputChange = (e) => {
+        this.setState({
+            showDateInput: e.target.checked,
+        });
+    }
+
+    toggleDisabled = () => {
+        this.setState({
+            disabled: !this.state.disabled,
+        });
+    }
+
+
+    //DONT DELETE
+    // componentWillMount() {
+    //   let provider = new firebase.auth.FacebookAuthProvider();
+    //   firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
+    //     console.log(idToken);
+    //     axios.get('/api/get/test/' + idToken).then(response => {
+    //       console.log(response)
+    //     }).catch(error => {
+    //       console.log(error);
+    //     })
+    //   }).catch(function (error) {
+    //     console.log(error);
+    //   })
+
+
+    // .signInWithPopup(provider)
+    // .then(result => {
+    //   // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+    //   const token = result.credential.accessToken;
+
+    // }).catch(function (error) {
+    //   console.log(error);
+    // });
+    // axios.get('/api/get/test')
+    //   .then(response => {
+    //     console.log(response);
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
+    //}
+
+    clickHandler(sd, ed, c, m) {
+        if (sd !== ed) {
+            let object = {
+                user: {
+                    uid: this.props.uid,
+                    mood: m,
+                    startTime: sd,
+                    endTime: ed,
+                    comparision: c
+                }
+            };
+            axios
+                .post("/api/post/fitness/queryPage", object)
+                .then(response => {
+                    console.log(response.data);
+                    this.setState({error: null});
+                    this.setState({result: response.data});
+                })
+                .catch(error => {
+                    this.setState({result: null});
+                    this.setState({error: error.response.data});
+                });
+        } else {
+            this.setState({error: "Time peroid can't be the same"});
         }
-      });
     }
-    return (
-      <select ref="time1" onChange={this.filterOption2}>
-        {values.map(i => {
-          return (
-            <option key={i} value={i}>
-              {i}
-            </option>
-          );
-        })}
-      </select>
-    );
-  }
 
-  timeOptions2(item) {
-    let core = ["Today", "Last Week", "This Week"];
-    let values = this.state.timeOptions2;
-    if (item === undefined || item === null) {
-      values = values.filter(i => {
-        if (i !== this.state.timeOptions1Current) {
-          return i;
+    clickHandlerq1(q1w, q1w2, q1d) {
+        let data = {
+            uid: this.props.uid,
+            query1watch: q1w,
+            query1watch2: q1w2,
+            query1date: q1d.split('+')[0],
+            //query1duration: q1du,
+        };
+
+
+        axios
+            .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}`)
+            ///${data.query1duration}`)
+
+            // {
+            //   params: {
+            //     userid: object.user.uid,
+            //     parameter1: object.user.query1watch,
+            //     parameter2: object.user.query1watch2,
+            //     date: object.user.query1date,
+            //     duration: object.user.query1duration
+            //   }
+            // })
+            .then(response => {
+                this.setState({image: response.data});
+                //console.log(response.data);
+                //this.setState({ error: null });
+                //this.setState({ result: response.data });
+            })
+            .catch(error => {
+                this.setState({result: null});
+                this.setState({error: error.response});
+            });
+    }
+
+    clicked() {
+        this.clickHandler(
+            this.refs.time1.value,
+            this.refs.time2.value,
+            this.refs.comparision.value,
+            this.refs.mood1.value
+        );
+    }
+
+    clickedq1() {
+        this.clickHandlerq1(
+            this.refs.query1watch.value,
+            this.refs.query1watch2.value,
+            this.state.query1date,
+            //this.refs.query1duration.value,
+        );
+    }
+
+    resultTag() {
+        if (this.state.result !== null) {
+            return <p>Result:{this.state.result}</p>;
         }
-      });
     }
-    return (
-      <select ref="time2" onChange={this.filterOption1}>
-        {values.map(i => {
-          return (
-            <option key={i} value={i}>
-              {i}
-            </option>
-          );
-        })}
-      </select>
-    );
-  }
 
-  filterOption1(event) {
-    this.setState({ timeOptions2Current: event.target.value });
-    console.log();
-  }
+    timeOptions1(item) {
+        let core = ["Today", "Last Week", "This Week"];
+        let values = this.state.timeOptions1;
+        if (item !== undefined || item !== null) {
+            values = values.filter(i => {
+                if (i !== this.state.timeOptions2Current) {
+                    return i;
+                }
+            });
+        }
+        return (
+            <select ref="time1" onChange={this.filterOption2}>
+                {values.map(i => {
+                    return (
+                        <option key={i} value={i}>
+                            {i}
+                        </option>
+                    );
+                })}
+            </select>
+        );
+    }
 
-  filterOption2(event) {
-    this.setState({ timeOptions1Current: event.target.value });
-    console.log();
-  }
-  render() {
-    //conditional rendering
+    timeOptions2(item) {
+        let core = ["Today", "Last Week", "This Week"];
+        let values = this.state.timeOptions2;
+        if (item === undefined || item === null) {
+            values = values.filter(i => {
+                if (i !== this.state.timeOptions1Current) {
+                    return i;
+                }
+            });
+        }
+        return (
+            <select ref="time2" onChange={this.filterOption1}>
+                {values.map(i => {
+                    return (
+                        <option key={i} value={i}>
+                            {i}
+                        </option>
+                    );
+                })}
+            </select>
+        );
+    }
 
-    const state = this.state;
-    const calendar = (<Calendar
-      locale={cn ? zhCN : enUS}
-      style={{ zIndex: 1000 }}
-      dateInputPlaceholder="please input"
-      formatter={getFormat(state.showTime)}
-      //disabledTime={state.showTime ? disabledTime: null}
-      timePicker={state.showTime ? timePickerElement : null}
-      defaultValue={this.props.defaultCalendarValue}
-      showDateInput={state.showDateInput}
-    //disabledDate={disabledDate}
-    />);
+    filterOption1(event) {
+        this.setState({timeOptions2Current: event.target.value});
+        console.log();
+    }
 
-    return (
+    filterOption2(event) {
+        this.setState({timeOptions1Current: event.target.value});
+        console.log();
+    }
+
+    render() {
+        //conditional rendering
+
+        const state = this.state;
+        const calendar = (<Calendar
+            locale={cn ? zhCN : enUS}
+            style={{zIndex: 1000}}
+            dateInputPlaceholder="please input"
+            formatter={getFormat(state.showTime)}
+            //disabledTime={state.showTime ? disabledTime: null}
+            timePicker={state.showTime ? timePickerElement : null}
+            defaultValue={this.props.defaultCalendarValue}
+            showDateInput={state.showDateInput}
+            //disabledDate={disabledDate}
+        />);
+
+        return (
 
 
 
 
-      <div className="querysection">
-        {!this.props.login ? <Redirect to="/" /> : ""}
-        <span>I feel</span>
+            <div className="querysection">
+                {!this.props.login ? <Redirect to="/"/> : ""}
+                <span>I feel</span>
 
-        <select ref="comparision">
-          <option value="More">More</option>
-          <option value="Less">Less</option>
-        </select>
+                <select ref="comparision">
+                    <option value="More">More</option>
+                    <option value="Less">Less</option>
+                </select>
 
-        <select ref="mood1">
-          <option value="stress">stress</option>
-          <option value="tiredness">tiredness</option>
-          <option value="active">active</option>
-          <option value="healthy">healthy</option>
-          <option value="alert">alert</option>
-          <option value="happy">happy</option>
-          <option value="energy">energy</option>
-          <option value="calm">calm</option>
-        </select>
+                <select ref="mood1">
+                    <option value="stress">stress</option>
+                    <option value="tiredness">tiredness</option>
+                    <option value="active">active</option>
+                    <option value="healthy">healthy</option>
+                    <option value="alert">alert</option>
+                    <option value="happy">happy</option>
+                    <option value="energy">energy</option>
+                    <option value="calm">calm</option>
+                </select>
 
-        {this.timeOptions1()}
+                {this.timeOptions1()}
 
-        <span>compared to</span>
+                <span>compared to</span>
 
-        {this.timeOptions2()}
+                {this.timeOptions2()}
 
-        <button
-          className="btn"
-          onClick={e => {
-            this.clicked();
-          }}
-        >
-          Submit
-        </button>
-        {this.state.result !== null ? (
-          this.state.result ? (
-            <p>Result: True</p>
-          ) : (
-              <p>Result: False</p>
-            )
-        ) : (
-            ""
-          )}
+                <button
+                    className="btn"
+                    onClick={e => {
+                        this.clicked();
+                    }}
+                >
+                    Submit
+                </button>
+                {this.state.result !== null ? (
+                    this.state.result ? (
+                        <p>Result: True</p>
+                    ) : (
+                        <p>Result: False</p>
+                    )
+                ) : (
+                    ""
+                )}
 
-        {this.state.error ? (
-          <p className="error_text">{this.state.error}</p>
-        ) : (
-            ""
-          )}
+                {this.state.error ? (
+                    <p className="error_text">{this.state.error}</p>
+                ) : (
+                    ""
+                )}
 
-        <h2>Query 1:</h2>
-        <span>I would like to see if</span>
-        <select ref="query1watch">
-          <option value="activeenergyburned">ActivityLevel</option>
-          <option value="deepsleep">DeepSleep</option>
-          <option value="flightsclimbed">FlightsClimbed</option>
-          <option value="heartrate">HeartRate</option>
-          <option value="sleep">Sleep</option>
-          <option value="sleepheartrate">SleepHeartRate</option>
-          <option value="stepcounter">StepCounter</option>
-          <option value="walkingrunningdistance">WalkingRunningDistance</option>
-        </select>
-        <span>is related to</span>
-        <select ref="query1watch2">
-          <option value="activeenergyburned">ActivityLevel</option>
-          <option value="deepsleep">DeepSleep</option>
-          <option value="flightsclimbed">FlightsClimbed</option>
-          <option value="heartrate">HeartRate</option>
-          <option value="sleep">Sleep</option>
-          <option value="sleepheartrate">SleepHeartRate</option>
-          <option value="stepcounter">StepCounter</option>
-          <option value="walkingrunningdistance">WalkingRunningDistance</option>
-        </select>
-        <span>during</span>
+                <h2>Query 1:</h2>
+                <span>I would like to see if</span>
+                <select ref="query1watch">
+                    <option value="activeenergyburned">ActivityLevel</option>
+                    <option value="deepsleep">DeepSleep</option>
+                    <option value="flightsclimbed">FlightsClimbed</option>
+                    <option value="heartrate">HeartRate</option>
+                    <option value="sleep">Sleep</option>
+                    <option value="sleepheartrate">SleepHeartRate</option>
+                    <option value="stepcounter">StepCounter</option>
+                    <option value="walkingrunningdistance">WalkingRunningDistance</option>
+                </select>
+                <span>is related to</span>
+                <select ref="query1watch2">
+                    <option value="activeenergyburned">ActivityLevel</option>
+                    <option value="deepsleep">DeepSleep</option>
+                    <option value="flightsclimbed">FlightsClimbed</option>
+                    <option value="heartrate">HeartRate</option>
+                    <option value="sleep">Sleep</option>
+                    <option value="sleepheartrate">SleepHeartRate</option>
+                    <option value="stepcounter">StepCounter</option>
+                    <option value="walkingrunningdistance">WalkingRunningDistance</option>
+                </select>
+                <span>during</span>
 
-        <div style={{ width: 400, margin: 20 }}>
-          <div style={{ marginBottom: 10 }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={state.showTime}
-                onChange={this.onShowTimeChange}
-              />
-              showTime
-          </label>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-          <label>
-              <input
-                type="checkbox"
-                checked={state.showDateInput}
-                onChange={this.onShowDateInputChange}
-              />
-              showDateInput
-          </label>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-          <label>
-              <input
-                type="checkbox"
-                checked={state.disabled}
-                onChange={this.toggleDisabled}
-              />
-              disabled
-          </label>
-          </div>
-          <div style={{
-            boxSizing: 'border-box',
-            position: 'relative',
-            display: 'block',
-            lineHeight: 1.5,
-            marginBottom: 22,
-          }}
-          >
-            <DatePicker
-              animation="slide-up"
-              disabled={state.disabled}
-              calendar={calendar}
-              value={state.value}
-              onChange={this.onChange}
-            >
-              {
-                ({ value }) => {
-                  return (
-                    <span tabIndex="0">
+                <div style={{width: 400, margin: 20}}>
+                    <div style={{marginBottom: 10}}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={state.showTime}
+                                onChange={this.onShowTimeChange}
+                            />
+                            showTime
+                        </label>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={state.showDateInput}
+                                onChange={this.onShowDateInputChange}
+                            />
+                            showDateInput
+                        </label>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={state.disabled}
+                                onChange={this.toggleDisabled}
+                            />
+                            disabled
+                        </label>
+                    </div>
+                    <div style={{
+                        boxSizing: 'border-box',
+                        position: 'relative',
+                        display: 'block',
+                        lineHeight: 1.5,
+                        marginBottom: 22,
+                    }}
+                    >
+                        <DatePicker
+                            animation="slide-up"
+                            disabled={state.disabled}
+                            calendar={calendar}
+                            value={state.value}
+                            onChange={this.onChange}
+                        >
+                            {
+                                ({value}) => {
+                                    return (
+                                        <span tabIndex="0">
                       <input ref="query1DateValue" onChange={this.dateState}
-                        placeholder="please select"
-                        style={{ width: 250 }}
-                        disabled={state.disabled}
-                        readOnly
-                        tabIndex="-1"
-                        className="ant-calendar-picker-input ant-input"
-                        value={value && value.format(getFormat(state.showTime)) || ''}
+                             placeholder="please select"
+                             style={{width: 250}}
+                             disabled={state.disabled}
+                             readOnly
+                             tabIndex="-1"
+                             className="ant-calendar-picker-input ant-input"
+                             value={value && value.format(getFormat(state.showTime)) || ''}
                       />
                     </span>
-                  );
-                }
-              }
-            </DatePicker>
-          </div>
-        </div>
-        <span>for the duration of</span>
-        <select ref="query1duration">
-          <option value="Today">Today</option>
-          <option value="Week">Week</option>
-          <option value="Month">Month</option>
-        </select>
+                                    );
+                                }
+                            }
+                        </DatePicker>
+                    </div>
+                </div>
+                {/*<span>for the duration of</span>*/}
+                {/*<select ref="query1duration">*/}
+                {/*<option value="Today">Today</option>*/}
+                {/*<option value="Week">Week</option>*/}
+                {/*<option value="Month">Month</option>*/}
+                {/*</select>*/}
 
-        <button
-          className="btn"
-          onClick={e => {
-            this.clickedq1();
-          }}
-        >
-          Submit
-        </button>
+                <button
+                    className="btn"
+                    onClick={e => {
+                        this.clickedq1();
+                    }}
+                >
+                    Submit
+                </button>
 
 
-        {this.state.image ? (
-          <img src={`data:image/png;base64, ${this.state.image}`} />
-        ) : (
-            console.log("null")
-          )}
+                {this.state.image ? (
+                    <img src={`data:image/png;base64, ${this.state.image}`}/>
+                ) : (
+                    console.log("there is no image to display")
+                )}
 
-      </div>
-    );
-  }
+            </div>
+        );
+    }
 }
 
 export default QueryPage;

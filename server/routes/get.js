@@ -94,7 +94,8 @@ routes.get("/demoChart", async function (req, res) {
     res.send(await getBase64("http://localhost:8000/plot", 'get'));
 });
 
-routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async function (req, res) {
+routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
+    //:duration
     const client = new pg.Client(conString);
     await client.connect();
 
@@ -102,23 +103,11 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/:duration", async func
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
     const startdate = req.params.date;
-    const duration = req.params.duration.toLowerCase();
-    let enddate;
+    //const duration = req.params.duration.toLowerCase();
+    const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");;
 
     let query1;
     let query2;
-
-
-    if (duration === "month") {
-        enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
-        console.log("monthy")
-    } else if (duration === "week") {
-        console.log("weeky")
-        enddate = moment(new Date(startdate)).subtract(7, 'days').format("YYYY-MM-DD");
-    } else if (duration === "day ") {
-        console.log("day")
-        enddate = moment(new Date(startdate)).subtract(1, 'days').format("YYYY-MM-DD");
-    }
 
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepSleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
@@ -264,4 +253,3 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
 }
 
 module.exports = routes;
-
