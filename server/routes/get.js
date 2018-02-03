@@ -109,29 +109,32 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     let query1;
     let query2;
 
-    const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepSleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
+    const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
-
+    console.log("++++++++++++++++++++++++++++++++++++++++")
+    console.log(parameter1)
+    console.log(parameter2)
+    console.log("++++++++++++++++++++++++++++++++++++++++")
     if (startdateColumn.includes(parameter1)) {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
         // console.log('')
-        // console.log(query1);
+        console.log(query1);
     } else {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
             "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
-        // console.log(query1);
+        console.log(query1);
     }
 
     if (startdateColumn.includes(parameter2)) {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
         // console.log('')
-        // console.log(query2);
+        console.log(query2);
     } else {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
             "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
-        // console.log(query2);
+        console.log(query2);
     }
 
 
