@@ -37,14 +37,10 @@ const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "
 routes.get('/test/:id', async (req, res) => {
     const result = firebase.auth();
     const idToken = req.params.id;
-    //console.log(admin.auth().verifyIdToken(req.params.id, true));
     await admin.admin.auth().verifyIdToken(idToken)
         .then(function (decodedToken) {
             var uid = decodedToken.uid;
-            console.log("++++++++++++++++++++++++++++++++++++++")
-            console.log(uid);
-            res.send('get api worked!');
-            console.log("++++++++++++++++++++++++++++++++++++++")
+
         }).catch(function (error) {
             res.status(401).send("Unauthorized");
         });
@@ -75,7 +71,6 @@ routes.get("/user/:userid", async function (req, res) {
 
 
 routes.get("/fitness/querying/correlation", async function (req, res) {
-    console.log("correcltion thingy")
     let data1 = req.query.data1.map(item => {
         return parseInt(item);
     });
@@ -86,7 +81,6 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     });
     fs.writeFileSync("dataset2.json", data2);
     let result = stats.correlation(data1, data2);
-    console.log(result);
     res.send(result);
 });
 
@@ -100,8 +94,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
 
-    console.log(parameter1);
-    console.log(parameter2);
     const startdate = req.params.date;
     //const duration = req.params.duration.toLowerCase();
     const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
@@ -131,7 +123,6 @@ async function useruserQuery(parameter1, parameter2, userid, startdate, enddate)
         "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
     let query2 = format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate" +
         "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
-    console.log(query1);
 
     let data1 = await client.query(query1);
     let data2 = await client.query(query2);
@@ -140,8 +131,6 @@ async function useruserQuery(parameter1, parameter2, userid, startdate, enddate)
 
     data2.rows = objectkeyReplace(data2.rows, 'collectiondate');
     data2.rows = userInputTotalKey(data2.rows, parameter2);
-
-    console.log(data1.rows[0])
 
     await client.end();
 
@@ -164,23 +153,17 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     if (startdateColumn.includes(parameter1)) {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
-        // console.log('')
-        console.log(query1);
     } else {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
             "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
-        console.log(query1);
     }
 
     if (startdateColumn.includes(parameter2)) {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
-        // console.log('')
-        console.log(query2);
     } else {
         query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
             "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
-        console.log(query2);
     }
 
 
@@ -191,18 +174,14 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     if (!Object.keys(data1.rows[0]).includes('startdate')) {
         data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
     }
-    console.log(1);
 
     if (!Object.keys(data2.rows[0]).includes('startdate')) {
         data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
     }
-    console.log(2);
+
     const genericData1Format = genericFormatForR(data1);
-    console.log(3);
     const genericData2Format = genericFormatForR(data2);
 
-    console.log(4);
-    ///console.log(genericData1Format.rows)
     return await getBase64("http://localhost:8000/correlation", 'post',
         genericData1Format.rows,
         genericData2Format.rows,
@@ -213,7 +192,6 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
 
 
 function genericFormatForR(data) {
-    console.log(Object.keys(data.rows[0]));
     //need to check the data thats does not contain total 
     if (!Object.keys(data.rows[0]).includes('total')) {
         //check the first object as the data SHOULD be the same format throughout the object as the data has been retuend from the database
@@ -239,18 +217,13 @@ function genericFormatForR(data) {
         }
 
     }
-    console.log(Object.keys(data.rows[0]));
     return data
 }
 
 function userInputTotalKey(obj, moodKey) {
-    console.log("!@£@£@£@£@£@£@££@£")
-    console.log(moodKey);
-    console.log("!@£@£@£@£@£@£@££@£")
     for (let i = 0; i < obj.length; i++) {
         obj[i].total = obj[i][moodKey];
     }
-    console.log(obj[0]);
     return obj;
 }
 
@@ -292,8 +265,6 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
         ).catch(error => {
-            console.log("Error");
-            // console.log(error);
             res.send(error.data);
         });
     return value;

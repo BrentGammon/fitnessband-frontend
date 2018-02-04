@@ -27,7 +27,6 @@ class Record extends Component {
     if (firebase.auth().currentUser) {
       this.setState({ uid: firebase.auth().currentUser.uid });
     }
-    console.log("qwertyuiop");
   }
 
   updateState(key, value) {
@@ -35,7 +34,6 @@ class Record extends Component {
   }
 
   clickHandler() {
-    console.log("clickly click mother fucker")
     let object = {
       user: {
         uid: this.state.uid,
@@ -60,8 +58,6 @@ class Record extends Component {
     } else {
       const errorObject = Object.keys(object.user)
         .map(item => {
-          console.log(object.user[item]);
-          console.log(item);
           if (object.user[item] === null) {
             return item;
           }
@@ -72,7 +68,6 @@ class Record extends Component {
           }
         });
       this.setState({ error: errorObject });
-      console.log(errorObject);
     }
   }
 

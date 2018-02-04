@@ -3,16 +3,6 @@ const ttest = require("ttest");
 const Correlation = require("node-correlation");
 
 function welchTTest(dataset1, dataset2, alt) {
-  console.log("WEWEWEWEWEWEWEWEWEWEWEWEWEWE");
-  console.log(
-    ttest(dataset1, dataset2, {
-      mu: 0,
-      varEqual: true,
-      alpha: 0.3,
-      alternative: alt
-    })
-  );
-  console.log("WEWEWEWEWEWEWEWEWEWEWEWEWEWE");
   return ttest(dataset1, dataset2, {
     mu: 0,
     varEqual: true,
@@ -40,7 +30,7 @@ function standardDeviation(dataSet) {
 function variance(dataSet) {
   const average = mean(dataSet);
   return mean(
-    dataSet.map(function(num) {
+    dataSet.map(function (num) {
       return Math.pow(num - average, 2);
     })
   );
@@ -55,10 +45,8 @@ function highest(dataSet) {
 }
 
 function correlation(dataset1, dataset2) {
-  console.log("yoyoyyoyyoyoy");
   var correlation = Correlation.calc(dataset1, dataset2);
   var correlationBounds = [1, 0.9, 0.5, 0, -0.5, -0.9, -1];
-  console.log(correlation);
   var answer = "";
   if (correlation === 1) {
     answer = "Perfect Postive Correlation";
@@ -87,8 +75,6 @@ function correlation(dataset1, dataset2) {
   if (correlation === -1) {
     answer = "Perfect Negative Correlation";
   }
-  console.log("qwerty");
-  console.log(answer);
   return { text: answer, value: correlation };
 }
 

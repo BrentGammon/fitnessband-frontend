@@ -34,7 +34,6 @@ class Routing extends Component {
           state: "user"
         });
       } else {
-        console.log(false);
         this.setState({ login: false });
       }
     });
@@ -70,7 +69,6 @@ class Routing extends Component {
           context: this,
           state: "user"
         });
-        console.log(this.ref);
       })
       .catch(function (error) {
         console.log(error);
@@ -102,7 +100,6 @@ class Routing extends Component {
       .signOut()
       .then(
       () => {
-        console.log("Signed Out");
         this.setState({ login: false });
         this.setState({ user: null });
         this.setState({ uid: null });
