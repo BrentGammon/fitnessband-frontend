@@ -122,6 +122,29 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
 });
 
+
+async function useruserQuery(parameter1, parameter2, userid, startdate, enddate) {
+    const client = new pg.Client(conString);
+    await client.connect();
+    //collection date 
+    let query1 = format("SELECT %L FROM userinput WHERE userid = %L AND collectiondate" +
+        "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+    let query2 = format("SELECT %L FROM userinput WHERE userid = %L AND collectiondate" +
+        "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
+
+    const data1 = await client.query(query1);
+    const data2 = await client.query(query2);
+
+    await client.end();
+
+    return await getBase64("http://localhost:8000/correlationUserInput", 'post',
+        data1.rows,
+        data2.rows,
+        parameter1,
+        parameter2
+    );
+}
+
 async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddate) {
     const client = new pg.Client(conString);
     await client.connect();
@@ -130,10 +153,6 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
 
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
-    console.log("++++++++++++++++++++++++++++++++++++++++")
-    console.log(parameter1)
-    console.log(parameter2)
-    console.log("++++++++++++++++++++++++++++++++++++++++")
     if (startdateColumn.includes(parameter1)) {
         query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
             "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
