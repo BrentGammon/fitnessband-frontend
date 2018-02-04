@@ -98,8 +98,8 @@ class QueryPage extends Component {
       //query1duration: "",
       image: null,
 
-      optionSelection1Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"],
-      optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"],
+      optionSelection1Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
+      optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
       optionSelection1Current: "activeenergyburned",
       optionSelection2Current: "deepsleep",
     };
@@ -321,7 +321,7 @@ class QueryPage extends Component {
 
   optionSelection1(item) {
     console.log(item)
-    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"];
+    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
     let values = this.state.optionSelection1Values;
     if (item === undefined || item === null) {
       values = values.filter(i => {
@@ -347,7 +347,7 @@ class QueryPage extends Component {
   }
 
   optionSelection2(item) {
-    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"];
+    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
     let values = this.state.optionSelection2Values;
     if (item === undefined || item === null) {
       values = values.filter(i => {
