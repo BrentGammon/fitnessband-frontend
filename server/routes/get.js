@@ -31,6 +31,8 @@ const firebase = require("firebase");
 
 const admin = require('../firebaseconfig/firebaseAdmin');
 
+const userInputValues = ["stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"];
+const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
 
 routes.get('/test/:id', async (req, res) => {
     const result = firebase.auth();
@@ -71,9 +73,7 @@ routes.get("/user/:userid", async function (req, res) {
     res.send(response.length == 0 ? false : true);
 });
 
-//todo
-//rework
-//
+
 routes.get("/fitness/querying/correlation", async function (req, res) {
     console.log("correcltion thingy")
     let data1 = req.query.data1.map(item => {
@@ -90,22 +90,41 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     res.send(result);
 });
 
-routes.get("/demoChart", async function (req, res) {
-    res.send(await getBase64("http://localhost:8000/plot", 'get'));
-});
+
 
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     //:duration
-    const client = new pg.Client(conString);
-    await client.connect();
+
 
     const userid = req.params.userid;
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
+
+    console.log(parameter1);
+    console.log(parameter2);
     const startdate = req.params.date;
     //const duration = req.params.duration.toLowerCase();
-    const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");;
+    const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
 
+    //user input / user input query
+    if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
+
+    }
+
+    //watch / watch query
+    if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
+        res.send(await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate));
+    }
+
+
+
+
+
+});
+
+async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddate) {
+    const client = new pg.Client(conString);
+    await client.connect();
     let query1;
     let query2;
 
@@ -157,25 +176,14 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
     console.log(4);
     ///console.log(genericData1Format.rows)
-    res.send(await getBase64("http://localhost:8000/correlation", 'post',
+    return await getBase64("http://localhost:8000/correlation", 'post',
         genericData1Format.rows,
         genericData2Format.rows,
         parameter1,
         parameter2
-    ));
-});
+    );
+}
 
-//data values in database 
-//heart rate   - heartrate
-//sleep - duration - NOT WORKING
-//deepsleep - duration - NOT WORKING
-//sleepheartrate - value
-
-//format is fine
-//activeenegry - total
-//walkingrunningdistance -  total
-//stepcounter  - total 
-//flights climbed - total
 
 function genericFormatForR(data) {
     console.log(Object.keys(data.rows[0]));
@@ -185,7 +193,6 @@ function genericFormatForR(data) {
 
         //check for possbile keys need to add duplicate data for total key
         if (Object.keys(data.rows[0]).includes('heartrate')) {
-            console.log("HERERERERERERERR")
             //heart rate 
             for (let i = 0; i < data.rows.length; i++) {
                 data.rows[i].total = data.rows[i]['heartrate'];
