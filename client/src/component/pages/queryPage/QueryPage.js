@@ -72,6 +72,7 @@ class QueryPage extends Component {
     defaultCalendarValue: PropTypes.object,
   }
 
+
   constructor(props) {
     super(props);
     this.state = {
@@ -97,8 +98,8 @@ class QueryPage extends Component {
       //query1duration: "",
       image: null,
 
-      optionSelection1Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"],
-      optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"],
+      optionSelection1Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"],
+      optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"],
       optionSelection1Current: "activeenergyburned",
       optionSelection2Current: "deepsleep",
     };
@@ -320,7 +321,7 @@ class QueryPage extends Component {
 
   optionSelection1(item) {
     console.log(item)
-    let core = ["activitylevel", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
+    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"];
     let values = this.state.optionSelection1Values;
     if (item === undefined || item === null) {
       values = values.filter(i => {
@@ -346,7 +347,7 @@ class QueryPage extends Component {
   }
 
   optionSelection2(item) {
-    let core = ["activitylevel", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
+    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"];
     let values = this.state.optionSelection2Values;
     if (item === undefined || item === null) {
       values = values.filter(i => {
@@ -460,29 +461,9 @@ class QueryPage extends Component {
 
         <h2>Query 1:</h2>
         <span>I would like to see if</span>
-        {/* <select ref="query1watch">
-          <option value="activeenergyburned">ActivityLevel</option>
-          <option value="deepsleep">DeepSleep</option>
-          <option value="flightsclimbed">FlightsClimbed</option>
-          <option value="heartrate">HeartRate</option>
-          <option value="sleep">Sleep</option>
-          <option value="sleepheartrate">SleepHeartRate</option>
-          <option value="stepcounter">StepCounter</option>
-          <option value="walkingrunningdistance">WalkingRunningDistance</option>
-        </select> */}
         {this.optionSelection1()}
         <span>is related to</span>
         {this.optionSelection2()}
-        {/* <select ref="query1watch2">
-          <option value="activeenergyburned">ActivityLevel</option>
-          <option value="deepsleep">DeepSleep</option>
-          <option value="flightsclimbed">FlightsClimbed</option>
-          <option value="heartrate">HeartRate</option>
-          <option value="sleep">Sleep</option>
-          <option value="sleepheartrate">SleepHeartRate</option>
-          <option value="stepcounter">StepCounter</option>
-          <option value="walkingrunningdistance">WalkingRunningDistance</option>
-        </select> */}
         <span>during</span>
 
         <div style={{ width: 400, margin: 20 }}>
@@ -549,12 +530,6 @@ class QueryPage extends Component {
             </DatePicker>
           </div>
         </div>
-        {/*<span>for the duration of</span>*/}
-        {/*<select ref="query1duration">*/}
-        {/*<option value="Today">Today</option>*/}
-        {/*<option value="Week">Week</option>*/}
-        {/*<option value="Month">Month</option>*/}
-        {/*</select>*/}
 
         <button
           className="btn"
