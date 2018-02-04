@@ -19,15 +19,9 @@ routes.post("/user/sleepData", async function (req, res) {
     const dataModel = req.body.data;
     let sleepObject = {};
     let userID = {};
-    //fs.writeFileSync("DATA.sql", dataModel);
-
-    //filter out duration of 0
     const filteredDuration = dataModel.filter(item => {
       const data = JSON.parse(item);
       userID = Object.keys(data)[0];
-      // console.log("+++++++++++++++++++++++++++++++");
-      // console.log(item);
-      // console.log("+++++++++++++++++++++++++++++++");
       if (data[userID].hasOwnProperty("sleep_duration") && data[userID].sleep_duration.value !== 0) {
         return data;
       }
@@ -36,13 +30,8 @@ routes.post("/user/sleepData", async function (req, res) {
       }
     });
 
-
-    console.log(1);
-    fs.writeFileSync("filteredDATA.sql", filteredDuration);
-    fs.writeFileSync("DATA.sql", dataModel);
     const values = filteredDuration.map(item => {
       const data = JSON.parse(item);
-      //console.log(data[userID]);
       userID = Object.keys(data)[0];
       const endDate = moment(
         data[userID].effective_time_frame.time_interval.end_date_time
@@ -57,19 +46,15 @@ routes.post("/user/sleepData", async function (req, res) {
       return data;
     });
 
-    console.log(2);
-    //console.log("=========================");
     const timeKeys = Object.keys(sleepObject);
 
     const dataz = timeKeys.map(item => {
       return sleepObject[item].map(items => {
-        //console.log(items);
 
         //start end datetime
         if (items[userID]["metadata"]) {
           return items[userID]["metadata"].map(i => {
             if (i.key === "Asleep") {
-              console.log("Asleep");
               const sleepValue = i["value"];
               return {
                 [item]: { sleepDuration: sleepValue },
@@ -84,7 +69,6 @@ routes.post("/user/sleepData", async function (req, res) {
               };
             }
             if (i.key === "Average HR") {
-              console.log("heart_rate");
               const ahr = i["value"];
               return {
                 [item]: { ahr: ahr },
@@ -99,7 +83,6 @@ routes.post("/user/sleepData", async function (req, res) {
               };
             }
             if (i.key === "Deep Sleep") {
-              console.log("deep sleep");
               const deepSleep = i["value"];
               return {
                 [item]: { deepSleep: deepSleep },
@@ -132,16 +115,13 @@ routes.post("/user/sleepData", async function (req, res) {
         }
       });
     });
-    console.log(3);
     let sleepArray = [];
     let deepSleepArray = [];
     let sleepHeartRateArray = [];
     dataz.forEach(item => {
       item.forEach(item => {
         if (item) {
-          //console.log(item);
           item.forEach(item => {
-            //console.log(item);
             if (item) {
               const objectKeys = Object.keys(item);
               const keyValue = Object.keys(Object.entries(item)[0][1])[0];
@@ -164,7 +144,6 @@ routes.post("/user/sleepData", async function (req, res) {
         }
       });
     });
-    console.log(4);
     saveSleepData(sleepArray);
     saveDeepSleepData(deepSleepArray);
     saveSleepHeartRate(sleepHeartRateArray);
@@ -182,7 +161,6 @@ async function saveSleepData(array) {
   fs.writeFileSync("sleepData.sql", query);
   const data = await client.query(query);
   await client.end();
-  console.log(5);
 }
 
 async function saveDeepSleepData(array) {
@@ -196,7 +174,6 @@ async function saveDeepSleepData(array) {
   fs.writeFileSync("deepsleepData.sql", query);
   const data = await client.query(query);
   await client.end();
-  console.log(6);
 }
 
 async function saveSleepHeartRate(array) {
@@ -210,7 +187,6 @@ async function saveSleepHeartRate(array) {
   fs.writeFileSync("sleepheartrateData.sql", query);
   const data = await client.query(query);
   await client.end();
-  console.log(7);
 }
 
 routes.post("/user/walkingRunningDistance", async function (req, res) {
@@ -259,7 +235,6 @@ routes.post("/user/activeEnergyBurned", async function (req, res) {
 
       return [userID, value, start_date_time, end_date_time];
     });
-    //console.log(values);
     const query = format(
       "INSERT INTO activeenergyburned (userid, total, startdate, enddate) VALUES %L",
       values
@@ -282,10 +257,8 @@ routes.post("/user/flightsClimbed", async function (req, res) {
       const userID = Object.keys(data)[0];
       const count = data[userID].count;
       const { date_time } = data[userID].effective_time_frame;
-      //console.log(date_time);
       return [userID, count, date_time];
     });
-    //console.log(values);
     const query = format(
       "INSERT INTO flightsclimbed (userid, total, collectiondate) VALUES %L",
       values
@@ -298,12 +271,8 @@ routes.post("/user/flightsClimbed", async function (req, res) {
 });
 
 routes.post("/user/stepCounter", async function (req, res, next) {
-  console.log(req);
   if (req.body.data) {
     console.log("stepCounter");
-    console.log("+=============================");
-    console.log(req.body.data);
-    console.log("+=============================");
     const client = new pg.Client(conString);
     await client.connect();
     const dataModel = req.body.data;
@@ -331,8 +300,6 @@ routes.post("/user/stepCounter", async function (req, res, next) {
 });
 
 routes.post("/user/heartrate", async function (req, res) {
-  console.log(req.body.data);
-  console.log("hereing heartrate");
   if (req.body.data) {
     console.log("heartrate");
     const client = new pg.Client(conString);
@@ -359,7 +326,6 @@ routes.post("/user/heartrate", async function (req, res) {
 });
 
 routes.post("/user/mood", async function (req, res) {
-  console.log(req.body.user);
   const {
     uid,
     stress,
@@ -369,7 +335,6 @@ routes.post("/user/mood", async function (req, res) {
   } = req.body.user;
   const date = req.body.date;
   if (uid) {
-    console.log("here");
     const client = new pg.Client(conString);
     await client.connect();
     values = [
@@ -386,7 +351,6 @@ routes.post("/user/mood", async function (req, res) {
       "INSERT INTO userinput (userid, stresslevel,tirednesslevel,activitylevel,healthinesslevel,collectiondate) VALUES %L",
       values
     );
-    console.log(query);
     const data = await client.query(query);
     await client.end();
   }
@@ -395,7 +359,6 @@ routes.post("/user/mood", async function (req, res) {
 
 routes.post("/fitness/queryPage", async function (req, res) {
   //edit this
-  console.log("queryPageTest");
   const client = new pg.Client(conString);
   await client.connect();
   const userId = req.body.user.uid;
@@ -516,13 +479,11 @@ routes.post("/fitness/queryPage", async function (req, res) {
     return item[mood];
   });
   const data2Values = data2Array.map(item => {
-    return item[mood];x
+    return item[mood]; x
   });
 
   //make call here to function that will anayalse the data returned from the database
   await client.end();
-
-  //console.log(welchTTest(data1Values, data2Values, comparision));
 
   if (data1Values.length < 2 || data2Values.length < 2) {
     res.status(500).send("Not enough data to test");
@@ -535,7 +496,6 @@ routes.post("/fitness/queryPage", async function (req, res) {
 });
 
 routes.post("/user/updateSync/:userid", async function (req, res) {
-  console.log("here");
   const client = new pg.Client(conString);
   await client.connect();
   const userid = req.params.userid;
@@ -545,7 +505,6 @@ routes.post("/user/updateSync/:userid", async function (req, res) {
     new Date().toISOString(),
     userid
   );
-  //console.log(query);
   const data = await client.query(query);
   await client.end();
   res.send(true);
