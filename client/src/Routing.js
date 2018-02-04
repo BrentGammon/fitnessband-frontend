@@ -5,7 +5,6 @@ import Record from "./component/pages/record/Record";
 import QueryPage from "./component/pages/queryPage/QueryPage";
 import Header from "./component/menu/Header";
 import Navbar from "./component/menu/Navbar";
-import RDemo from "./component/pages/rdemo/RDemo";
 import "./routing.scss";
 import base from "./base";
 import firebase from "firebase";
@@ -73,7 +72,7 @@ class Routing extends Component {
         });
         console.log(this.ref);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
       });
   }
@@ -102,15 +101,15 @@ class Routing extends Component {
       .auth()
       .signOut()
       .then(
-        () => {
-          console.log("Signed Out");
-          this.setState({ login: false });
-          this.setState({ user: null });
-          this.setState({ uid: null });
-        },
-        error => {
-          console.error("Sign Out Error", error);
-        }
+      () => {
+        console.log("Signed Out");
+        this.setState({ login: false });
+        this.setState({ user: null });
+        this.setState({ uid: null });
+      },
+      error => {
+        console.error("Sign Out Error", error);
+      }
       );
   }
 
@@ -128,8 +127,8 @@ class Routing extends Component {
               </button>
             </div>
           ) : (
-            ""
-          )}
+              ""
+            )}
 
           <Route
             exact
@@ -154,10 +153,6 @@ class Routing extends Component {
             render={() => (
               <QueryPage login={this.state.login} uid={this.state.uid} />
             )}
-          />
-          <Route
-            path="/rDemo"
-            render={() => <RDemo login={this.state.login} />}
           />
         </div>
       </Router>
