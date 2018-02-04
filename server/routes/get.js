@@ -108,7 +108,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
-
+        res.send(await useruserQuery(parameter1, parameter2, userid, startdate, enddate));
     }
 
     //watch / watch query
@@ -127,17 +127,25 @@ async function useruserQuery(parameter1, parameter2, userid, startdate, enddate)
     const client = new pg.Client(conString);
     await client.connect();
     //collection date 
-    let query1 = format("SELECT %L FROM userinput WHERE userid = %L AND collectiondate" +
+    let query1 = format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate" +
         "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
-    let query2 = format("SELECT %L FROM userinput WHERE userid = %L AND collectiondate" +
+    let query2 = format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate" +
         "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
+    console.log(query1);
 
-    const data1 = await client.query(query1);
-    const data2 = await client.query(query2);
+    let data1 = await client.query(query1);
+    let data2 = await client.query(query2);
+    data1.rows = objectkeyReplace(data1.rows, 'collectiondate');
+    data1.rows = userInputTotalKey(data1.rows, parameter1);
+
+    data2.rows = objectkeyReplace(data2.rows, 'collectiondate');
+    data2.rows = userInputTotalKey(data2.rows, parameter2);
+
+    console.log(data1.rows[0])
 
     await client.end();
 
-    return await getBase64("http://localhost:8000/correlationUserInput", 'post',
+    return await getBase64("http://localhost:8000/correlation", 'post',
         data1.rows,
         data2.rows,
         parameter1,
@@ -235,11 +243,21 @@ function genericFormatForR(data) {
     return data
 }
 
+function userInputTotalKey(obj, moodKey) {
+    console.log("!@£@£@£@£@£@£@££@£")
+    console.log(moodKey);
+    console.log("!@£@£@£@£@£@£@££@£")
+    for (let i = 0; i < obj.length; i++) {
+        obj[i].total = obj[i][moodKey];
+    }
+    console.log(obj[0]);
+    return obj;
+}
+
 function objectkeyReplace(obj, collectionDate) {
     for (let i = 0; i < obj.length; i++) {
         obj[i].startdate = obj[i][collectionDate];
         obj[i].enddate = obj[i][collectionDate];//R needs a enddate key
-
     }
     return obj;
 }
