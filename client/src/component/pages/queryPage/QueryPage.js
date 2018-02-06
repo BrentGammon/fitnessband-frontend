@@ -18,6 +18,9 @@ import moment from 'moment';
 import 'moment/locale/zh-cn';
 import 'moment/locale/en-gb';
 
+//debugging
+import ReactJson from 'react-json-view';
+
 const format = 'YYYY-MM-DD HH:mm:ss';
 const cn = location.search.indexOf('cn') !== -1;
 
@@ -97,6 +100,7 @@ class QueryPage extends Component {
       query1date: "",
       //query1duration: "",
       image: null,
+      extraData: null,
 
       optionSelection1Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
       optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
@@ -224,22 +228,11 @@ class QueryPage extends Component {
 
     axios
       .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}`)
-      ///${data.query1duration}`)
-
-      // {
-      //   params: {
-      //     userid: object.user.uid,
-      //     parameter1: object.user.query1watch,
-      //     parameter2: object.user.query1watch2,
-      //     date: object.user.query1date,
-      //     duration: object.user.query1duration
-      //   }
-      // })
       .then(response => {
-        this.setState({ image: response.data });
-        //console.log(response.data);
-        //this.setState({ error: null });
-        //this.setState({ result: response.data });
+        this.setState({ image: response.data.image });
+        this.setState({ extraData: response.data.stats })
+        console.log(response.data);
+
       })
       .catch(error => {
         this.setState({ result: null });
@@ -390,6 +383,7 @@ class QueryPage extends Component {
     this.setState({ optionSelection1Current: event.target.value });
     console.log(event.target.value);
   }
+
 
 
   render() {
@@ -546,6 +540,14 @@ class QueryPage extends Component {
         ) : (
             console.log("there is no image to display")
           )}
+
+        {/* quick hack to display on page */}
+        <br />
+        <br />
+        <br />
+        <br />
+
+        {this.state.extraData ? <ReactJson src={this.state.extraData} /> : ''}
 
       </div>
     );
