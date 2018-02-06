@@ -86,6 +86,8 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
 
 
 
+
+
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     //:duration
 
@@ -98,21 +100,54 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     //const duration = req.params.duration.toLowerCase();
     const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
 
+    let response;
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
-        res.send(await useruserQuery(parameter1, parameter2, userid, startdate, enddate));
+        response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate);
+        //console.log(response);
+
+        response.image = await getBase64("http://localhost:8000/correlation", 'post',
+            response.data1.rows,
+            response.data2.rows,
+            parameter1,
+            parameter2
+        );
+        var information = await datasetInformation(response.data1.rows, response.data2.rows)
+        console.log(information)
     }
 
     //watch / watch query
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
-        res.send(await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate));
+        response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
+
+        response.image = await getBase64("http://localhost:8000/correlation", 'post',
+            response.data1.rows,
+            response.data2.rows,
+            parameter1,
+            parameter2
+        );
+
+        var information = await datasetInformation(response.data1.rows, response.data2.rows)
+        console.log(information.data)
     }
 
+    //get further information about the datasets
 
-
-
+    //console.log(response);
+    res.send(JSON.parse(information.data));
 
 });
+
+async function datasetInformation(dataset1, dataset2) {
+    return await axios.post("http://localhost:8000/datasetInformation", {
+        dataset1,
+        dataset2
+    })
+}
+
+
+
+
 
 
 async function useruserQuery(parameter1, parameter2, userid, startdate, enddate) {
@@ -134,13 +169,23 @@ async function useruserQuery(parameter1, parameter2, userid, startdate, enddate)
 
     await client.end();
 
-    return await getBase64("http://localhost:8000/correlation", 'post',
-        data1.rows,
-        data2.rows,
+    return {
+        data1,
+        data2,
         parameter1,
         parameter2
-    );
+    }
+
+    // return await getBase64("http://localhost:8000/correlation", 'post',
+    //     data1.rows,
+    //     data2.rows,
+    //     parameter1,
+    //     parameter2
+    // );
 }
+
+
+
 
 async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddate) {
     const client = new pg.Client(conString);
@@ -167,8 +212,8 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     }
 
 
-    const data1 = await client.query(query1);
-    const data2 = await client.query(query2);
+    let data1 = await client.query(query1);
+    let data2 = await client.query(query2);
 
     await client.end();
     if (!Object.keys(data1.rows[0]).includes('startdate')) {
@@ -179,15 +224,56 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
         data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
     }
 
-    const genericData1Format = genericFormatForR(data1);
-    const genericData2Format = genericFormatForR(data2);
+    data1 = genericFormatForR(data1);
+    data2 = genericFormatForR(data2);
 
-    return await getBase64("http://localhost:8000/correlation", 'post',
-        genericData1Format.rows,
-        genericData2Format.rows,
+    // return await getBase64("http://localhost:8000/correlation", 'post',
+    //     genericData1Format.rows,
+    //     genericData2Format.rows,
+    //     parameter1,
+    //     parameter2
+    // );
+
+    return {
+        data1,
+        data2,
         parameter1,
         parameter2
-    );
+    }
+}
+
+//https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
+async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) {
+    let value = null;
+    let data = {};
+    if (data !== null) {
+        if (httpMethod === 'get') {
+            params: {
+                data
+            }
+        }
+
+        if (httpMethod === 'post') {
+            data = {
+                dataset1: data1,
+                dataset2: data2,
+                parameter1: parameter1,
+                parameter2: parameter2
+            }
+        }
+    }
+    return await axios({
+        method: httpMethod,
+        url,
+        data,
+        responseType: "arraybuffer"
+    }).then(
+        response =>
+            (value = new Buffer(response.data, "binary").toString("base64"))
+        ).catch(error => {
+            res.send(error.data);
+        });
+    return value;
 }
 
 
@@ -233,41 +319,6 @@ function objectkeyReplace(obj, collectionDate) {
         obj[i].enddate = obj[i][collectionDate];//R needs a enddate key
     }
     return obj;
-}
-
-
-//https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
-async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) {
-    let value = null;
-    let data = {};
-    if (data !== null) {
-        if (httpMethod === 'get') {
-            params: {
-                data
-            }
-        }
-
-        if (httpMethod === 'post') {
-            data = {
-                dataset1: data1,
-                dataset2: data2,
-                parameter1: parameter1,
-                parameter2: parameter2
-            }
-        }
-    }
-    return await axios({
-        method: httpMethod,
-        url,
-        data,
-        responseType: "arraybuffer"
-    }).then(
-        response =>
-            (value = new Buffer(response.data, "binary").toString("base64"))
-        ).catch(error => {
-            res.send(error.data);
-        });
-    return value;
 }
 
 module.exports = routes;
