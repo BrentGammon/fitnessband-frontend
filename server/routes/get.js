@@ -127,21 +127,28 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter2
         );
 
-        var information = await datasetInformation(response.data1.rows, response.data2.rows)
-        console.log(information.data)
+        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+
     }
 
     //get further information about the datasets
 
     //console.log(response);
-    res.send(JSON.parse(information.data));
+    const data = {
+        image: response.image,
+        stats: JSON.parse(response.stats.data)
+    }
+    console.log(data);
+    res.send(data);
 
 });
 
-async function datasetInformation(dataset1, dataset2) {
+async function datasetInformation(dataset1, dataset2, parameter1, parameter2) {
     return await axios.post("http://localhost:8000/datasetInformation", {
         dataset1,
-        dataset2
+        dataset2,
+        parameter1,
+        parameter2
     })
 }
 
