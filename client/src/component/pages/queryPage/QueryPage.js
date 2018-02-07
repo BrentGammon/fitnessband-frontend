@@ -18,6 +18,9 @@ import moment from 'moment';
 import 'moment/locale/zh-cn';
 import 'moment/locale/en-gb';
 
+import Accordion from '../../shared/Accordion';
+import FurtherInformation from './FutherInformation';
+
 //debugging
 import ReactJson from 'react-json-view';
 
@@ -541,13 +544,11 @@ class QueryPage extends Component {
             console.log("there is no image to display")
           )}
 
-        {/* quick hack to display on page */}
-        <br />
-        <br />
-        <br />
-        <br />
 
-        {this.state.extraData ? <ReactJson src={this.state.extraData} /> : ''}
+        {this.state.extraData ?
+          <Accordion text="More Information">
+            <FurtherInformation extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Current} optionSelection2Current={this.state.optionSelection2Current} />
+          </Accordion> : ''}
 
       </div>
     );
