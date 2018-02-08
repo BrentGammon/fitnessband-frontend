@@ -96,36 +96,40 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
 
+    console.log(parameter1);
+    console.log(parameter2);
+
     const startdate = req.params.date;
     //const duration = req.params.duration.toLowerCase();
     const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
 
     let response;
+    let image;
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
         response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate);
-        //console.log(response);
 
-        response.image = await getBase64("http://localhost:8000/correlation", 'post',
+        image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
             response.data2.rows,
             parameter1,
             parameter2
         );
-        var information = await datasetInformation(response.data1.rows, response.data2.rows)
-        console.log(information)
+        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        console.log(response.stats)
     }
 
     //watch / watch query
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
 
-        response.image = await getBase64("http://localhost:8000/correlation", 'post',
+        image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
             response.data2.rows,
             parameter1,
             parameter2
         );
+
 
         response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
 
@@ -135,10 +139,9 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
     //console.log(response);
     const data = {
-        image: response.image,
+        image: image,
         stats: JSON.parse(response.stats.data)
     }
-    console.log(data);
     res.send(data);
 
 });
@@ -158,6 +161,7 @@ async function datasetInformation(dataset1, dataset2, parameter1, parameter2) {
 
 
 async function useruserQuery(parameter1, parameter2, userid, startdate, enddate) {
+    console.log('hello world');
     const client = new pg.Client(conString);
     await client.connect();
     //collection date 
@@ -175,6 +179,9 @@ async function useruserQuery(parameter1, parameter2, userid, startdate, enddate)
     data2.rows = userInputTotalKey(data2.rows, parameter2);
 
     await client.end();
+
+
+
 
     return {
         data1,
@@ -280,6 +287,7 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
         ).catch(error => {
             res.send(error.data);
         });
+    console.log(value);
     return value;
 }
 
