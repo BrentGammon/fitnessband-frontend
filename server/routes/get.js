@@ -31,7 +31,7 @@ const firebase = require("firebase");
 
 const admin = require('../firebaseconfig/firebaseAdmin');
 
-const userInputValues = ["stresslevel", "tirednesslevel", "activtylevel", "healthinesslevel"];
+const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
 const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
 
 routes.get('/test/:id', async (req, res) => {
@@ -115,8 +115,8 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter1,
             parameter2
         );
-        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
-        console.log(response.stats)
+        //response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        //console.log(response.stats)
     }
 
     //watch / watch query
@@ -131,7 +131,22 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         );
 
 
-        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        //response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+
+    }
+
+    //watch / user query
+    if ((watchInputValues.includes(parameter1) && userInputValues.includes(parameter2)) || (watchInputValues.includes(parameter2) && userInputValues.includes(parameter1))) {
+            response = await watchuserQuery(parameter1, parameter2, userid, startdate, enddate);
+
+            image = await getBase64("http://localhost:8000/moodwatchcorrelation", 'post',
+            response.data1.rows,
+            response.data2.rows,
+            parameter1,
+            parameter2
+        );
+
+        //response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
 
     }
 
@@ -140,7 +155,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     //console.log(response);
     const data = {
         image: image,
-        stats: JSON.parse(response.stats.data)
+        //stats: JSON.parse(response.stats.data)
     }
     res.send(data);
 
@@ -256,6 +271,74 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     }
 }
 
+async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate) {
+    const client = new pg.Client(conString);
+    await client.connect();
+    let query1;
+    let query2;
+    const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
+    const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
+    
+    if(userInputValues.includes(parameter1)){
+        query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
+        "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter1, userid, startdate, enddate);
+        //console.log(query1);
+        if (startdateColumn.includes(parameter2)) {
+            query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+                "< %L AND startdate > %L ORDER BY startdate DESC", parameter2, userid, startdate, enddate);
+                //console.log(query2);
+        } else {
+            query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
+                "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
+                //console.log(query2);
+        }
+    }else{
+        query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
+        "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
+
+        if (startdateColumn.includes(parameter1)) {
+            query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
+                "< %L AND startdate > %L ORDER BY startdate DESC", parameter1, userid, startdate, enddate);
+        } else {
+            query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
+                "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter1, userid, startdate, enddate);
+        }
+    }
+    let data1 = await client.query(query1);
+    let data2 = await client.query(query2);
+    data1.rows = objectkeyReplace(data1.rows, 'collectiondate');
+
+    if(userInputValues.includes(parameter1)){
+        data1.rows = userInputTotalKey(data1.rows, parameter1);
+        data1.rows = userInputMWLevelKey(data1.rows, parameter1);
+    }else if(userInputValues.includes(parameter2)){
+        data1.rows = userInputTotalKey(data1.rows, parameter2);
+        data1.rows = userInputMWLevelKey(data1.rows, parameter2);       
+    }
+
+    await client.end();
+
+    if (!Object.keys(data1.rows[0]).includes('startdate')) {
+        data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+    }
+    console.log(data1.rows);
+    if (!Object.keys(data2.rows[0]).includes('startdate')) {
+        data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
+    }
+
+    data1 = genericFormatForR(data1);
+    data2 = genericFormatForR(data2);
+
+
+    return {
+        data1,
+        data2,
+        parameter1,
+        parameter2
+    }
+}
+
+
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
 async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) {
     let value = null;
@@ -324,6 +407,13 @@ function genericFormatForR(data) {
 function userInputTotalKey(obj, moodKey) {
     for (let i = 0; i < obj.length; i++) {
         obj[i].total = obj[i][moodKey];
+    }
+    return obj;
+}
+
+function userInputMWLevelKey(obj, moodKey) {
+    for (let i = 0; i < obj.length; i++) {
+        obj[i].level = obj[i][moodKey];
     }
     return obj;
 }
