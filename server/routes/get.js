@@ -192,14 +192,16 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     //watch / user query
     if ((watchInputValues.includes(parameter1) && userInputValues.includes(parameter2)) || (watchInputValues.includes(parameter2) && userInputValues.includes(parameter1))) {
         response = await watchuserQuery(parameter1, parameter2, userid, startdate, enddate);
-
+        console.log(parameter1)
+        console.log(parameter2)
         image = await getBase64("http://localhost:8000/testendpoint", 'post',
             response.data,
-            response.parameter1,
-            response.parameter2
+            {},
+            parameter1,
+            parameter2
         );
         //todo data format
-        //response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
     }
 
@@ -208,12 +210,12 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
 
 
-    //const data = {
-    // image: image,
-    //  stats: JSON.parse(response.stats.data)
-    // }
+    const data = {
+        image: image,
+        stats: JSON.parse(response.stats.data)
+    }
     //res.send(response);
-    res.send(image)
+    res.send(data)
 
 });
 
@@ -226,6 +228,13 @@ async function datasetInformation(dataset1, dataset2, parameter1, parameter2) {
     })
 }
 
+async function datasetInformationMoodWatch(dataset1, parameter1, parameter2) {
+    return await axios.post("http://localhost:8000/datasetInformationMoodWatch", {
+        dataset1,
+        parameter1,
+        parameter2
+    })
+}
 
 async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate) {
     console.log("watch mood function")

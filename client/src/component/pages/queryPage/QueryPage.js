@@ -20,6 +20,7 @@ import 'moment/locale/en-gb';
 
 import Accordion from '../../shared/Accordion';
 import FurtherInformation from './FutherInformation';
+import FurtherInformationMoodWatch from './FutherInformationMoodWatch';
 
 //debugging
 import ReactJson from 'react-json-view';
@@ -42,6 +43,9 @@ const defaultCalendarValue = now.clone();
 defaultCalendarValue.add(-1, 'month');
 
 const timePickerElement = <TimePickerPanel defaultValue={moment('00:00:00', 'HH:mm:ss')} />;
+
+const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
+const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
 
 // function disabledTime(date){
 //   console.log('disabledTime', date);
@@ -77,7 +81,6 @@ class QueryPage extends Component {
     defaultValue: PropTypes.object,
     defaultCalendarValue: PropTypes.object,
   }
-
 
   constructor(props) {
     super(props);
@@ -393,6 +396,10 @@ class QueryPage extends Component {
   render() {
     //conditional rendering
 
+    const parameter1 = this.state.optionSelection1Current;
+    const parameter2 = this.state.optionSelection2Current;
+
+
     const state = this.state;
     const calendar = (<Calendar
       locale={cn ? zhCN : enUS}
@@ -546,10 +553,21 @@ class QueryPage extends Component {
           )}
 
 
-        {this.state.extraData ?
-          <Accordion text="More Information">
-            <FurtherInformation extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Current} optionSelection2Current={this.state.optionSelection2Current} />
-          </Accordion> : ''}
+        {console.log()}
+        {console.log(userInputValues.includes(this.state.optionSelection2Current) && watchInputValues.includes(this.state.optionSelection1Current))}
+
+        {
+          userInputValues.includes(this.state.optionSelection1Current) && watchInputValues.includes(this.state.optionSelection2Current) || userInputValues.includes(this.state.optionSelection2Current) && watchInputValues.includes(this.state.optionSelection1Current) ?
+            this.state.extraData ?
+              <Accordion text="More Information">
+                <FurtherInformationMoodWatch extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Current} optionSelection2Current={this.state.optionSelection2Current} />
+              </Accordion> : ''
+
+            :
+            this.state.extraData ?
+              <Accordion text="More Information">
+                <FurtherInformation extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Current} optionSelection2Current={this.state.optionSelection2Current} />
+              </Accordion> : ''}
 
       </div>
     );
