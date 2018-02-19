@@ -84,7 +84,36 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     res.send(result);
 });
 
+routes.get('/charts/:userid/', async (req, res) => {
+    const presentTime = moment(new Date()).format("YYYY-MM-DD");
+    const enddate = moment(new Date(presentTime)).subtract(30, 'days').format("YYYY-MM-DD");
+    const userid = req.params.userid;
+    let response;
+    let image;
+    console.log(userid);
+    console.log(presentTime);
+    console.log(enddate);
 
+    response = await dashboardCharts(userid, presentTime, enddate);
+    
+    image = await getBase64dashboardcharts("http://localhost:8000/dashboardcharts", 'post',
+        response.data1.rows,
+        response.data2.rows,
+        response.data3.rows,
+        response.data4.rows,
+        response.data5.rows,
+        response.data6.rows,
+        response.data7.rows,
+        response.data8.rows,
+        response.data9.rows
+    );
+
+    const data = {
+        image: image,
+        //stats: JSON.parse(response.stats.data)
+    }
+    res.send(data);
+});
 
 
 
@@ -310,10 +339,10 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
 
     if(userInputValues.includes(parameter1)){
         data1.rows = userInputTotalKey(data1.rows, parameter1);
-        data1.rows = userInputMWLevelKey(data1.rows, parameter1);
+        //data1.rows = userInputMWLevelKey(data1.rows, parameter1);
     }else if(userInputValues.includes(parameter2)){
         data1.rows = userInputTotalKey(data1.rows, parameter2);
-        data1.rows = userInputMWLevelKey(data1.rows, parameter2);       
+        //data1.rows = userInputMWLevelKey(data1.rows, parameter2);       
     }
 
     await client.end();
@@ -339,6 +368,133 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
 }
 
 
+async function dashboardCharts(userid, presentTime, enddate) {
+    const client = new pg.Client(conString);
+    await client.connect();
+    let activeenergyburnedquery1;
+    let deepsleepquery2;
+    let flightsclimbedquery3;
+    let heartratequery4;
+    let sleepquery5;
+    let sleepheartratequery6;
+    let stepcounterquery7;
+    let walkingrunningdistancequery8;
+    let userinput9;
+
+    //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
+
+    activeenergyburnedquery1 = format("SELECT * FROM activeenergyburned WHERE userid = %L AND startdate " +
+            "< %L AND startdate > %L", userid, presentTime, enddate);
+
+    deepsleepquery2 = format("SELECT * FROM deepsleep WHERE userid = %L AND startdate" +
+            "< %L AND startdate > %L", userid, presentTime, enddate);
+
+    flightsclimbedquery3 = format("SELECT * FROM flightsclimbed WHERE userid = %L AND collectiondate " +
+            "< %L AND collectiondate > %L", userid, presentTime, enddate);
+
+    heartratequery4 = format("SELECT * FROM heartrate WHERE userid = %L AND collectiondate" +
+            "< %L AND collectiondate > %L", userid, presentTime, enddate);
+
+    sleepquery5 = format("SELECT * FROM sleep WHERE userid = %L AND startdate" +
+            "< %L AND startdate > %L", userid, presentTime, enddate);
+
+    sleepheartratequery6 = format("SELECT * FROM sleepheartrate WHERE userid = %L AND startdate" +
+            "< %L AND startdate > %L", userid, presentTime, enddate);
+
+    stepcounterquery7 = format("SELECT * FROM stepcounter WHERE userid = %L AND startdate" +
+            "< %L AND startdate > %L", userid, presentTime, enddate);
+
+    walkingrunningdistancequery8 = format("SELECT * FROM walkingrunningdistance WHERE userid = %L AND startdate" +
+            "< %L AND startdate > %L", userid, presentTime, enddate);
+
+    userinput9 = format("SELECT * FROM userinput WHERE userid = %L AND collectiondate" +
+            "< %L AND collectiondate > %L", userid, presentTime, enddate);
+
+
+
+
+    let data1 = await client.query(activeenergyburnedquery1);
+    let data2 = await client.query(deepsleepquery2);
+    let data3 = await client.query(flightsclimbedquery3);
+    let data4 = await client.query(heartratequery4);
+    let data5 = await client.query(sleepquery5);
+    let data6 = await client.query(sleepheartratequery6);
+    let data7 = await client.query(stepcounterquery7);
+    let data8 = await client.query(walkingrunningdistancequery8);
+    let data9 = await client.query(userinput9);
+
+    await client.end();
+    if (!Object.keys(data1.rows[0]).includes('startdate')) {
+        data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data2.rows[0]).includes('startdate')) {
+        data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data3.rows[0]).includes('startdate')) {
+        data3.rows = objectkeyReplace(data3.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data4.rows[0]).includes('startdate')) {
+        data4.rows = objectkeyReplace(data4.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data5.rows[0]).includes('startdate')) {
+        data5.rows = objectkeyReplace(data5.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data6.rows[0]).includes('startdate')) {
+        data6.rows = objectkeyReplace(data6.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data7.rows[0]).includes('startdate')) {
+        data7.rows = objectkeyReplace(data7.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data8.rows[0]).includes('startdate')) {
+        data8.rows = objectkeyReplace(data8.rows, 'collectiondate', 'startdate');
+    }
+
+    if (!Object.keys(data9.rows[0]).includes('startdate')) {
+        data9.rows = objectkeyReplace(data9.rows, 'collectiondate', 'startdate');
+    }
+
+    data1 = genericFormatForR(data1);
+    data2 = genericFormatForR(data2);
+    data3 = genericFormatForR(data3);
+    data4 = genericFormatForR(data4);
+    data5 = genericFormatForR(data5);
+    data6 = genericFormatForR(data6);
+    data7 = genericFormatForR(data7);
+    data8 = genericFormatForR(data8);
+    data9 = genericFormatForR(data9);
+
+    // return await getBase64("http://localhost:8000/correlation", 'post',
+    //     genericData1Format.rows,
+    //     genericData2Format.rows,
+    //     parameter1,
+    //     parameter2
+    // );
+
+    return {
+        data1,
+        data2,
+        data3,
+        data4,
+        data5,
+        data6,
+        data7,
+        data8,
+        data9
+    }
+}
+
+
+
+
+
+
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64
 async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) {
     let value = null;
@@ -356,6 +512,45 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
                 dataset2: data2,
                 parameter1: parameter1,
                 parameter2: parameter2
+            }
+        }
+    }
+    return await axios({
+        method: httpMethod,
+        url,
+        data,
+        responseType: "arraybuffer"
+    }).then(
+        response =>
+            (value = new Buffer(response.data, "binary").toString("base64"))
+        ).catch(error => {
+            res.send(error.data);
+        });
+    console.log(value);
+    return value;
+}
+
+async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, data4, data5, data6, data7, data8, data9) {
+    let value = null;
+    let data = {};
+    if (data !== null) {
+        if (httpMethod === 'get') {
+            params: {
+                data
+            }
+        }
+
+        if (httpMethod === 'post') {
+            data = {
+                dataset1: data1,
+                dataset2: data2,
+                dataset3: data3,
+                dataset4: data4,
+                dataset5: data5,
+                dataset6: data6,
+                dataset7: data7,
+                dataset8: data8,
+                dataset9: data9,
             }
         }
     }

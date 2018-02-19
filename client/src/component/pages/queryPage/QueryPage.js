@@ -192,6 +192,22 @@ class QueryPage extends Component {
   //   });
   //}
 
+  componentWillMount(){
+    axios
+      .get(`/api/get/charts/${this.props.uid}`)
+      .then(response => {
+        console.log(response);
+        this.setState({ image: response.data.image });
+        //console.log(this.props.uid);
+        console.log("blank");
+      }).catch(error => {
+        console.log(error);
+      })
+  }
+
+
+
+
   clickHandler(sd, ed, c, m) {
     if (sd !== ed) {
       let object = {
@@ -228,7 +244,7 @@ class QueryPage extends Component {
       //query1duration: q1du,
     };
 
-
+  
     axios
       .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}`)
       .then(response => {
