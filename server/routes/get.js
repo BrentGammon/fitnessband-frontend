@@ -70,7 +70,7 @@ routes.get("/user/:userid", async function (req, res) {
 });
 
 
-routes.get("/user/average/:userid", async function (req, res) {
+routes.get("/user/summary/:userid", async function (req, res) {
     //select ROUND(AVG(heartrate)) from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '1 month') group by userid
     //select ROUND(AVG(duration)) from deepsleep where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
     //select ROUND(AVG(duration)) from sleep where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
@@ -79,7 +79,21 @@ routes.get("/user/average/:userid", async function (req, res) {
     let deepsleep = await averageWatchData(req.params.userid, 'deepsleep', 'duration', 'enddate', 'deepsleep', 'avg');
     let sleep = await averageWatchData(req.params.userid, 'sleep', 'duration', 'enddate', 'sleep', 'avg');
     let sleepheartRate = await averageWatchData(req.params.userid, 'sleepheartrate', 'value', 'enddate', 'sleepheartrate', 'avg');
-    res.send(deepsleep);
+    let activeenergyburned = await averageWatchData(req.params.userid, 'activeenergyburned', 'total', 'enddate', 'activeenergyburned', 'sum');
+    let flightsclimbed = await averageWatchData(req.params.userid, 'flightsclimbed', 'total', 'enddate', 'flightsclimbed', 'sum');
+    let stepcounter = await averageWatchData(req.params.userid, 'stepcounter', 'total', 'enddate', 'stepcounter', 'sum');
+    let walkingrunningdistance = await averageWatchData(req.params.userid, 'walkingrunningdistance', 'total', 'enddate', 'walkingrunningdistance', 'sum');
+
+    res.send({
+        heartRate: heartRate,
+        deepSleep: deepsleep,
+        totalSleep: sleep,
+        sleepHeartRate: sleepheartRate,
+        activeEnergyBurned: activeenergyburned,
+        flightsClimbed: flightsclimbed,
+        steps: stepcounter,
+        walkingRunningDistance: walkingrunningdistance
+    });
 
     //select ROUND(SUM(total)) from activeenergyburned where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
     //select ROUND(SUM(total)) from flightsclimbed where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > date_trunc('day', NOW() - interval '1 month') group by userid
@@ -150,7 +164,7 @@ routes.get('/charts/:userid/', async (req, res) => {
     console.log(enddate);
 
     response = await dashboardCharts(userid, presentTime, enddate);
-    
+
     image = await getBase64dashboardcharts("http://localhost:8000/dashboardcharts", 'post',
         response.data1.rows,
         response.data2.rows,
@@ -557,23 +571,23 @@ routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (r
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
 
-    
-    if(userInputValues.includes(parameter1)){
+
+    if (userInputValues.includes(parameter1)) {
         query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
-        "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter1, userid, startdate, enddate);
+            "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter1, userid, startdate, enddate);
         //console.log(query1);
         if (startdateColumn.includes(parameter2)) {
             query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
                 "< %L AND startdate > %L ORDER BY startdate DESC", parameter2, userid, startdate, enddate);
-                //console.log(query2);
+            //console.log(query2);
         } else {
             query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
                 "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
-                //console.log(query2);
+            //console.log(query2);
         }
-    }else{
+    } else {
         query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
-        "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
+            "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
 
         if (startdateColumn.includes(parameter1)) {
             query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
@@ -587,10 +601,10 @@ routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (r
     let data2 = await client.query(query2);
     data1.rows = objectkeyReplace(data1.rows, 'collectiondate');
 
-    if(userInputValues.includes(parameter1)){
+    if (userInputValues.includes(parameter1)) {
         data1.rows = userInputTotalKey(data1.rows, parameter1);
         //data1.rows = userInputMWLevelKey(data1.rows, parameter1);
-    }else if(userInputValues.includes(parameter2)){
+    } else if (userInputValues.includes(parameter2)) {
         data1.rows = userInputTotalKey(data1.rows, parameter2);
         //data1.rows = userInputMWLevelKey(data1.rows, parameter2);       
     }
@@ -647,31 +661,31 @@ async function dashboardCharts(userid, presentTime, enddate) {
     //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
 
     activeenergyburnedquery1 = format("SELECT * FROM activeenergyburned WHERE userid = %L AND startdate " +
-            "< %L AND startdate > %L", userid, presentTime, enddate);
+        "< %L AND startdate > %L", userid, presentTime, enddate);
 
     deepsleepquery2 = format("SELECT * FROM deepsleep WHERE userid = %L AND startdate" +
-            "< %L AND startdate > %L", userid, presentTime, enddate);
+        "< %L AND startdate > %L", userid, presentTime, enddate);
 
     flightsclimbedquery3 = format("SELECT * FROM flightsclimbed WHERE userid = %L AND collectiondate " +
-            "< %L AND collectiondate > %L", userid, presentTime, enddate);
+        "< %L AND collectiondate > %L", userid, presentTime, enddate);
 
     heartratequery4 = format("SELECT * FROM heartrate WHERE userid = %L AND collectiondate" +
-            "< %L AND collectiondate > %L", userid, presentTime, enddate);
+        "< %L AND collectiondate > %L", userid, presentTime, enddate);
 
     sleepquery5 = format("SELECT * FROM sleep WHERE userid = %L AND startdate" +
-            "< %L AND startdate > %L", userid, presentTime, enddate);
+        "< %L AND startdate > %L", userid, presentTime, enddate);
 
     sleepheartratequery6 = format("SELECT * FROM sleepheartrate WHERE userid = %L AND startdate" +
-            "< %L AND startdate > %L", userid, presentTime, enddate);
+        "< %L AND startdate > %L", userid, presentTime, enddate);
 
     stepcounterquery7 = format("SELECT * FROM stepcounter WHERE userid = %L AND startdate" +
-            "< %L AND startdate > %L", userid, presentTime, enddate);
+        "< %L AND startdate > %L", userid, presentTime, enddate);
 
     walkingrunningdistancequery8 = format("SELECT * FROM walkingrunningdistance WHERE userid = %L AND startdate" +
-            "< %L AND startdate > %L", userid, presentTime, enddate);
+        "< %L AND startdate > %L", userid, presentTime, enddate);
 
     userinput9 = format("SELECT * FROM userinput WHERE userid = %L AND collectiondate" +
-            "< %L AND collectiondate > %L", userid, presentTime, enddate);
+        "< %L AND collectiondate > %L", userid, presentTime, enddate);
 
 
 
