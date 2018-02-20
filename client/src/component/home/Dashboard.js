@@ -6,6 +6,7 @@ import "./loginbuttons.scss";
 import UserProfile from "../userprofile/UserProfile";
 import Summary from "./Summary";
 import axios from "axios";
+import './dashboard.scss';
 
 class Dashboard extends Component {
   constructor() {
@@ -31,7 +32,7 @@ class Dashboard extends Component {
       <div className="App">
         {!this.props.login ? this.renderLogIn() : ""}
         {this.props.user ? (
-          <div>
+          <div className="dashboardContainer">
             <Summary
               uid={this.props.user.uid}
             />
@@ -39,7 +40,7 @@ class Dashboard extends Component {
               profileImage={this.props.user.photoURL}
               name={this.props.user.name}
               email={this.props.user.email}
-              uid={this.props.user.uid}
+
             />
           </div>
         ) : (

@@ -6,6 +6,7 @@
     font-weight: bold;
    
     padding: 10px;
+    margin-bottom: 10px;
     margin-left: 10px;
     > p{
         text-align: center;
@@ -15,7 +16,7 @@
 
 .summaryContainer {
    // display: inline-block;
-    
+    height:100%;
     padding-top: 10px;   
     display:flex;
     flex-wrap: wrap;
