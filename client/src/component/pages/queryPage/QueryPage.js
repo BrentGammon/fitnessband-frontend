@@ -195,7 +195,7 @@ class QueryPage extends Component {
   //   });
   //}
 
-  componentWillMount(){
+  componentWillMount() {
     axios
       .get(`/api/get/charts/${this.props.uid}`)
       .then(response => {
@@ -247,7 +247,7 @@ class QueryPage extends Component {
       //query1duration: q1du,
     };
 
-  
+
     axios
       .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}`)
       .then(response => {
@@ -432,7 +432,7 @@ class QueryPage extends Component {
     return (
       <div className="querysection">
         {!this.props.login ? <Redirect to="/" /> : ""}
-        {/* <span>I feel</span>
+        <span>I feel</span>
 
         <select ref="comparision">
           <option value="More">More</option>
@@ -478,7 +478,7 @@ class QueryPage extends Component {
           <p className="error_text">{this.state.error}</p>
         ) : (
             ""
-          )} */}
+          )}
 
         <h2>Query 1:</h2>
         <span>I would like to see if</span>
