@@ -11,16 +11,9 @@ class Dashboard extends Component {
   constructor() {
     super();
     this.renderLogIn = this.renderLogIn.bind(this);
+
   }
 
-  componentWillMount() {
-    console.log(this.props.uid);
-    // axios.get(`/api/get/user/summary/${this.props.user.uid}`, (response) => {
-    //   console.log(response);
-    // }).catch((error) => {
-    //   console.log(error);
-    // })
-  }
 
   renderLogIn() {
     return (
@@ -40,13 +33,13 @@ class Dashboard extends Component {
         {this.props.user ? (
           <div>
             <Summary
-              value={25}
-              label="Brent is a cunt"
+              uid={this.props.user.uid}
             />
             <UserProfile
               profileImage={this.props.user.photoURL}
               name={this.props.user.name}
               email={this.props.user.email}
+              uid={this.props.user.uid}
             />
           </div>
         ) : (

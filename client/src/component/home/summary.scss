@@ -1,4 +1,57 @@
 .summary {
-    color: hotpink;
-    font-size: 50px;
+    border-style: solid;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+   
+    padding: 10px;
+    margin-left: 10px;
+    > p{
+        text-align: center;
+    }
+    
 }
+
+.summaryContainer {
+   // display: inline-block;
+    
+    padding-top: 10px;   
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+   
+}
+
+#heartRate{
+    background-color: #cc66ff;
+}
+
+#deepSleep {
+    background-color: #ff66cc; 
+}
+
+#totalSleep{
+    background-color: #6699ff;
+}
+
+#sleepHeartRate{
+    background-color: #33ccff;
+}
+
+#activeEnergyBurned{
+    background-color: #66ffcc;
+}
+
+#flightsClimbed {
+    background-color: #ccff99;
+}
+
+#steps{
+    background-color: #ff9999;
+}
+
+#walkingRunningDistance{
+    background-color: #ff9933;
+}
+

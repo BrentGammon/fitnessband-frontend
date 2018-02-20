@@ -80,19 +80,29 @@ routes.get("/user/summary/:userid", async function (req, res) {
     let sleep = await averageWatchData(req.params.userid, 'sleep', 'duration', 'enddate', 'sleep', 'avg');
     let sleepheartRate = await averageWatchData(req.params.userid, 'sleepheartrate', 'value', 'enddate', 'sleepheartrate', 'avg');
     let activeenergyburned = await averageWatchData(req.params.userid, 'activeenergyburned', 'total', 'enddate', 'activeenergyburned', 'sum');
-    let flightsclimbed = await averageWatchData(req.params.userid, 'flightsclimbed', 'total', 'enddate', 'flightsclimbed', 'sum');
+    let flightsclimbed = await averageWatchData(req.params.userid, 'flightsclimbed', 'total', 'collectiondate', 'flightsclimbed', 'sum');
     let stepcounter = await averageWatchData(req.params.userid, 'stepcounter', 'total', 'enddate', 'stepcounter', 'sum');
     let walkingrunningdistance = await averageWatchData(req.params.userid, 'walkingrunningdistance', 'total', 'enddate', 'walkingrunningdistance', 'sum');
-
+    console.log("summary");
+    console.log({
+        heartRate: heartRate.rows,
+        deepSleep: deepsleep.rows,
+        totalSleep: sleep.rows,
+        sleepHeartRate: sleepheartRate.rows,
+        activeEnergyBurned: activeenergyburned.rows,
+        flightsClimbed: flightsclimbed.rows,
+        steps: stepcounter.rows,
+        walkingRunningDistance: walkingrunningdistance.rows
+    })
     res.send({
-        heartRate: heartRate,
-        deepSleep: deepsleep,
-        totalSleep: sleep,
-        sleepHeartRate: sleepheartRate,
-        activeEnergyBurned: activeenergyburned,
-        flightsClimbed: flightsclimbed,
-        steps: stepcounter,
-        walkingRunningDistance: walkingrunningdistance
+        heartRate: heartRate.rows,
+        deepSleep: deepsleep.rows,
+        totalSleep: sleep.rows,
+        sleepHeartRate: sleepheartRate.rows,
+        activeEnergyBurned: activeenergyburned.rows,
+        flightsClimbed: flightsclimbed.rows,
+        steps: stepcounter.rows,
+        walkingRunningDistance: walkingrunningdistance.rows
     });
 
     //select ROUND(SUM(total)) from activeenergyburned where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
@@ -125,12 +135,11 @@ async function averageWatchData(userid, table, valueColumnName, timeStampColumnN
     await client.connect();
     let query;
     if (groupingType === 'avg') {
-        console.log('here');
+
         query = format("SELECT ROUND(AVG(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
     } else if (groupingType === 'sum') {
         query = format("SELECT ROUND(SUM(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
     }
-    console.log(query)
     const data = await client.query(query);
     //console.log(data);
 
