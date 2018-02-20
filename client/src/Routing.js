@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import Home from "./component/home/Home";
+import Dashboard from "./component/home/Dashboard";
 import Record from "./component/pages/record/Record";
 import QueryPage from "./component/pages/queryPage/QueryPage";
 import Header from "./component/menu/Header";
@@ -131,7 +131,7 @@ class Routing extends Component {
             exact
             path="/"
             render={() => (
-              <Home
+              <Dashboard
                 login={this.state.login}
                 uid={this.state.uid}
                 user={this.state.user}

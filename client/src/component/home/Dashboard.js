@@ -4,7 +4,7 @@ import Header from "../menu/Header";
 import "./home.scss";
 import "./loginbuttons.scss";
 import UserProfile from "../userprofile/UserProfile";
-class Home extends Component {
+class Dashboard extends Component {
   constructor() {
     super();
     this.renderLogIn = this.renderLogIn.bind(this);
@@ -31,11 +31,11 @@ class Home extends Component {
             email={this.props.user.email}
           />
         ) : (
-          ""
-        )}
+            ""
+          )}
       </div>
     );
   }
 }
 
-export default Home;
+export default Dashboard;
