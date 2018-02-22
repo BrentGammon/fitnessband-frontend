@@ -575,6 +575,91 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     }
 }
 
+
+routes.get("/user/dashboard/plot", async function (req, res) {
+
+    const client = new pg.Client(conString);
+    await client.connect();
+    let parameters = req.query.data;
+    let uid = req.query.uid;
+    //console.log(parameters)
+    let queries = [];
+    let data = [];
+    parameters.forEach(item => {
+        console.log(item)
+
+        if (item === 'walkingrunningdistance' || item === 'stepcounter' || item === 'activeenergyburned') {
+            queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "startdate"))
+        }
+
+        if (item === 'sleep' || item === 'deepsleep') {
+            queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "startdate"))
+        }
+
+        if (item === 'sleepheartrate') {
+            queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "startdate"))
+        }
+
+        if (item === 'flightsclimbed') {
+            queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "collectiondate"))
+        }
+
+        if (item === 'heartrate') {
+            queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "collectiondate"))
+        }
+        // select * from walkingrunningdistance; --total  startdate
+        // select * from stepcounter; --total  startdate
+        // select * from activeenergyburned;  --total  startdate
+
+        // select * from sleep; --duration  startdate
+        // select * from deepsleep;  --duration  startdate
+
+        // select * from sleepheartrate; --value   startdate
+
+        // select * from flightsclimbed; --total  collectiondate
+
+        // select * from heartrate; --heartrate collectiondate
+
+
+
+
+        // select * from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '1 month');
+        //format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter1, userid, startdate, enddate);
+
+    })
+    // console.log(queries);
+    // queries.forEach(async function (item) {
+    //     console.log(1)
+    //     let temp = await client.query(item)
+    //     console.log(2)
+    //     ///data.push(temp);
+    //     console.log(temp.rows)
+    // })
+
+    for (let i = 0; i < queries.length; i++) {
+        let temp = await client.query(queries[i])
+        //console.log(temp.rows)
+        data.push(temp.rows);
+    }
+
+
+
+    await client.end();
+
+    image = await getBase64("http://localhost:8000/dashboardplot", 'post',
+        data,
+        {},
+        parameters,
+        {}
+    );
+    console.log(image)
+
+    //select * from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '1 month');
+    res.send({ image })
+})
+
+
+
 routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     console.log("demotest")
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];

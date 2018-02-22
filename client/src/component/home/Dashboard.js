@@ -7,11 +7,16 @@ import UserProfile from "../userprofile/UserProfile";
 import Summary from "./Summary";
 import axios from "axios";
 import './dashboard.scss';
+import DashboardPlot from './DashboardPlot';
 
 class Dashboard extends Component {
   constructor() {
     super();
     this.renderLogIn = this.renderLogIn.bind(this);
+
+  }
+
+  componentWillMount() {
 
   }
 
@@ -32,16 +37,23 @@ class Dashboard extends Component {
       <div className="App">
         {!this.props.login ? this.renderLogIn() : ""}
         {this.props.user ? (
-          <div className="dashboardContainer">
-            <Summary
-              uid={this.props.user.uid}
-            />
-            <UserProfile
-              profileImage={this.props.user.photoURL}
-              name={this.props.user.name}
-              email={this.props.user.email}
+          <div>
+            <div className="dashboardContainer">
+              <Summary
+                uid={this.props.user.uid}
+              />
+              <UserProfile
+                profileImage={this.props.user.photoURL}
+                name={this.props.user.name}
+                email={this.props.user.email}
 
-            />
+              />
+
+            </div>
+            <div className="dashboardPlotContainer">
+              <DashboardPlot uid={this.props.user.uid} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance"]} />
+              <DashboardPlot uid={this.props.user.uid} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance"]} />
+            </div>
           </div>
         ) : (
             ""

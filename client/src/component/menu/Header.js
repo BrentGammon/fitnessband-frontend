@@ -4,7 +4,7 @@ class Header extends Component {
   render() {
     return (
       <div className="header">
-        <h1>Apple Watch Fitness Data</h1>
+        <h1>Do Wearables Work?</h1>
       </div>
     );
   }

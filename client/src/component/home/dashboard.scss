@@ -2,3 +2,9 @@
     display:flex;
     margin-top: 30px;
 }
+
+.dashboardPlotContainer{
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
