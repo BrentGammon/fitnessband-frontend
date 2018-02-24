@@ -66,7 +66,12 @@ class DashboardPlot extends Component {
     render(){
         return (
             <div className="dashboardPlot">
-                <img src={`data:image/png;base64, ${this.state.image}`} />
+            {this.state.image ? 
+                 <img src={`data:image/png;base64, ${this.state.image}`} />
+            :
+            <div className="dashboardPlotBlank"></div>
+            }
+               
                 {this.displayOptions()}
             </div>
         )
