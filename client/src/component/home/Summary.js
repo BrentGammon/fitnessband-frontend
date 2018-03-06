@@ -9,6 +9,7 @@ class Summary extends Component {
             data: null
         }
         this.renderElements = this.renderElements.bind(this);
+        this.formatData = this.formatData.bind(this);
 
     }
 
@@ -22,6 +23,21 @@ class Summary extends Component {
             }).catch(error => {
                 console.log(error)
             })
+    }
+
+    formatData(key, value) {
+        console.log("format data");
+
+        if(key === "deepSleep" || key === "totalSleep") {
+            let rounded = Math.round(value / 3600);
+            return rounded + " hours";
+        } else if (key === "walkingRunningDistance") {
+            let rounded = Math.round(value / 5280)
+            return rounded + " miles";
+        } else {
+            console.log("other");
+            return Math.round(value);
+        }
     }
 
     renderElements() {
@@ -40,10 +56,11 @@ class Summary extends Component {
             return (
                 array.map(item => {
                     //https://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
+                    let v = this.formatData(item[0], item[1]);
                     let label = item[0].replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
                     return (
                         <div key={item} id={item[0]} className="summary">
-                            <p className="value">{item[1]}</p>
+                            <p className="value">{v}</p>
                             <p className="label">{label}</p>
                         </div>
                     )

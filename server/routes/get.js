@@ -198,11 +198,11 @@ routes.get('/charts/:userid/', async (req, res) => {
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     //:duration
 
-
+    console.log(1);
     const userid = req.params.userid;
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
-
+    console.log(2);
 
 
     const startdate = req.params.date;
@@ -225,8 +225,10 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         //console.log(response.stats)
     }
 
+
     //watch / watch query
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
+        console.log("watch and watch");
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
 
         image = await getBase64("http://localhost:8000/correlation", 'post',
@@ -237,15 +239,18 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         );
 
 
-        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+
+
+        console.log(image)
+
+
+       response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
 
     }
 
     //watch / user query
     if ((watchInputValues.includes(parameter1) && userInputValues.includes(parameter2)) || (watchInputValues.includes(parameter2) && userInputValues.includes(parameter1))) {
         response = await watchuserQuery(parameter1, parameter2, userid, startdate, enddate);
-        console.log(parameter1)
-        console.log(parameter2)
         image = await getBase64("http://localhost:8000/testendpoint", 'post',
             response.data,
             {},
@@ -253,7 +258,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter2
         );
         //todo data format
-        response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
+       response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
     }
 
@@ -651,7 +656,8 @@ routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (r
     console.log("demotest")
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
-
+    let query1;
+    let query2;
 
     if (userInputValues.includes(parameter1)) {
         query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
@@ -695,14 +701,13 @@ routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (r
     await client.connect();
     let date = new Date(req.params.date);
 
-
-    const query1 = format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", req.params.parameter1, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
-    const query2 = format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", req.params.parameter2, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
+    let query1formatter = format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", req.params.parameter1, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
+    let query2formatter = format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", req.params.parameter2, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
     //query = format("SELECT ROUND(AVG(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
     // select heartrate, collectiondate from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '3 month') order by collectiondate desc
     //select collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > date_trunc('day', NOW() - interval '3 month');
-    let watch = await client.query(query1);
-    let mood = await client.query(query2);
+    let watch = await client.query(query1formatter);
+    let mood = await client.query(query2formatter);
     watch = watch.rows; //watch
     mood = mood.rows; //mood
     await client.end();
