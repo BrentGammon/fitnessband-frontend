@@ -102,34 +102,48 @@ class FutherInformation extends Component {
 
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Hour</td>
-                            <td>{this.props.extraData ? this.props.extraData['hourTest']['tValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['hourTest']['pValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['hourTest']['MD'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData["hourTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
-                        </tr>
-                        <tr>
-                            <td>1 Day</td>
-                            <td>{this.props.extraData ? this.props.extraData['1dayTest']['tValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['1dayTest']['pValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['1dayTest']['MD'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData["1dayTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
-                        </tr>
-                        <tr>
-                            <td>7 Days</td>
-                            <td>{this.props.extraData ? this.props.extraData['7daysTest']['tValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['7daysTest']['pValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['7daysTest']['MD'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData["7daysTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
-                        </tr>
-                        <tr>
-                            <td>30 Days</td>
-                            <td>{this.props.extraData ? this.props.extraData['30daysTest']['tValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['30daysTest']['pValue'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['30daysTest']['MD'][0] : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData["30daysTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
-                        </tr>
+                        {this.props.extraData['hourTest'] ?
+                            <tr>
+                                <td>Hour</td>
+                                <td>{this.props.extraData ? this.props.extraData['hourTest']['tValue'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData['hourTest']['pValue'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData['hourTest']['MD'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData["hourTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
+                            </tr>
+                            : ''
+                        }
+                        {this.props.extraData['1dayTest'] ?
+                            <tr>
+                                <td>1 Day</td>
+                                <td>{this.props.extraData ? this.props.extraData['1dayTest']['tValue'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData['1dayTest']['pValue'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData['1dayTest']['MD'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData["1dayTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
+                            </tr>
+                            : ''
+                        }
+
+                        {this.props.extraData['7daysTest'] ?
+                            <tr>
+                                <td>7 Days</td>
+                                <td>{this.props.extraData ? this.props.extraData['7daysTest']['tValue'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData['7daysTest']['pValue'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData['7daysTest']['MD'][0] : ''}</td>
+                                <td>{this.props.extraData ? this.props.extraData["7daysTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
+                            </tr>
+                            : ''
+                        }
+
+                        {this.props.extraData['30daysTest'] ?
+                            <tr>
+                                <td>30 Days</td>
+                                <td>{this.props.extraData['30daysTest'] ? this.props.extraData['30daysTest']['tValue'][0] : ''}</td>
+                                <td>{this.props.extraData['30daysTest'] ? this.props.extraData['30daysTest']['pValue'][0] : ''}</td>
+                                <td>{this.props.extraData['30daysTest'] ? this.props.extraData['30daysTest']['MD'][0] : ''}</td>
+                                <td>{this.props.extraData['30daysTest'] ? this.props.extraData["30daysTest"]['confInt'][0] + '     ' + this.props.extraData["hourTest"]['confInt'][0] : ''}</td>
+                            </tr>
+                            : <tr></tr>
+                        }
 
                     </tbody>
                 </table>
