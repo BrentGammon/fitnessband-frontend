@@ -234,7 +234,7 @@ class QueryPage extends Component {
           this.setState({ error: error.response.data });
         });
     } else {
-      this.setState({ error: "Time peroid can't be the same" });
+      this.setState({ error: "Time period can't be the same" });
     }
   }
 
@@ -251,13 +251,14 @@ class QueryPage extends Component {
     axios
       .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}`)
       .then(response => {
-
+        console.log("1234567876543")
         this.setState({ image: response.data.image });
         this.setState({ extraData: response.data.stats })
         console.log(response.data.stats);
 
       })
       .catch(error => {
+        console.log("gkdhgkdhfg")
         this.setState({ result: null });
         this.setState({ error: error.response });
       });
