@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import Dashboard from "./component/home/Dashboard";
+import Home from "./component/home/Dashboard";
 import Record from "./component/pages/record/Record";
 import QueryPage from "./component/pages/queryPage/QueryPage";
+import TimeSeries from "./component/pages/timeSeries/TimeSeries";
 import Header from "./component/menu/Header";
 import Navbar from "./component/menu/Navbar";
 import "./routing.scss";
 import base from "./base";
 import firebase from "firebase";
+
 
 class Routing extends Component {
   constructor() {
@@ -109,7 +111,7 @@ class Routing extends Component {
             exact
             path="/"
             render={() => (
-              <Dashboard
+              <Home
                 login={this.state.login}
                 uid={this.state.uid}
                 user={this.state.user}
@@ -126,6 +128,12 @@ class Routing extends Component {
             path="/queryPage"
             render={() => (
               <QueryPage login={this.state.login} uid={this.state.uid} />
+            )}
+          />
+          <Route
+            path="/timeSeries"
+            render={() => (
+              <TimeSeries login={this.state.login} uid={this.state.uid} />
             )}
           />
         </div>
