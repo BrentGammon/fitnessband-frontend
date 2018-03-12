@@ -212,8 +212,8 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
         console.log("==================================================");
         console.log("user user query")
-        console.log(response.data1.rows)
-        console.log(response.data2.rows)
+        console.log(response.data1.rows.length)
+        console.log(response.data2.rows.length)
         console.log("==================================================");
 
         image = await getBase64("http://localhost:8000/correlation", 'post',
@@ -231,8 +231,8 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
         console.log("==================================================");
         console.log("watch watch query")
-        console.log(response.data1.rows)
-        console.log(response.data2.rows)
+        console.log(response.data1.rows.length)
+        console.log(response.data2.rows.length)
         console.log("==================================================");
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
@@ -261,7 +261,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter2
         );
 
-        console.log(image)
+
         //todo data format
         response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
@@ -276,7 +276,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         image: image,
         stats: JSON.parse(response.stats.data)
     }
-    console.log(data);
     res.send(data)
 
 });
