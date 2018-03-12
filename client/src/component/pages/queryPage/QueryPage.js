@@ -243,14 +243,12 @@ class QueryPage extends Component {
   }
 
   clickedq1() {
-    console.log("hello world mate")
     this.setState({ optionSelection1Submitted: this.state.optionSelection1Current })
     this.setState({ optionSelection2Submitted: this.state.optionSelection2Current })
     this.clickHandlerq1(
       this.state.optionSelection1Current,
       this.state.optionSelection2Current,
       this.state.query1date,
-      //this.refs.query1duration.value,
     );
   }
 
@@ -378,10 +376,6 @@ class QueryPage extends Component {
 
 
   render() {
-    //conditional rendering
-
-
-
     const state = this.state;
     const calendar = (<Calendar
       locale={cn ? zhCN : enUS}
@@ -454,34 +448,6 @@ class QueryPage extends Component {
         <span>during</span>
 
         <div style={{ width: 400, margin: 20 }}>
-          <div style={{ marginBottom: 10 }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={state.showTime}
-                onChange={this.onShowTimeChange}
-              />
-              showTime
-                        </label>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-                        <label>
-              <input
-                type="checkbox"
-                checked={state.showDateInput}
-                onChange={this.onShowDateInputChange}
-              />
-              showDateInput
-                        </label>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-                        <label>
-              <input
-                type="checkbox"
-                checked={state.disabled}
-                onChange={this.toggleDisabled}
-              />
-              disabled
-                        </label>
-          </div>
           <div style={{
             boxSizing: 'border-box',
             position: 'relative',
