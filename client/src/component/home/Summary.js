@@ -13,7 +13,6 @@ class Summary extends Component {
     }
 
     componentDidMount() {
-        console.log("moutning")
         axios.get(`/api/get/user/summary/${this.props.uid}`)
             .then(response => {
                 this.setState({
@@ -29,7 +28,6 @@ class Summary extends Component {
         let array = [];
         if (data !== null) {
             let keys = Object.keys(data)
-            console.log(keys)
             for (let item in keys) {
                 let x = keys[item]
                 let xkey = x//key 

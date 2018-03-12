@@ -22,8 +22,6 @@ import Accordion from '../../shared/Accordion';
 import FurtherInformation from './FutherInformation';
 import FurtherInformationMoodWatch from './FutherInformationMoodWatch';
 
-//debugging
-import ReactJson from 'react-json-view';
 
 const format = 'YYYY-MM-DD HH:mm:ss';
 const cn = location.search.indexOf('cn') !== -1;
@@ -46,34 +44,6 @@ const timePickerElement = <TimePickerPanel defaultValue={moment('00:00:00', 'HH:
 
 const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
 const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
-
-// function disabledTime(date){
-//   console.log('disabledTime', date);
-//   if(date && (date.date() === 15)){
-//     return{
-//       disabledHours(){
-//         return [3, 4];
-//       },
-//     };
-//   }
-//   return{
-//     disabledHours(){
-//       return [1, 2];
-//     },
-//   };
-// }
-
-// function disabledDate(current){
-//   if(!current){
-//     // allow empty select
-//     return false;
-//   }
-//   const date = moment();
-//   date.hour(0);
-//   date.minute(0);
-//   date.second(0);
-//   return current.valueOf() == date.valueOf(); // if '<' can not select days before today
-// }
 
 
 class QueryPage extends Component {
@@ -112,6 +82,9 @@ class QueryPage extends Component {
       optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
       optionSelection1Current: "activeenergyburned",
       optionSelection2Current: "deepsleep",
+      optionSelection1Submitted: null,
+      optionSelection2Submitted: null,
+
     };
     this.clickHandler = this.clickHandler.bind(this);
     this.clickHandlerq1 = this.clickHandlerq1.bind(this);
@@ -125,6 +98,7 @@ class QueryPage extends Component {
     this.optionSelection2 = this.optionSelection2.bind(this);
     this.selectionfilterOption1 = this.selectionfilterOption1.bind(this);
     this.selectionfilterOption2 = this.selectionfilterOption2.bind(this);
+    this.clickedq1 = this.clickedq1.bind(this);
     //this.displayImage = this.displayImage.bind(this);
   }
 
@@ -199,10 +173,8 @@ class QueryPage extends Component {
     axios
       .get(`/api/get/charts/${this.props.uid}`)
       .then(response => {
-        console.log(response);
         this.setState({ image: response.data.image });
         //console.log(this.props.uid);
-        console.log("blank");
       }).catch(error => {
         console.log(error);
       })
@@ -225,7 +197,6 @@ class QueryPage extends Component {
       axios
         .post("/api/post/fitness/queryPage", object)
         .then(response => {
-          console.log(response.data);
           this.setState({ error: null });
           this.setState({ result: response.data });
         })
@@ -254,7 +225,6 @@ class QueryPage extends Component {
 
         this.setState({ image: response.data.image });
         this.setState({ extraData: response.data.stats })
-        console.log(response.data.stats);
 
       })
       .catch(error => {
@@ -273,6 +243,9 @@ class QueryPage extends Component {
   }
 
   clickedq1() {
+    console.log("hello world mate")
+    this.setState({ optionSelection1Submitted: this.state.optionSelection1Current })
+    this.setState({ optionSelection2Submitted: this.state.optionSelection2Current })
     this.clickHandlerq1(
       this.state.optionSelection1Current,
       this.state.optionSelection2Current,
@@ -288,13 +261,14 @@ class QueryPage extends Component {
   }
 
   timeOptions1(item) {
-    let core = ["Today", "Last Week", "This Week"];
     let values = this.state.timeOptions1;
     if (item !== undefined || item !== null) {
       values = values.filter(i => {
+        let data;
         if (i !== this.state.timeOptions2Current) {
-          return i;
+          data = i;;
         }
+        return data;
       });
     }
     return (
@@ -311,13 +285,14 @@ class QueryPage extends Component {
   }
 
   timeOptions2(item) {
-    let core = ["Today", "Last Week", "This Week"];
     let values = this.state.timeOptions2;
     if (item === undefined || item === null) {
       values = values.filter(i => {
+        let data;
         if (i !== this.state.timeOptions1Current) {
-          return i;
+          data = i;
         }
+        return data;
       });
     }
     return (
@@ -336,17 +311,14 @@ class QueryPage extends Component {
 
 
   optionSelection1(item) {
-    console.log(item)
-    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
     let values = this.state.optionSelection1Values;
     if (item === undefined || item === null) {
       values = values.filter(i => {
+        let data;
         if (i !== this.state.optionSelection2Current) {
-          console.log("================================")
-          console.log(i)
-          console.log("================================")
-          return i;
+          data = i;
         }
+        return data;
       });
     }
     return (
@@ -363,16 +335,16 @@ class QueryPage extends Component {
   }
 
   optionSelection2(item) {
-    let core = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
     let values = this.state.optionSelection2Values;
     if (item === undefined || item === null) {
       values = values.filter(i => {
+        let data;
         if (i !== this.state.optionSelection1Current) {
-          return i;
+          data = i;
         }
+        return data;
       });
     }
-    console.log(values)
     return (
       <select ref="query1watch2" onChange={this.selectionfilterOption1}>
         {values.map(i => {
@@ -388,23 +360,19 @@ class QueryPage extends Component {
 
   filterOption1(event) {
     this.setState({ timeOptions2Current: event.target.value });
-    console.log();
   }
 
   filterOption2(event) {
     this.setState({ timeOptions1Current: event.target.value });
-    console.log();
   }
 
 
   selectionfilterOption1(event) {
     this.setState({ optionSelection2Current: event.target.value });
-    console.log();
   }
 
   selectionfilterOption2(event) {
     this.setState({ optionSelection1Current: event.target.value });
-    console.log(event.target.value);
   }
 
 
@@ -412,8 +380,6 @@ class QueryPage extends Component {
   render() {
     //conditional rendering
 
-    const parameter1 = this.state.optionSelection1Current;
-    const parameter2 = this.state.optionSelection2Current;
 
 
     const state = this.state;
@@ -533,6 +499,7 @@ class QueryPage extends Component {
             >
               {
                 ({ value }) => {
+                  let data = (value && value.format(getFormat(state.showTime))) || ''
                   return (
                     <span tabIndex="0">
                       <input ref="query1DateValue" onChange={this.dateState}
@@ -542,7 +509,7 @@ class QueryPage extends Component {
                         readOnly
                         tabIndex="-1"
                         className="ant-calendar-picker-input ant-input"
-                        value={value && value.format(getFormat(state.showTime)) || ''}
+                        value={data}
                       />
                     </span>
                   );
@@ -563,27 +530,33 @@ class QueryPage extends Component {
 
 
         {this.state.image ? (
-          <img src={`data:image/png;base64, ${this.state.image}`} />
+          <img src={`data:image/png;base64, ${this.state.image}`} alt="plot" />
         ) : (
             console.log("there is no image to display")
           )}
 
-
-        {console.log()}
-        {console.log(userInputValues.includes(this.state.optionSelection2Current) && watchInputValues.includes(this.state.optionSelection1Current))}
-
         {
-          userInputValues.includes(this.state.optionSelection1Current) && watchInputValues.includes(this.state.optionSelection2Current) || userInputValues.includes(this.state.optionSelection2Current) && watchInputValues.includes(this.state.optionSelection1Current) ?
+          //dont render based on the current selected do for submiited values 
+          //check if first item is userinput and second is watch and the other way round                                                                              
+          (userInputValues.includes(this.state.optionSelection1Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) || (userInputValues.includes(this.state.optionSelection2Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) ?
             this.state.extraData ?
               <Accordion text="More Information">
-                <FurtherInformationMoodWatch extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Current} optionSelection2Current={this.state.optionSelection2Current} />
+                <FurtherInformationMoodWatch extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Submitted} optionSelection2Current={this.state.optionSelection2Submitted} />
               </Accordion> : ''
 
-            :
+            : ''
+        }
+
+        {
+          //full mood or full watch 
+          (watchInputValues.includes(this.state.optionSelection1Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) || (watchInputValues.includes(this.state.optionSelection2Submitted) && watchInputValues.includes(this.state.optionSelection1Submitted)) ||
+            (userInputValues.includes(this.state.optionSelection1Submitted) && userInputValues.includes(this.state.optionSelection2Submitted)) || (userInputValues.includes(this.state.optionSelection2Submitted) && userInputValues.includes(this.state.optionSelection1Submitted)) ?
             this.state.extraData ?
               <Accordion text="More Information">
-                <FurtherInformation extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Current} optionSelection2Current={this.state.optionSelection2Current} />
-              </Accordion> : ''}
+                <FurtherInformation extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Submitted} optionSelection2Current={this.state.optionSelection2Submitted} />
+              </Accordion> : ''
+            : ''
+        }
 
       </div>
     );

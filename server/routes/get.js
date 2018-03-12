@@ -197,23 +197,24 @@ routes.get('/charts/:userid/', async (req, res) => {
 
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     //:duration
-
-
     const userid = req.params.userid;
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
-
-
-
     const startdate = req.params.date;
-    //const duration = req.params.duration.toLowerCase();
     const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
 
     let response;
     let image;
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
-        response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate);
+        response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate); //check size here
+
+
+        console.log("==================================================");
+        console.log("user user query")
+        console.log(response.data1.rows)
+        console.log(response.data2.rows)
+        console.log("==================================================");
 
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
@@ -228,7 +229,11 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     //watch / watch query
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
-
+        console.log("==================================================");
+        console.log("watch watch query")
+        console.log(response.data1.rows)
+        console.log(response.data2.rows)
+        console.log("==================================================");
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
             response.data2.rows,
@@ -244,14 +249,19 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     //watch / user query
     if ((watchInputValues.includes(parameter1) && userInputValues.includes(parameter2)) || (watchInputValues.includes(parameter2) && userInputValues.includes(parameter1))) {
         response = await watchuserQuery(parameter1, parameter2, userid, startdate, enddate);
-        console.log(parameter1)
-        console.log(parameter2)
+        console.log("==================================================");
+        console.log("watch user query")
+        console.log(response)
+        console.log("==================================================");
+
         image = await getBase64("http://localhost:8000/testendpoint", 'post',
             response.data,
             {},
             parameter1,
             parameter2
         );
+
+        console.log(image)
         //todo data format
         response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
@@ -266,7 +276,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         image: image,
         stats: JSON.parse(response.stats.data)
     }
-    //res.send(response);
+    console.log(data);
     res.send(data)
 
 });
@@ -577,7 +587,6 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
 
 
 routes.get("/user/dashboard/plot", async function (req, res) {
-    console.log("YO YO YO YO YO YO YO YO")
     const client = new pg.Client(conString);
     await client.connect();
     let parameters = req.query.data;
@@ -882,7 +891,7 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
         ).catch(error => {
-            res.send(error.data);
+            value = error.data;
         });
     console.log(value);
     return value;

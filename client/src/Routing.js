@@ -19,7 +19,6 @@ class Routing extends Component {
     };
 
     this.authenticate = this.authenticate.bind(this);
-    this.syncData = this.syncData.bind(this);
     this.signout = this.signout.bind(this);
   }
 
@@ -41,12 +40,10 @@ class Routing extends Component {
 
   authenticate() {
     let provider = new firebase.auth.FacebookAuthProvider();
-    const result = firebase
+    firebase
       .auth()
       .signInWithPopup(provider)
       .then(result => {
-        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-        const token = result.credential.accessToken;
         // The signed-in user info.
         const { email, displayName, uid } = result.user;
         const photoURL = result.user.providerData["0"].photoURL;
@@ -75,26 +72,7 @@ class Routing extends Component {
       });
   }
 
-  syncData() {
-    const email = this.state.email;
-    const displayName = this.state.displayName;
-    const uid = this.state.uid;
-    base.post(`/users/${uid}/nested`, {
-      data: {
-        test: "thing"
-      },
-      then(err) {
-        console.log(err);
-      }
-    });
-  }
-
   signout() {
-    // base.remove(`/users/${this.state.uid}`, (err) =>{
-    //     if(err){
-    //         console.log("removing data");
-    //     }
-    // });
     firebase
       .auth()
       .signOut()
@@ -135,7 +113,6 @@ class Routing extends Component {
                 login={this.state.login}
                 uid={this.state.uid}
                 user={this.state.user}
-                syncData={this.syncData}
                 signout={this.signout}
                 authenticate={this.authenticate}
               />
