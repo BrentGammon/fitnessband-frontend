@@ -29,9 +29,10 @@
     "node-correlation": "^1.0.2",
     "pg": "^7.3.0",
     "pg-format": "^1.0.4",
-    "re-base": "^3.2.1",
     "rc-calendar": "^9.5.0",
     "rc-time-picker": "^3.2.1",
+    "re-base": "^3.2.1",
+    "react-json-view": "^1.16.0",
     "ttest": "^1.1.0"
   },
   "devDependencies": {

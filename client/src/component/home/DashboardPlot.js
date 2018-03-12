@@ -50,7 +50,9 @@ class DashboardPlot extends Component {
         axios.get('/api/get/user/dashboard/plot', {
             params: {
                 data,
-                uid: this.props.uid
+                uid: this.props.uid,
+                startDateValue: this.props.startDateValue,
+                endDateValue: this.props.endDateValue
             }
         })
         .then(response => {

@@ -71,10 +71,10 @@ routes.get("/user/:userid", async function (req, res) {
 
 
 routes.get("/user/summary/:userid", async function (req, res) {
-    //select ROUND(AVG(heartrate)) from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(AVG(duration)) from deepsleep where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(AVG(duration)) from sleep where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(AVG(value)) from sleepheartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(AVG(heartrate)) from heartrate where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and collectiondate  > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(AVG(duration)) from deepsleep where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(AVG(duration)) from sleep where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(AVG(value)) from sleepheartrate where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
     let heartRate = await averageWatchData(req.params.userid, 'heartrate', 'heartrate', 'collectiondate', 'heartrate', 'avg');
     let deepsleep = await averageWatchData(req.params.userid, 'deepsleep', 'duration', 'enddate', 'deepsleep', 'avg');
     let sleep = await averageWatchData(req.params.userid, 'sleep', 'duration', 'enddate', 'sleep', 'avg');
@@ -105,10 +105,10 @@ routes.get("/user/summary/:userid", async function (req, res) {
         walkingRunningDistance: walkingrunningdistance.rows
     });
 
-    //select ROUND(SUM(total)) from activeenergyburned where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(SUM(total)) from flightsclimbed where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(SUM(total)) from stepcounter where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(SUM(total)) from walkingrunningdistance where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(SUM(total)) from activeenergyburned where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(SUM(total)) from flightsclimbed where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and collectiondate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(SUM(total)) from stepcounter where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
+    //select ROUND(SUM(total)) from walkingrunningdistance where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
 
 });
 
@@ -162,9 +162,11 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     res.send(result);
 });
 
-routes.get('/charts/:userid/', async (req, res) => {
-    const presentTime = moment(new Date()).format("YYYY-MM-DD");
-    const enddate = moment(new Date(presentTime)).subtract(30, 'days').format("YYYY-MM-DD");
+routes.get('/charts/:userid/:startDateValue/:endDateValue', async (req, res) => {
+    const startDateValue = req.params.startDateValue;
+    const endDateValue = req.params.endDateValue;
+    const presentTime = moment(new Date(startDateValue)).format("YYYY-MM-DD");
+    const enddate = moment(new Date(endDateValue)).format("YYYY-MM-DD");
     const userid = req.params.userid;
     let response;
     let image;
@@ -173,7 +175,7 @@ routes.get('/charts/:userid/', async (req, res) => {
     console.log(enddate);
 
     response = await dashboardCharts(userid, presentTime, enddate);
-
+    //console.log(response.data1.rows);
     image = await getBase64dashboardcharts("http://localhost:8000/dashboardcharts", 'post',
         response.data1.rows,
         response.data2.rows,
@@ -582,6 +584,28 @@ routes.get("/user/dashboard/plot", async function (req, res) {
     await client.connect();
     let parameters = req.query.data;
     let uid = req.query.uid;
+    let presentTime;
+    let enddate;
+    console.log(req.query.startDateValue);
+    console.log(req.query.endDateValue);
+
+    if(req.query.startDateValue){
+        presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
+        console.log(presentTime);
+    }else{
+        presentTime = moment(new Date()).format("YYYY-MM-DD");
+    }
+
+    if(req.query.endDateValue){
+        enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
+        console.log(enddate);
+    }else{
+        enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
+    }
+    
+
+console.log(presentTime);
+console.log(enddate);
 
     console.log(1);
 
@@ -594,28 +618,28 @@ routes.get("/user/dashboard/plot", async function (req, res) {
             console.log(item)
 
             if (item === 'walkingrunningdistance' || item === 'stepcounter' || item === 'activeenergyburned') {
-                queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "startdate"))
+                queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
             }
 
             if (item === 'sleep' || item === 'deepsleep') {
-                queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "startdate"))
+                queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
             }
 
             if (item === 'sleepheartrate') {
-                queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "startdate"))
+                queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
             }
 
             if (item === 'flightsclimbed') {
-                queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "collectiondate"))
+                queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
             }
 
             if (item === 'heartrate') {
-                queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month')", 'date', item, uid, "collectiondate"))
+                queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
             }
 
             //mood version 
             if (userInputValues.includes(item)) {
-                queries.push(format("SELECT %I as total, collectiondate as date from userinput where userid = %L AND collectiondate > date_trunc('day', NOW() - interval '3 month')", item, uid));
+                queries.push(format("SELECT %I as total, collectiondate as date from userinput where userid = %L AND collectiondate < %L AND collectiondate > %L", item, uid, presentTime, enddate));
             }
 
         })
@@ -637,7 +661,7 @@ routes.get("/user/dashboard/plot", async function (req, res) {
             parameters,
             {}
         );
-        console.log(image)
+        //console.log(image)
         res.send({ image })
     } else {
         image = null
@@ -699,8 +723,8 @@ routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (r
     const query1 = format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", req.params.parameter1, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
     const query2 = format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", req.params.parameter2, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
     //query = format("SELECT ROUND(AVG(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
-    // select heartrate, collectiondate from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '3 month') order by collectiondate desc
-    //select collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > date_trunc('day', NOW() - interval '3 month');
+    // select heartrate, collectiondate from heartrate where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and collectiondate  > date_trunc('day', NOW() - interval '3 month') order by collectiondate desc
+    //select collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and collectiondate > date_trunc('day', NOW() - interval '3 month');
     let watch = await client.query(query1);
     let mood = await client.query(query2);
     watch = watch.rows; //watch
@@ -782,6 +806,7 @@ async function dashboardCharts(userid, presentTime, enddate) {
     let data9 = await client.query(userinput9);
 
     await client.end();
+    console.log(data1);
     if (!Object.keys(data1.rows[0]).includes('startdate')) {
         data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
     }
@@ -828,12 +853,7 @@ async function dashboardCharts(userid, presentTime, enddate) {
     data8 = genericFormatForR(data8);
     data9 = genericFormatForR(data9);
 
-    // return await getBase64("http://localhost:8000/correlation", 'post',
-    //     genericData1Format.rows,
-    //     genericData2Format.rows,
-    //     parameter1,
-    //     parameter2
-    // );
+
 
     return {
         data1,

@@ -8,6 +8,7 @@ class NavBar extends Component {
         <NavLink to="/">Home</NavLink>
         <NavLink to="/record">Record</NavLink>
         <NavLink to="/queryPage">Query</NavLink>
+        <NavLink to="/timeSeries">Time Series</NavLink>
       </div>
     );
   }
