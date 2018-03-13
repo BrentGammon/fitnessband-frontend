@@ -132,21 +132,14 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
 });
 
 routes.get('/charts/:userid/:startDateValue/:endDateValue', async function (req, res) {
-    console.log("hello world charts time")
-    console.log(1)
     const startDateValue = req.params.startDateValue;
     const endDateValue = req.params.endDateValue;
-    console.log(2)
     const presentTime = moment(new Date(startDateValue)).format("YYYY-MM-DD");
     const enddate = moment(new Date(endDateValue)).format("YYYY-MM-DD");
-    console.log(3)
     const userid = req.params.userid;
     let response;
     let image;
-    console.log(4)
     response = await dashboardCharts(userid, presentTime, enddate);
-    console.log(5)
-    //console.log(response.data1.rows);
     image = await getBase64dashboardcharts("http://localhost:8000/dashboardcharts", 'post',
         response.data1.rows,
         response.data2.rows,
@@ -168,29 +161,19 @@ routes.get('/charts/:userid/:startDateValue/:endDateValue', async function (req,
 });
 
 
-
+//todo refactor pooling below 
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     //:duration
     const userid = req.params.userid;
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
-
     const startdate = req.params.date;
     const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
-
     let response;
     let image;
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
         response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate); //check size here
-
-
-        console.log("==================================================");
-        console.log("user user query")
-        console.log(response.data1.rows.length)
-        console.log(response.data2.rows.length)
-        console.log("==================================================");
-
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
             response.data2.rows,
@@ -198,18 +181,11 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter2
         );
         response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
-        //console.log(response.stats)
     }
-
 
     //watch / watch query
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
-        console.log("watch and watch");
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
-        console.log("==================================================");
-        console.log("watch watch query")
-        console.log(response.data1.rows.length)
-        console.log(response.data2.rows.length)
         console.log("==================================================");
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
@@ -217,16 +193,9 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter1,
             parameter2
         );
-
-
-
-
-        console.log(image)
-
-
         response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
-
     }
+
 
     //watch / user query
     if ((watchInputValues.includes(parameter1) && userInputValues.includes(parameter2)) || (watchInputValues.includes(parameter2) && userInputValues.includes(parameter1))) {
@@ -237,16 +206,9 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter1,
             parameter2
         );
-
-
-        //todo data format
         response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
     }
-
-    //get further information about the datasets
-
-
 
 
     const data = {
@@ -447,6 +409,8 @@ function watchMoodFilterMean(mood, watch, period, parameter) {
     })
     return gobalArray;
 }
+
+
 function watchMoodFilterSum(mood, watch, period, parameter) {
     let gobalArray = [];
     mood.forEach(moodItem => {
@@ -466,44 +430,28 @@ function watchMoodFilterSum(mood, watch, period, parameter) {
 
 
 async function useruserQuery(parameter1, parameter2, userid, startdate, enddate) {
-    console.log('hello world');
-    const client = new pg.Client(conString);
-    await client.connect();
-    //collection date 
-    let query1 = format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate" +
-        "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
-    let query2 = format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate" +
-        "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
+    const client = await pool.connect();
+    let data1;
+    let data2;
+    try {
+        data1 = await client.query(format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter1, userid, startdate, enddate));
+        data2 = await client.query(format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter2, userid, startdate, enddate));
 
-    let data1 = await client.query(query1);
-    let data2 = await client.query(query2);
-    data1.rows = objectkeyReplace(data1.rows, 'collectiondate');
-    data1.rows = userInputTotalKey(data1.rows, parameter1);
+        data1.rows = objectkeyReplace(data1.rows, 'collectiondate');
+        data1.rows = userInputTotalKey(data1.rows, parameter1);
 
-    data2.rows = objectkeyReplace(data2.rows, 'collectiondate');
-    data2.rows = userInputTotalKey(data2.rows, parameter2);
-
-    await client.end();
-
-
-
-
+        data2.rows = objectkeyReplace(data2.rows, 'collectiondate');
+        data2.rows = userInputTotalKey(data2.rows, parameter2);
+    } finally {
+        client.release();
+    }
     return {
         data1,
         data2,
         parameter1,
         parameter2
     }
-
-    // return await getBase64("http://localhost:8000/correlation", 'post',
-    //     data1.rows,
-    //     data2.rows,
-    //     parameter1,
-    //     parameter2
-    // );
 }
-
-
 
 
 async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddate) {
@@ -861,7 +809,6 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
 }
 
 async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, data4, data5, data6, data7, data8, data9) {
-    console.log("getting the chart")
     let value = null;
     let data = {};
     if (data !== null) {
@@ -896,7 +843,6 @@ async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, da
         ).catch(error => {
             value = error.data;
         });
-    console.log(value);
     return value;
 }
 
