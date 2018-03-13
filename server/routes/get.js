@@ -41,13 +41,15 @@ routes.get('/test/:id', async (req, res) => {
 
 
 routes.get("/user/lastSync/:userid", async function (req, res) {
-    const client = new pg.Client(conString);
-    await client.connect();
+
     const userid = req.params.userid;
-    const query = format("SELECT lastSync FROM userid WHERE userid = %L", userid);
-    const data = await client.query(query);
-    await client.end();
-    res.send(data.rows);
+    const client = await pool.connect();
+    try {
+        let data = await client.query(format("SELECT lastSync FROM userid WHERE userid = %L", userid));
+        res.send(data.rows)
+    } finally {
+        client.release();
+    }
 });
 
 routes.get("/user/:userid", async function (req, res) {
