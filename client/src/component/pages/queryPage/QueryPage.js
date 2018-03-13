@@ -405,10 +405,6 @@ class QueryPage extends Component {
           <option value="tiredness">tiredness</option>
           <option value="active">active</option>
           <option value="healthy">healthy</option>
-          <option value="alert">alert</option>
-          <option value="happy">happy</option>
-          <option value="energy">energy</option>
-          <option value="calm">calm</option>
         </select>
 
         {this.timeOptions1()}
