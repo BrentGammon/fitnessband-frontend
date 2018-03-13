@@ -488,93 +488,97 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
 
 
 routes.get("/user/dashboard/plot", async function (req, res) {
-    const client = new pg.Client(conString);
-    await client.connect();
+    // const userId = req.params.userid;
+    // const client = await pool.connect();
+    // try {
+    //     let data = await client.query(format("SELECT userId FROM userid WHERE userid = %L", userId));
+    //     const response = data.rows;
+    //     res.send(response.length == 0 ? false : true)
+    // } finally {
+    //     client.release();
+    // }
+
+    const client = await pool.connect();
     let parameters = req.query.data;
     let uid = req.query.uid;
     let presentTime;
     let enddate;
-    console.log(req.query.startDateValue);
-    console.log(req.query.endDateValue);
-
-    if (req.query.startDateValue) {
-        presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
-        console.log(presentTime);
-    } else {
-        presentTime = moment(new Date()).format("YYYY-MM-DD");
-    }
-
-    if (req.query.endDateValue) {
-        enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
-        console.log(enddate);
-    } else {
-        enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
-    }
-
-
-    console.log(presentTime);
-    console.log(enddate);
-
-    console.log(1);
-
-    let queries = [];
-    let data = [];
-
-    if (parameters !== undefined) {
-
-        parameters.forEach(item => {
-            console.log(item)
-
-            if (item === 'walkingrunningdistance' || item === 'stepcounter' || item === 'activeenergyburned') {
-                queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
-            }
-
-            if (item === 'sleep' || item === 'deepsleep') {
-                queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
-            }
-
-            if (item === 'sleepheartrate') {
-                queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
-            }
-
-            if (item === 'flightsclimbed') {
-                queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
-            }
-
-            if (item === 'heartrate') {
-                queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
-            }
-
-            //mood version 
-            if (userInputValues.includes(item)) {
-                queries.push(format("SELECT %I as total, collectiondate as date from userinput where userid = %L AND collectiondate < %L AND collectiondate > %L", item, uid, presentTime, enddate));
-            }
-
-        })
-
-        console.log(2);
-        for (let i = 0; i < queries.length; i++) {
-            console.log(queries[i]);
-            let temp = await client.query(queries[i])
-            data.push(temp.rows);
+    let image;
+    try {
+        if (req.query.startDateValue) {
+            presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
+            console.log(presentTime);
+        } else {
+            presentTime = moment(new Date()).format("YYYY-MM-DD");
         }
-        console.log(3);
+
+        if (req.query.endDateValue) {
+            enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
+            console.log(enddate);
+        } else {
+            enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
+        }
+
+        let queries = [];
+        let data = [];
 
 
-        await client.end();
+        if (parameters !== undefined) {
 
-        image = await getBase64("http://localhost:8000/dashboardplot", 'post',
-            data,
-            {},
-            parameters,
-            {}
-        );
-        //console.log(image)
-        res.send({ image })
-    } else {
-        image = null
-        res.send({ image })
+            parameters.forEach(item => {
+
+                if (item === 'walkingrunningdistance' || item === 'stepcounter' || item === 'activeenergyburned') {
+                    queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
+                }
+
+                if (item === 'sleep' || item === 'deepsleep') {
+                    queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
+                }
+
+                if (item === 'sleepheartrate') {
+                    queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
+                }
+
+                if (item === 'flightsclimbed') {
+                    queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
+                }
+
+                if (item === 'heartrate') {
+                    queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
+                }
+
+                //mood version 
+                if (userInputValues.includes(item)) {
+                    queries.push(format("SELECT %I as total, collectiondate as date from userinput where userid = %L AND collectiondate < %L AND collectiondate > %L", item, uid, presentTime, enddate));
+                }
+
+            })
+            for (let i = 0; i < queries.length; i++) {
+                console.log(queries[i]);
+                let temp = await client.query(queries[i])
+                data.push(temp.rows);
+            }
+
+
+            image = await getBase64("http://localhost:8000/dashboardplot", 'post',
+                data,
+                {},
+                parameters,
+                {}
+            );
+            //console.log(image)
+            //res.send({ image })
+        } else {
+            image = null
+            // res.send({ image })
+        }
+    } finally {
+        client.release();
     }
+    console.log(image);
+    res.send(image)
+
+
 })
 
 
