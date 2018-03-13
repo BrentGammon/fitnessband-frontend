@@ -455,51 +455,37 @@ async function useruserQuery(parameter1, parameter2, userid, startdate, enddate)
 
 
 async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddate) {
-    const client = new pg.Client(conString);
-    await client.connect();
-    let query1;
-    let query2;
-
+    const client = await pool.connect();
+    let data1;
+    let data2;
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
-    if (startdateColumn.includes(parameter1)) {
-        query1 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-            "< %L AND startdate > %L", parameter1, userid, startdate, enddate);
-    } else {
-        query1 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-            "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
+    try {
+        if (startdateColumn.includes(parameter1)) {
+            data1 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter1, userid, startdate, enddate));
+        } else {
+            data1 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter1, userid, startdate, enddate));
+        }
+
+        if (startdateColumn.includes(parameter2)) {
+            data2 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter2, userid, startdate, enddate));
+        } else {
+            data2 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter2, userid, startdate, enddate));
+        }
+
+        if (!Object.keys(data1.rows[0]).includes('startdate')) {
+            data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+        }
+
+        if (!Object.keys(data2.rows[0]).includes('startdate')) {
+            data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
+        }
+        data1 = genericFormatForR(data1);
+        data2 = genericFormatForR(data2);
+
+    } finally {
+        client.release();
     }
-
-    if (startdateColumn.includes(parameter2)) {
-        query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-            "< %L AND startdate > %L", parameter2, userid, startdate, enddate);
-    } else {
-        query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-            "< %L AND collectiondate > %L", parameter2, userid, startdate, enddate);
-    }
-
-
-    let data1 = await client.query(query1);
-    let data2 = await client.query(query2);
-
-    await client.end();
-    if (!Object.keys(data1.rows[0]).includes('startdate')) {
-        data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data2.rows[0]).includes('startdate')) {
-        data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
-    }
-
-    data1 = genericFormatForR(data1);
-    data2 = genericFormatForR(data2);
-
-    // return await getBase64("http://localhost:8000/correlation", 'post',
-    //     genericData1Format.rows,
-    //     genericData2Format.rows,
-    //     parameter1,
-    //     parameter2
-    // );
 
     return {
         data1,
