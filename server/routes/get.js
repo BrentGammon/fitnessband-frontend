@@ -51,15 +51,15 @@ routes.get("/user/lastSync/:userid", async function (req, res) {
 });
 
 routes.get("/user/:userid", async function (req, res) {
-    const client = new pg.Client(conString);
-    await client.connect();
     const userId = req.params.userid;
-    const values = [userId];
-    const query = format("SELECT userId FROM userid WHERE userid = %L", userId);
-    const data = await client.query(query);
-    await client.end();
-    const response = data.rows;
-    res.send(response.length == 0 ? false : true);
+    const client = await pool.connect();
+    try {
+        let data = await client.query(format("SELECT userId FROM userid WHERE userid = %L", userId));
+        const response = data.rows;
+        res.send(response.length == 0 ? false : true)
+    } finally {
+        client.release();
+    }
 });
 
 
