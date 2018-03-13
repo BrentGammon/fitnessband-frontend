@@ -41,7 +41,6 @@ routes.get('/test/:id', async (req, res) => {
 
 
 routes.get("/user/lastSync/:userid", async function (req, res) {
-
     const userid = req.params.userid;
     const client = await pool.connect();
     try {
@@ -132,19 +131,21 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     res.send(result);
 });
 
-routes.get('/charts/:userid/:startDateValue/:endDateValue', async (req, res) => {
+routes.get('/charts/:userid/:startDateValue/:endDateValue', async function (req, res) {
+    console.log("hello world charts time")
+    console.log(1)
     const startDateValue = req.params.startDateValue;
     const endDateValue = req.params.endDateValue;
+    console.log(2)
     const presentTime = moment(new Date(startDateValue)).format("YYYY-MM-DD");
     const enddate = moment(new Date(endDateValue)).format("YYYY-MM-DD");
+    console.log(3)
     const userid = req.params.userid;
     let response;
     let image;
-    console.log(userid);
-    console.log(presentTime);
-    console.log(enddate);
-
+    console.log(4)
     response = await dashboardCharts(userid, presentTime, enddate);
+    console.log(5)
     //console.log(response.data1.rows);
     image = await getBase64dashboardcharts("http://localhost:8000/dashboardcharts", 'post',
         response.data1.rows,
@@ -157,11 +158,12 @@ routes.get('/charts/:userid/:startDateValue/:endDateValue', async (req, res) => 
         response.data8.rows,
         response.data9.rows
     );
-
+    console.log(6)
     const data = {
         image: image,
         //stats: JSON.parse(response.stats.data)
     }
+    console.log(6)
     res.send(data);
 });
 
@@ -732,8 +734,8 @@ routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (r
 
 
 async function dashboardCharts(userid, presentTime, enddate) {
-    const client = new pg.Client(conString);
-    await client.connect();
+    const userId = userid;
+    const client = await pool.connect();
     let activeenergyburnedquery1;
     let deepsleepquery2;
     let flightsclimbedquery3;
@@ -743,109 +745,78 @@ async function dashboardCharts(userid, presentTime, enddate) {
     let stepcounterquery7;
     let walkingrunningdistancequery8;
     let userinput9;
+    try {
+        let data1 = await client.query(format("SELECT * FROM activeenergyburned WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
+        let data2 = await client.query(format("SELECT * FROM deepsleep WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
+        let data3 = await client.query(format("SELECT * FROM flightsclimbed WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", userid, presentTime, enddate));
+        let data4 = await client.query(format("SELECT * FROM heartrate WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", userid, presentTime, enddate));
+        let data5 = await client.query(format("SELECT * FROM sleep WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
+        let data6 = await client.query(format("SELECT * FROM sleepheartrate WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
+        let data7 = await client.query(format("SELECT * FROM stepcounter WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
+        let data8 = await client.query(format("SELECT * FROM walkingrunningdistance WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
+        let data9 = await client.query(format("SELECT * FROM userinput WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", userid, presentTime, enddate));
 
-    //const collectiondateColumn = ['flightsclimbed', 'heartrate'];
+        if (!Object.keys(data1.rows[0]).includes('startdate')) {
+            data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+        }
 
-    activeenergyburnedquery1 = format("SELECT * FROM activeenergyburned WHERE userid = %L AND startdate " +
-        "< %L AND startdate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data2.rows[0]).includes('startdate')) {
+            data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
+        }
 
-    deepsleepquery2 = format("SELECT * FROM deepsleep WHERE userid = %L AND startdate" +
-        "< %L AND startdate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data3.rows[0]).includes('startdate')) {
+            data3.rows = objectkeyReplace(data3.rows, 'collectiondate', 'startdate');
+        }
 
-    flightsclimbedquery3 = format("SELECT * FROM flightsclimbed WHERE userid = %L AND collectiondate " +
-        "< %L AND collectiondate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data4.rows[0]).includes('startdate')) {
+            data4.rows = objectkeyReplace(data4.rows, 'collectiondate', 'startdate');
+        }
 
-    heartratequery4 = format("SELECT * FROM heartrate WHERE userid = %L AND collectiondate" +
-        "< %L AND collectiondate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data5.rows[0]).includes('startdate')) {
+            data5.rows = objectkeyReplace(data5.rows, 'collectiondate', 'startdate');
+        }
 
-    sleepquery5 = format("SELECT * FROM sleep WHERE userid = %L AND startdate" +
-        "< %L AND startdate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data6.rows[0]).includes('startdate')) {
+            data6.rows = objectkeyReplace(data6.rows, 'collectiondate', 'startdate');
+        }
 
-    sleepheartratequery6 = format("SELECT * FROM sleepheartrate WHERE userid = %L AND startdate" +
-        "< %L AND startdate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data7.rows[0]).includes('startdate')) {
+            data7.rows = objectkeyReplace(data7.rows, 'collectiondate', 'startdate');
+        }
 
-    stepcounterquery7 = format("SELECT * FROM stepcounter WHERE userid = %L AND startdate" +
-        "< %L AND startdate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data8.rows[0]).includes('startdate')) {
+            data8.rows = objectkeyReplace(data8.rows, 'collectiondate', 'startdate');
+        }
 
-    walkingrunningdistancequery8 = format("SELECT * FROM walkingrunningdistance WHERE userid = %L AND startdate" +
-        "< %L AND startdate > %L", userid, presentTime, enddate);
+        if (!Object.keys(data9.rows[0]).includes('startdate')) {
+            data9.rows = objectkeyReplace(data9.rows, 'collectiondate', 'startdate');
+        }
 
-    userinput9 = format("SELECT * FROM userinput WHERE userid = %L AND collectiondate" +
-        "< %L AND collectiondate > %L", userid, presentTime, enddate);
+        data1 = genericFormatForR(data1);
+        data2 = genericFormatForR(data2);
+        data3 = genericFormatForR(data3);
+        data4 = genericFormatForR(data4);
+        data5 = genericFormatForR(data5);
+        data6 = genericFormatForR(data6);
+        data7 = genericFormatForR(data7);
+        data8 = genericFormatForR(data8);
+        data9 = genericFormatForR(data9);
 
+        console.log("workng fine")
+        return {
+            data1,
+            data2,
+            data3,
+            data4,
+            data5,
+            data6,
+            data7,
+            data8,
+            data9
+        }
 
-
-
-    let data1 = await client.query(activeenergyburnedquery1);
-    let data2 = await client.query(deepsleepquery2);
-    let data3 = await client.query(flightsclimbedquery3);
-    let data4 = await client.query(heartratequery4);
-    let data5 = await client.query(sleepquery5);
-    let data6 = await client.query(sleepheartratequery6);
-    let data7 = await client.query(stepcounterquery7);
-    let data8 = await client.query(walkingrunningdistancequery8);
-    let data9 = await client.query(userinput9);
-
-    await client.end();
-    console.log(data1);
-    if (!Object.keys(data1.rows[0]).includes('startdate')) {
-        data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data2.rows[0]).includes('startdate')) {
-        data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data3.rows[0]).includes('startdate')) {
-        data3.rows = objectkeyReplace(data3.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data4.rows[0]).includes('startdate')) {
-        data4.rows = objectkeyReplace(data4.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data5.rows[0]).includes('startdate')) {
-        data5.rows = objectkeyReplace(data5.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data6.rows[0]).includes('startdate')) {
-        data6.rows = objectkeyReplace(data6.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data7.rows[0]).includes('startdate')) {
-        data7.rows = objectkeyReplace(data7.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data8.rows[0]).includes('startdate')) {
-        data8.rows = objectkeyReplace(data8.rows, 'collectiondate', 'startdate');
-    }
-
-    if (!Object.keys(data9.rows[0]).includes('startdate')) {
-        data9.rows = objectkeyReplace(data9.rows, 'collectiondate', 'startdate');
-    }
-
-    data1 = genericFormatForR(data1);
-    data2 = genericFormatForR(data2);
-    data3 = genericFormatForR(data3);
-    data4 = genericFormatForR(data4);
-    data5 = genericFormatForR(data5);
-    data6 = genericFormatForR(data6);
-    data7 = genericFormatForR(data7);
-    data8 = genericFormatForR(data8);
-    data9 = genericFormatForR(data9);
-
-
-
-    return {
-        data1,
-        data2,
-        data3,
-        data4,
-        data5,
-        data6,
-        data7,
-        data8,
-        data9
+    } finally {
+        client.release();
     }
 }
 
@@ -890,6 +861,7 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
 }
 
 async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, data4, data5, data6, data7, data8, data9) {
+    console.log("getting the chart")
     let value = null;
     let data = {};
     if (data !== null) {
@@ -922,7 +894,7 @@ async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, da
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
         ).catch(error => {
-            res.send(error.data);
+            value = error.data;
         });
     console.log(value);
     return value;
