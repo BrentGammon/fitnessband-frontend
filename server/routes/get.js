@@ -1,6 +1,7 @@
 const routes = require("express").Router();
 const express = require("express");
 const pg = require("pg");
+const { Pool } = require("pg")
 const conString = "postgres://postgres:password@localhost:5432/fitnessInfo";
 const format = require("pg-format");
 const moment = require("moment");
@@ -12,27 +13,19 @@ const app = express();
 app.disable('view cache');
 routes.use(cors());
 const fs = require('fs');
-
-//const base = require("../../client/src/base");
 const firebase = require("firebase");
-
-
-// const app_fire = firebase.initializeApp({
-//   apiKey: "AIzaSyB7X6pOPyEnb7yFS8FuE4CdzqFSiEe7Ec4",
-//   authDomain: "reactdemo-b1425.firebaseapp.com",
-//   databaseURL: "https://reactdemo-b1425.firebaseio.com/",
-// })
-
-
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   databaseURL: "https://reactdemo-b1425.firebaseio.com"
-// });
-
 const admin = require('../firebaseconfig/firebaseAdmin');
-
 const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
 const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
+
+const pool = new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'fitnessInfo',
+    password: 'password',
+    port: 5432
+
+});
 
 routes.get('/test/:id', async (req, res) => {
     const result = firebase.auth();
@@ -71,10 +64,6 @@ routes.get("/user/:userid", async function (req, res) {
 
 
 routes.get("/user/summary/:userid", async function (req, res) {
-    //select ROUND(AVG(heartrate)) from heartrate where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and collectiondate  > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(AVG(duration)) from deepsleep where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(AVG(duration)) from sleep where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(AVG(value)) from sleepheartrate where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
     let heartRate = await averageWatchData(req.params.userid, 'heartrate', 'heartrate', 'collectiondate', 'heartrate', 'avg');
     let deepsleep = await averageWatchData(req.params.userid, 'deepsleep', 'duration', 'enddate', 'deepsleep', 'avg');
     let sleep = await averageWatchData(req.params.userid, 'sleep', 'duration', 'enddate', 'sleep', 'avg');
@@ -83,17 +72,7 @@ routes.get("/user/summary/:userid", async function (req, res) {
     let flightsclimbed = await averageWatchData(req.params.userid, 'flightsclimbed', 'total', 'collectiondate', 'flightsclimbed', 'sum');
     let stepcounter = await averageWatchData(req.params.userid, 'stepcounter', 'total', 'enddate', 'stepcounter', 'sum');
     let walkingrunningdistance = await averageWatchData(req.params.userid, 'walkingrunningdistance', 'total', 'enddate', 'walkingrunningdistance', 'sum');
-    console.log("summary");
-    console.log({
-        heartRate: heartRate.rows,
-        deepSleep: deepsleep.rows,
-        totalSleep: sleep.rows,
-        sleepHeartRate: sleepheartRate.rows,
-        activeEnergyBurned: activeenergyburned.rows,
-        flightsClimbed: flightsclimbed.rows,
-        steps: stepcounter.rows,
-        walkingRunningDistance: walkingrunningdistance.rows
-    })
+
     res.send({
         heartRate: heartRate.rows,
         deepSleep: deepsleep.rows,
@@ -104,18 +83,24 @@ routes.get("/user/summary/:userid", async function (req, res) {
         steps: stepcounter.rows,
         walkingRunningDistance: walkingrunningdistance.rows
     });
-
-    //select ROUND(SUM(total)) from activeenergyburned where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(SUM(total)) from flightsclimbed where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and collectiondate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(SUM(total)) from stepcounter where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-    //select ROUND(SUM(total)) from walkingrunningdistance where userid = 'ihZ22ifYeHalAs9lBTWN4XB551K2' and enddate > date_trunc('day', NOW() - interval '1 month') group by userid
-
 });
 
-
+async function averageWatchData(userid, table, valueColumnName, timeStampColumnName, alias, groupingType) {
+    const client = await pool.connect();
+    try {
+        if (groupingType === 'avg') {
+            let data = await client.query(format("SELECT ROUND(AVG(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName));
+            return data;
+        } else if (groupingType === 'sum') {
+            let data = await client.query(format("SELECT ROUND(SUM(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName));
+            return data;
+        }
+    } finally {
+        client.release()
+    }
+}
 
 function mean(dataSet) {
-    //console.log(dataSet)
     return (
         dataSet.reduce((a, b) => {
             return parseFloat(a) + parseFloat(b);
@@ -130,23 +115,6 @@ function total(dataSet) {
     );
 }
 
-async function averageWatchData(userid, table, valueColumnName, timeStampColumnName, alias, groupingType) {
-    const client = new pg.Client(conString);
-    await client.connect();
-    let query;
-    if (groupingType === 'avg') {
-
-        query = format("SELECT ROUND(AVG(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
-    } else if (groupingType === 'sum') {
-        query = format("SELECT ROUND(SUM(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
-    }
-    const data = await client.query(query);
-    //console.log(data);
-
-    await client.end;
-    return data;
-}
-//let query1 = format("SELECT %I, userid, collectiondate FROM userinput WHERE userid = %L AND collectiondate" + "< %L AND collectiondate > %L", parameter1, userid, startdate, enddate);
 
 routes.get("/fitness/querying/correlation", async function (req, res) {
     let data1 = req.query.data1.map(item => {
