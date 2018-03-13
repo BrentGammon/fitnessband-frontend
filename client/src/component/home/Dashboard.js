@@ -13,11 +13,6 @@ class Dashboard extends Component {
 
   }
 
-  componentWillMount() {
-
-  }
-
-
   renderLogIn() {
     return (
       <button
