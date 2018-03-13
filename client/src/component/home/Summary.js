@@ -14,7 +14,6 @@ class Summary extends Component {
     }
 
     componentDidMount() {
-        console.log("moutning")
         axios.get(`/api/get/user/summary/${this.props.uid}`)
             .then(response => {
                 this.setState({
@@ -26,16 +25,13 @@ class Summary extends Component {
     }
 
     formatData(key, value) {
-        console.log("format data");
-
-        if(key === "deepSleep" || key === "totalSleep") {
+        if (key === "deepSleep" || key === "totalSleep") {
             let rounded = Math.round(value / 3600);
             return rounded + " hours";
         } else if (key === "walkingRunningDistance") {
             let rounded = Math.round(value / 5280)
             return rounded + " miles";
         } else {
-            console.log("other");
             return Math.round(value);
         }
     }
@@ -45,7 +41,6 @@ class Summary extends Component {
         let array = [];
         if (data !== null) {
             let keys = Object.keys(data)
-            console.log(keys)
             for (let item in keys) {
                 let x = keys[item]
                 let xkey = x//key 

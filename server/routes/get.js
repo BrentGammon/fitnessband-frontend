@@ -199,23 +199,25 @@ routes.get('/charts/:userid/:startDateValue/:endDateValue', async (req, res) => 
 
 routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
     //:duration
-
-    console.log(1);
     const userid = req.params.userid;
     const parameter1 = req.params.parameter1;
     const parameter2 = req.params.parameter2;
-    console.log(2);
-
 
     const startdate = req.params.date;
-    //const duration = req.params.duration.toLowerCase();
     const enddate = moment(new Date(startdate)).subtract(30, 'days').format("YYYY-MM-DD");
 
     let response;
     let image;
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
-        response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate);
+        response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate); //check size here
+
+
+        console.log("==================================================");
+        console.log("user user query")
+        console.log(response.data1.rows.length)
+        console.log(response.data2.rows.length)
+        console.log("==================================================");
 
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
@@ -232,7 +234,11 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
         console.log("watch and watch");
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
-
+        console.log("==================================================");
+        console.log("watch watch query")
+        console.log(response.data1.rows.length)
+        console.log(response.data2.rows.length)
+        console.log("==================================================");
         image = await getBase64("http://localhost:8000/correlation", 'post',
             response.data1.rows,
             response.data2.rows,
@@ -246,7 +252,7 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         console.log(image)
 
 
-       response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
 
     }
 
@@ -259,8 +265,10 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             parameter1,
             parameter2
         );
+
+
         //todo data format
-       response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
+        response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
     }
 
@@ -273,7 +281,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         image: image,
         stats: JSON.parse(response.stats.data)
     }
-    //res.send(response);
     res.send(data)
 
 });
@@ -584,7 +591,6 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
 
 
 routes.get("/user/dashboard/plot", async function (req, res) {
-    console.log("YO YO YO YO YO YO YO YO")
     const client = new pg.Client(conString);
     await client.connect();
     let parameters = req.query.data;
@@ -594,23 +600,23 @@ routes.get("/user/dashboard/plot", async function (req, res) {
     console.log(req.query.startDateValue);
     console.log(req.query.endDateValue);
 
-    if(req.query.startDateValue){
+    if (req.query.startDateValue) {
         presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
         console.log(presentTime);
-    }else{
+    } else {
         presentTime = moment(new Date()).format("YYYY-MM-DD");
     }
 
-    if(req.query.endDateValue){
+    if (req.query.endDateValue) {
         enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
         console.log(enddate);
-    }else{
+    } else {
         enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
     }
-    
 
-console.log(presentTime);
-console.log(enddate);
+
+    console.log(presentTime);
+    console.log(enddate);
 
     console.log(1);
 
@@ -907,7 +913,7 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
         response =>
             (value = new Buffer(response.data, "binary").toString("base64"))
         ).catch(error => {
-            res.send(error.data);
+            value = error.data;
         });
     console.log(value);
     return value;

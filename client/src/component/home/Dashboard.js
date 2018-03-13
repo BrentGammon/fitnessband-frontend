@@ -1,11 +1,8 @@
 import React, { Component } from "react";
-import firebase from "firebase";
-import Header from "../menu/Header";
 import "./home.scss";
 import "./loginbuttons.scss";
 import UserProfile from "../userprofile/UserProfile";
 import Summary from "./Summary";
-import axios from "axios";
 import './dashboard.scss';
 import DashboardPlot from './DashboardPlot';
 

@@ -1,12 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import './dashboardplot.scss';
 
 class DashboardPlot extends Component {
-    constructor(){
+    constructor() {
         super();
         this.state = {
-            selectedValues : [],
+            selectedValues: [],
             image: null
         }
         this.displayOptions = this.displayOptions.bind(this);
@@ -14,25 +14,23 @@ class DashboardPlot extends Component {
         this.getData = this.getData.bind(this);
     }
 
-    displayOptions(){
+    displayOptions() {
         let x = this.props.options;
         return (
             x.map(item => {
                 let label = item.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
-                return(
-                  <div className="checkbox" key={item}>  <input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())}/> {label} </div>
+                return (
+                    <div className="checkbox" key={item}>  <input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} /> {label} </div>
                 )
             })
         )
     }
 
-    // var arrayvar = this.state.arrayvar.slice()
-    // arrayvar.push(newelement)
-    // this.setState({ arrayvar: arrayvar })
 
-    updateState(value){
-        let array =  this.state.selectedValues;
-        if(array.includes(value)){
+
+    updateState(value) {
+        let array = this.state.selectedValues;
+        if (array.includes(value)) {
             let index = array.indexOf(value);
             array.splice(index, 1);
         } else {
@@ -44,8 +42,8 @@ class DashboardPlot extends Component {
 
     }
 
-    
-    getData(){
+
+    getData() {
         let data = this.state.selectedValues;
         axios.get('/api/get/user/dashboard/plot', {
             params: {
@@ -55,25 +53,25 @@ class DashboardPlot extends Component {
                 endDateValue: this.props.endDateValue
             }
         })
-        .then(response => {
-            this.setState({image: response.data.image});
-            //console.log(response.data)
-        })
-        .catch(error => {
-            console.log(error);
-        })
+            .then(response => {
+                this.setState({ image: response.data.image });
+                //console.log(response.data)
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
-    
 
-    render(){
+
+    render() {
         return (
             <div className="dashboardPlot">
-            {this.state.image ? 
-                 <img src={`data:image/png;base64, ${this.state.image}`} />
-            :
-            <div className="dashboardPlotBlank"></div>
-            }
-               
+                {this.state.image ?
+                    <img src={`data:image/png;base64, ${this.state.image}`} alt="dashboard plot" />
+                    :
+                    <div className="dashboardPlotBlank"></div>
+                }
+
                 {this.displayOptions()}
             </div>
         )

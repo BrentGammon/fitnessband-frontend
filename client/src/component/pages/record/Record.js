@@ -4,7 +4,6 @@ import Button from "../../shared/button/Button";
 import axios from "axios";
 import firebase from "firebase";
 import "./record.scss";
-import mapkeys from "lodash.mapkeys";
 import { Redirect } from "react-router";
 class Record extends Component {
   constructor() {
@@ -57,15 +56,19 @@ class Record extends Component {
         });
     } else {
       const errorObject = Object.keys(object.user)
-        .map(item => {
+        .map(function (item) {
+          let data;
           if (object.user[item] === null) {
-            return item;
+            data = item;
           }
+          return data;
         })
-        .filter(item => {
+        .filter(function (item) {
+          let data;
           if (item !== "uid") {
-            return item;
+            data = item;
           }
+          return data;
         });
       this.setState({ error: errorObject });
     }
