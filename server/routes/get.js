@@ -237,9 +237,7 @@ async function datasetInformationMoodWatch(dataset1, parameter1, parameter2) {
 }
 
 async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate) {
-    console.log("watch mood function")
-    const client = new pg.Client(conString);
-    await client.connect();
+    const client = await pool.connect();
     let watchQuery;
     let moodQuery;
     let moodQueryOneHour;
@@ -247,150 +245,143 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
     let moodQuerySixHour;
     let moodQueryTwelveHour;
     let parameter;
+
+
+    let moodHour;
+    let moodThreeHour;
+    let moodSixHour;
+    let moodTwelveHour;
+    let watch;
+    let data = {};
+
     const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
     const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
+    try {
 
+        if (userInputValues.includes(parameter1)) {
+            parameter = parameter1;
+            moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
 
-    if (userInputValues.includes(parameter1)) {
-        parameter = parameter1;
-        moodQueryOneHour = format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix());
-        moodQueryThreeHour = format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix());
-        moodQuerySixHour = format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix());
-        moodQueryTwelveHour = format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix());
-
-        if (startdateColumn.includes(parameter2)) {
-            watchQuery = format("select * from %I where userid = %L and startdate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by startdate desc", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix());
-        } else {
-            watchQuery = format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix());
+            if (startdateColumn.includes(parameter2)) {
+                watch = await client.query(format("select * from %I where userid = %L and startdate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by startdate desc", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            } else {
+                watch = await client.query(format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            }
         }
-    }
 
-    if (userInputValues.includes(parameter2)) {
-        parameter = parameter2;
-        moodQueryOneHour = format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix());
-        moodQueryThreeHour = format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix());
-        moodQuerySixHour = format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix());
-        moodQueryTwelveHour = format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix());
-        if (startdateColumn.includes(parameter1)) {
-            watchQuery = format("select * from %I where userid = %L and startdate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by startdate desc", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix());
-        } else {
-            watchQuery = format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix());
+        if (userInputValues.includes(parameter2)) {
+            parameter = parameter2;
+            moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            if (startdateColumn.includes(parameter1)) {
+                watch = await client.query(format("select * from %I where userid = %L and startdate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by startdate desc", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            } else {
+                watch = await client.query(format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            }
         }
+
+        moodHour.rows = objectkeyReplace(moodHour.rows, 'collectiondate');
+        moodThreeHour.rows = objectkeyReplace(moodThreeHour.rows, 'collectiondate');
+        moodSixHour.rows = objectkeyReplace(moodSixHour.rows, 'collectiondate');
+        moodTwelveHour.rows = objectkeyReplace(moodTwelveHour.rows, 'collectiondate');
+
+
+        if (userInputValues.includes(parameter1)) {  //
+            moodHour.rows = userInputTotalKey(moodHour.rows, parameter1);
+            moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter1);
+
+            moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter1);
+            moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter1);
+
+            moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter1);
+            moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter1);
+
+            moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter1);
+            moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter1);
+        } else if (userInputValues.includes(parameter2)) {
+            moodHour.rows = userInputTotalKey(moodHour.rows, parameter2);
+            moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter2);
+
+            moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter2);
+            moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter2);
+
+            moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter2);
+            moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter2);
+
+            moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter2);
+            moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter2);
+        }
+
+        moodHour.rows = objectkeyReplace(moodHour.rows, 'collectiondate', 'startdate');
+        moodThreeHour.rows = objectkeyReplace(moodThreeHour.rows, 'collectiondate', 'startdate');
+        moodSixHour.rows = objectkeyReplace(moodSixHour.rows, 'collectiondate', 'startdate');
+        moodTwelveHour.rows = objectkeyReplace(moodTwelveHour.rows, 'collectiondate', 'startdate');
+
+        if (Object.keys(watch.rows[0]).includes('startdate')) {
+            watch.rows = addCollectionDate(watch.rows);
+        }
+
+        if (!Object.keys(watch.rows[0]).includes('startdate')) {
+            watch.rows = objectkeyReplace(watch.rows, 'collectiondate', 'startdate');
+        }
+
+        moodHour = genericFormatForR(moodHour);
+        moodThreeHour = genericFormatForR(moodThreeHour);
+        moodSixHour = genericFormatForR(moodSixHour);
+        moodTwelveHour = genericFormatForR(moodTwelveHour);
+
+        watch = genericFormatForR(watch);
+
+        moodHour = moodHour.rows;
+        moodThreeHour = moodThreeHour.rows;
+        moodSixHour = moodSixHour.rows;
+        moodTwelveHour = moodTwelveHour.rows;
+        watch = watch.rows;
+
+        let meanParameters = ['heartrate', 'sleepheartrate'];
+        let sumParameters = ['activeenergyburned', 'stepcounter', 'walkingrunningdistance', 'sleep', 'flightsclimbed', 'deepsleep'];
+        let hourData = []
+        let threeHourData = []
+        let sixHourData = []
+        let twelveHourData = []
+        if (meanParameters.includes(parameter1) || meanParameters.includes(parameter2)) {
+            hourData = watchMoodFilterMean(moodHour, watch, 'hourwindow', parameter);
+            threeHourData = watchMoodFilterMean(moodThreeHour, watch, 'threehourwindow', parameter);
+            sixHourData = watchMoodFilterMean(moodSixHour, watch, 'sixhourwindow', parameter);
+            twelveHourData = watchMoodFilterMean(moodTwelveHour, watch, 'twelevehourwindow', parameter);
+        }
+        if (sumParameters.includes(parameter1) || sumParameters.includes(parameter2)) {
+            hourData = watchMoodFilterSum(moodHour, watch, 'hourwindow', parameter);
+            threeHourData = watchMoodFilterSum(moodThreeHour, watch, 'threehourwindow', parameter);
+            sixHourData = watchMoodFilterSum(moodSixHour, watch, 'sixhourwindow', parameter);
+            twelveHourData = watchMoodFilterSum(moodTwelveHour, watch, 'twelevehourwindow', parameter);
+        }
+
+        data = {
+            hourData,
+            threeHourData,
+            sixHourData,
+            twelveHourData
+        }
+
+
+    } finally {
+        client.release();
     }
 
-
-
-    let moodHour = await client.query(moodQueryOneHour);
-    let moodThreeHour = await client.query(moodQueryThreeHour);
-    let moodSixHour = await client.query(moodQuerySixHour);
-    let moodTwelveHour = await client.query(moodQueryTwelveHour);
-    let watch = await client.query(watchQuery);  //query1
-
-
-    moodHour.rows = objectkeyReplace(moodHour.rows, 'collectiondate');
-    moodThreeHour.rows = objectkeyReplace(moodThreeHour.rows, 'collectiondate');
-    moodSixHour.rows = objectkeyReplace(moodSixHour.rows, 'collectiondate');
-    moodTwelveHour.rows = objectkeyReplace(moodTwelveHour.rows, 'collectiondate');
-
-
-    if (userInputValues.includes(parameter1)) {  //
-        moodHour.rows = userInputTotalKey(moodHour.rows, parameter1);
-        moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter1);
-
-        moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter1);
-        moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter1);
-
-        moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter1);
-        moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter1);
-
-        moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter1);
-        moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter1);
-    } else if (userInputValues.includes(parameter2)) {
-        moodHour.rows = userInputTotalKey(moodHour.rows, parameter2);
-        moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter2);
-
-        moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter2);
-        moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter2);
-
-        moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter2);
-        moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter2);
-
-        moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter2);
-        moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter2);
-    }
-
-
-    await client.end();
-
-
-
-    //  if (!Object.keys(moodHour.rows[0]).includes('startdate')) {
-
-    moodHour.rows = objectkeyReplace(moodHour.rows, 'collectiondate', 'startdate');
-    moodThreeHour.rows = objectkeyReplace(moodThreeHour.rows, 'collectiondate', 'startdate');
-    moodSixHour.rows = objectkeyReplace(moodSixHour.rows, 'collectiondate', 'startdate');
-    moodTwelveHour.rows = objectkeyReplace(moodTwelveHour.rows, 'collectiondate', 'startdate');
-    //  }
-
-    if (Object.keys(watch.rows[0]).includes('startdate')) {
-        watch.rows = addCollectionDate(watch.rows);
-    }
-
-    if (!Object.keys(watch.rows[0]).includes('startdate')) {
-        watch.rows = objectkeyReplace(watch.rows, 'collectiondate', 'startdate');
-    }
-
-    moodHour = genericFormatForR(moodHour);
-    moodThreeHour = genericFormatForR(moodThreeHour);
-    moodSixHour = genericFormatForR(moodSixHour);
-    moodTwelveHour = genericFormatForR(moodTwelveHour);
-
-    watch = genericFormatForR(watch);
-
-    moodHour = moodHour.rows;
-    moodThreeHour = moodThreeHour.rows;
-    moodSixHour = moodSixHour.rows;
-    moodTwelveHour = moodTwelveHour.rows;
-    watch = watch.rows;
-
-    let meanParameters = ['heartrate', 'sleepheartrate'];
-    let sumParameters = ['activeenergyburned', 'stepcounter', 'walkingrunningdistance', 'sleep', 'flightsclimbed', 'deepsleep'];
-    let hourData = []
-    let threeHourData = []
-    let sixHourData = []
-    let twelveHourData = []
-    if (meanParameters.includes(parameter1) || meanParameters.includes(parameter2)) {
-        hourData = watchMoodFilterMean(moodHour, watch, 'hourwindow', parameter);
-        threeHourData = watchMoodFilterMean(moodThreeHour, watch, 'threehourwindow', parameter);
-        sixHourData = watchMoodFilterMean(moodSixHour, watch, 'sixhourwindow', parameter);
-        twelveHourData = watchMoodFilterMean(moodTwelveHour, watch, 'twelevehourwindow', parameter);
-    }
-    if (sumParameters.includes(parameter1) || sumParameters.includes(parameter2)) {
-        hourData = watchMoodFilterSum(moodHour, watch, 'hourwindow', parameter);
-        threeHourData = watchMoodFilterSum(moodThreeHour, watch, 'threehourwindow', parameter);
-        sixHourData = watchMoodFilterSum(moodSixHour, watch, 'sixhourwindow', parameter);
-        twelveHourData = watchMoodFilterSum(moodTwelveHour, watch, 'twelevehourwindow', parameter);
-    }
-
-    let data = {
-        hourData,
-        threeHourData,
-        sixHourData,
-        twelveHourData
-    }
-    //let gobalArray = watchMoodFilter(mood, watch, 'threehourwindow');
 
     return {
         data,
-        //watch,
         parameter1,
         parameter2
     }
 
-    // return {
-    //     mood,
-    //     watch
-    // }
+
 }
 
 
