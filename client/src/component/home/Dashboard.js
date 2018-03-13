@@ -69,14 +69,14 @@ clickHandler(){
               <DashboardPlot uid={this.props.user.uid} options={["stressLevel", "tirednessLevel", "activityLevel", "healthinessLevel"]} />
             </div>
 
-        <button
+{/*         <button
           className="btn"
           onClick={e => {
             this.clicked();
           }}
         >
           Delete All Records (Demo Purposes)
-        </button>
+        </button> */}
           </div>
         ) : (
             ""
