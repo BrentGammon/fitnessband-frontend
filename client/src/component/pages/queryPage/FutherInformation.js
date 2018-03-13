@@ -13,22 +13,22 @@ class FutherInformation extends Component {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset1'][0]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[1][0]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset1'][1]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[1][1]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset1'][2]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[1][2]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset1'][3]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[1][3]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset1'][4]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[1][4]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset1'][5]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[1][5]['Freq'] : ''}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -41,22 +41,22 @@ class FutherInformation extends Component {
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset2'][0]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[2][0]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset2'][1]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[2][1]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset2'][2]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[2][2]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset2'][3]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[2][3]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset2'][4]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[2][4]['Freq'] : ''}</td>
                         </tr>
                         <tr>
-                            <td>{this.props.extraData ? this.props.extraData['dataset2'][5]['Freq'] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[2][5]['Freq'] : ''}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -70,19 +70,19 @@ class FutherInformation extends Component {
                     <tbody>
                         <tr>
                             <td>{this.props.extraData ? '1 Hour' : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['hourCor'][0] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[3][0][0] : ''}</td>
                         </tr>
                         <tr>
                             <td>{this.props.extraData ? '1 Day' : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['1dayCor'][0] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[4][0][0] : ''}</td>
                         </tr>
                         <tr>
                             <td>{this.props.extraData ? '7 Day' : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['7daysCor'][0] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[5][0][0] : ''}</td>
                         </tr>
                         <tr>
                             <td>{this.props.extraData ? '30 Days' : ''}</td>
-                            <td>{this.props.extraData ? this.props.extraData['30daysCor'][0] : ''}</td>
+                            <td>{this.props.extraData ? this.props.extraData[6][0][0] : ''}</td>
                         </tr>
                     </tbody>
                 </table>
