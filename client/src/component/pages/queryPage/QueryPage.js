@@ -500,8 +500,10 @@ class QueryPage extends Component {
 
         {
           //dont render based on the current selected do for submiited values 
-          //check if first item is userinput and second is watch and the other way round                                                                              
-          (userInputValues.includes(this.state.optionSelection1Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) || (userInputValues.includes(this.state.optionSelection2Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) ?
+          //check if first item is userinput and second is watch and the other way round 
+
+          //watch mood                                                                             
+          (userInputValues.includes(this.state.optionSelection1Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) || (userInputValues.includes(this.state.optionSelection2Submitted) && watchInputValues.includes(this.state.optionSelection1Submitted)) ?
             this.state.extraData ?
               <Accordion text="More Information">
                 <FurtherInformationMoodWatch extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Submitted} optionSelection2Current={this.state.optionSelection2Submitted} />
