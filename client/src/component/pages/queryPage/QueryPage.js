@@ -39,9 +39,6 @@ function getFormat(time) {
 
 const defaultCalendarValue = now.clone();
 defaultCalendarValue.add(-1, 'month');
-
-const timePickerElement = <TimePickerPanel defaultValue={moment('00:00:00', 'HH:mm:ss')} />;
-
 const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
 const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
 
@@ -77,7 +74,6 @@ class QueryPage extends Component {
       //query1duration: "",
       image: null,
       extraData: null,
-
       optionSelection1Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
       optionSelection2Values: ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance", "stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"],
       optionSelection1Current: "activeenergyburned",
@@ -110,12 +106,12 @@ class QueryPage extends Component {
   }
 
   onChange = (value) => {
-    console.log('DatePicker change: ', (value && value.format(format)));
-    //const x: (value && value.format(format))
-    this.setState({
-      value
-    });
-    this.setState({ query1date: value.format(format) });
+    if (value) {
+      this.setState({
+        value
+      });
+      this.setState({ query1date: value.format(format) });
+    }
   }
 
   onShowTimeChange = (e) => {
@@ -135,53 +131,6 @@ class QueryPage extends Component {
       disabled: !this.state.disabled,
     });
   }
-
-
-  //DONT DELETE
-  // componentWillMount() {
-  //   let provider = new firebase.auth.FacebookAuthProvider();
-  //   firebase.auth().currentUser.getIdToken(true).then(function (idToken) {
-  //     console.log(idToken);
-  //     axios.get('/api/get/test/' + idToken).then(response => {
-  //       console.log(response)
-  //     }).catch(error => {
-  //       console.log(error);
-  //     })
-  //   }).catch(function (error) {
-  //     console.log(error);
-  //   })
-
-
-  // .signInWithPopup(provider)
-  // .then(result => {
-  //   // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-  //   const token = result.credential.accessToken;
-
-  // }).catch(function (error) {
-  //   console.log(error);
-  // });
-  // axios.get('/api/get/test')
-  //   .then(response => {
-  //     console.log(response);
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //   });
-  //}
-
-  componentWillMount() {
-    axios
-      .get(`/api/get/charts/${this.props.uid}`)
-      .then(response => {
-        this.setState({ image: response.data.image });
-        //console.log(this.props.uid);
-      }).catch(error => {
-        console.log(error);
-      })
-  }
-
-
-
 
   clickHandler(sd, ed, c, m) {
     if (sd !== ed) {
@@ -215,14 +164,12 @@ class QueryPage extends Component {
       query1watch: q1w,
       query1watch2: q1w2,
       query1date: q1d.split('+')[0],
-      //query1duration: q1du,
     };
 
 
     axios
       .get(`/api/get/query1/${data.uid}/${data.query1watch}/${data.query1watch2}/${data.query1date}`)
       .then(response => {
-        console.log("1234567876543")
         this.setState({ image: response.data.image });
         this.setState({ extraData: response.data.stats })
 
@@ -383,8 +330,6 @@ class QueryPage extends Component {
       style={{ zIndex: 1000 }}
       dateInputPlaceholder="please input"
       formatter={getFormat(state.showTime)}
-      //disabledTime={state.showTime ? disabledTime: null}
-      timePicker={state.showTime ? timePickerElement : null}
       defaultValue={this.props.defaultCalendarValue}
       showDateInput={state.showDateInput}
     //disabledDate={disabledDate}
@@ -490,6 +435,7 @@ class QueryPage extends Component {
         >
           Submit
                 </button>
+        {this.state.image === undefined ? <h1>No data found</h1> : ''}
 
 
         {this.state.image ? (
@@ -498,13 +444,12 @@ class QueryPage extends Component {
             console.log("there is no image to display")
           )}
 
+
         {
-          //dont render based on the current selected do for submiited values 
-          //check if first item is userinput and second is watch and the other way round 
 
           //watch mood                                                                             
           (userInputValues.includes(this.state.optionSelection1Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) || (userInputValues.includes(this.state.optionSelection2Submitted) && watchInputValues.includes(this.state.optionSelection1Submitted)) ?
-            this.state.extraData ?
+            this.state.extraData && this.state.image !== undefined ?
               <Accordion text="More Information">
                 <FurtherInformationMoodWatch extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Submitted} optionSelection2Current={this.state.optionSelection2Submitted} />
               </Accordion> : ''
@@ -516,7 +461,7 @@ class QueryPage extends Component {
           //full mood or full watch 
           (watchInputValues.includes(this.state.optionSelection1Submitted) && watchInputValues.includes(this.state.optionSelection2Submitted)) || (watchInputValues.includes(this.state.optionSelection2Submitted) && watchInputValues.includes(this.state.optionSelection1Submitted)) ||
             (userInputValues.includes(this.state.optionSelection1Submitted) && userInputValues.includes(this.state.optionSelection2Submitted)) || (userInputValues.includes(this.state.optionSelection2Submitted) && userInputValues.includes(this.state.optionSelection1Submitted)) ?
-            this.state.extraData ?
+            this.state.extraData && this.state.image !== undefined ?
               <Accordion text="More Information">
                 <FurtherInformation extraData={this.state.extraData} optionSelection1Current={this.state.optionSelection1Submitted} optionSelection2Current={this.state.optionSelection2Submitted} />
               </Accordion> : ''
