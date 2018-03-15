@@ -40,7 +40,7 @@ function getFormat(time) {
 const defaultCalendarValue = now.clone();
 defaultCalendarValue.add(-1, 'month');
 
-const timePickerElement = <TimePickerPanel />;
+
 
 const SHOW_TIME = true;
 
@@ -48,6 +48,7 @@ class Picker extends React.Component {
     state = {
         showTime: SHOW_TIME,
         disabled: false,
+        timeError: null
     };
 
     render() {
@@ -55,7 +56,6 @@ class Picker extends React.Component {
         const calendar = (<Calendar
             locale={cn ? zhCN : enUS}
             defaultValue={now}
-            timePicker={props.showTime ? timePickerElement : null}
             disabledDate={props.disabledDate}
         />);
         return (<DatePicker
@@ -107,16 +107,18 @@ class TimeSeries extends Component {
         }; */
 
     onChange = (field, value) => {
-        console.log('onChange', field, value && value.format(getFormat(SHOW_TIME)));
-        this.setState({
-            [field]: value,
-        });
-        if (field === 'startValue') {
-            this.setState({ startDateValue: value.format(format) });
-        } else if (field === 'endValue') {
-            this.setState({ endDateValue: value.format(format) });
+        if (value) {
+            this.setState({
+                [field]: value,
+            });
+            if (field === 'startValue') {
+                this.setState({ startDateValue: value.format(format) });
+            } else if (field === 'endValue') {
+                this.setState({ endDateValue: value.format(format) });
+            }
         }
     }
+
 
     disabledEndDate = (endValue) => {
         if (!endValue) {
@@ -143,10 +145,15 @@ class TimeSeries extends Component {
     }
 
     clicked() {
-        this.clickHandler(
-            this.state.startDateValue,
-            this.state.endDateValue
-        );
+        if (moment(this.state.endDateValue).format("YYYY-MM-DD") > moment().format("YYYY-MM-DD") || moment(this.state.startDateValue).format("YYYY-MM-DD") > moment().format("YYYY-MM-DD")) {
+            this.setState({ timeError: "Date/s can't be in the future" });
+        } else {
+            this.setState({ timeError: null });
+            this.clickHandler(
+                this.state.startDateValue,
+                this.state.endDateValue
+            );
+        }
     }
 
     clickHandler(sDV, eDV) {
@@ -155,6 +162,7 @@ class TimeSeries extends Component {
             startDate1: sDV.split('+')[0],
             endDate1: eDV.split('+')[0]
         };
+        console.log("yoyoyyoyoyyoyyoyoyyoyyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoy")
         axios
             .get(`/api/get/charts/${data.uid}/${data.startDate1}/${data.endDate1}`)
             .then(response => {
@@ -197,6 +205,7 @@ class TimeSeries extends Component {
                     />
                 </p>
             </div>
+            {this.state.timeError ? <h2>{this.state.timeError}</h2> : ''}
             <button
                 className="btn"
                 onClick={e => {
