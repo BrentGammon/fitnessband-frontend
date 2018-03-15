@@ -186,7 +186,7 @@ class TimeSeries extends Component {
         const state = this.state;
         return (<div className="timeSeriesSection">
 
-            <div style={{ width: 240, margin: 20 }}>
+            <div className="timeseriesCalendar" style={{ width: 240, margin: 20 }}>
                 <p>
                     StartDate:
                 <Picker

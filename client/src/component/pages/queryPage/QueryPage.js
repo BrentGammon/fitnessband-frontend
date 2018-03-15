@@ -389,7 +389,7 @@ class QueryPage extends Component {
         {this.optionSelection2()}
         <span>during</span>
 
-        <div style={{ width: 400, margin: 20 }}>
+        <div className="calendar" style={{ width: 400, margin: 20 }}>
           <div style={{
             boxSizing: 'border-box',
             position: 'relative',

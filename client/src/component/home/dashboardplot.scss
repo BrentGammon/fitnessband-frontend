@@ -1,19 +1,17 @@
 .checkbox {
- padding-left: 5%;
-}
+    padding-left: 5%;
+   }
+   
+   .dashboardPlot{
+      width:30%;
+   }
+   
+   
+   .dashboardPlot {
+   
+       > .dashboardPlotBlank {
+           height: 480px;
+           width: 480px;
+       }
+   }
 
-.dashboardPlot{
-   width:50%;
-}
-
-
-.dashboardPlot {
-    > .checkbox {
-        text-align: left;
-    }
-
-    > .dashboardPlotBlank {
-        height: 480px;
-        width: 480px;
-    }
-}
