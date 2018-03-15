@@ -42,10 +42,16 @@ class Summary extends Component {
         if (data !== null) {
             let keys = Object.keys(data)
             for (let item in keys) {
-                let x = keys[item]
-                let xkey = x//key 
-                let xvalue = data[x][0][Object.keys(data[x][0])] //value
-                array.push([xkey, xvalue])
+                let keyName = keys[item]
+                if (data[keyName].length > 0) {
+                    let x = keys[item]
+                    let xkey = x//key 
+                    let xvalue = data[x][0][Object.keys(data[x][0])] //value
+                    array.push([xkey, xvalue])
+                } else {
+                    array.push([keys[item], "0"])
+                }
+
             }
 
             return (
