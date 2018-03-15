@@ -151,12 +151,11 @@ routes.get('/charts/:userid/:startDateValue/:endDateValue', async function (req,
         response.data8.rows,
         response.data9.rows
     );
-    console.log(6)
     const data = {
         image: image,
         //stats: JSON.parse(response.stats.data)
     }
-    console.log(6)
+    console.log(7)
     res.send(data);
 });
 
@@ -693,53 +692,80 @@ async function dashboardCharts(userid, presentTime, enddate) {
         let data8 = await client.query(format("SELECT * FROM walkingrunningdistance WHERE userid = %L AND startdate < %L AND startdate > %L", userid, presentTime, enddate));
         let data9 = await client.query(format("SELECT * FROM userinput WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", userid, presentTime, enddate));
 
-        if (!Object.keys(data1.rows[0]).includes('startdate')) {
+
+
+        if (data1.rowCount > 0 && !Object.keys(data1.rows[0]).includes('startdate')) {
             data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+
         }
 
-        if (!Object.keys(data2.rows[0]).includes('startdate')) {
+        if (data2.rowCount > 0 && !Object.keys(data2.rows[0]).includes('startdate')) {
             data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
         }
 
-        if (!Object.keys(data3.rows[0]).includes('startdate')) {
+
+        if (data3.rowCount > 0 && !Object.keys(data3.rows[0]).includes('startdate')) {
             data3.rows = objectkeyReplace(data3.rows, 'collectiondate', 'startdate');
         }
 
-        if (!Object.keys(data4.rows[0]).includes('startdate')) {
+
+        if (data4.rowCount > 0 && !Object.keys(data4.rows[0]).includes('startdate')) {
             data4.rows = objectkeyReplace(data4.rows, 'collectiondate', 'startdate');
         }
 
-        if (!Object.keys(data5.rows[0]).includes('startdate')) {
+
+        if (data5.rowCount > 0 && !Object.keys(data5.rows[0]).includes('startdate')) {
             data5.rows = objectkeyReplace(data5.rows, 'collectiondate', 'startdate');
         }
 
-        if (!Object.keys(data6.rows[0]).includes('startdate')) {
+
+        if (data6.rowCount > 0 && !Object.keys(data6.rows[0]).includes('startdate')) {
             data6.rows = objectkeyReplace(data6.rows, 'collectiondate', 'startdate');
         }
 
-        if (!Object.keys(data7.rows[0]).includes('startdate')) {
+
+        if (data7.rowCount > 0 && !Object.keys(data7.rows[0]).includes('startdate')) {
             data7.rows = objectkeyReplace(data7.rows, 'collectiondate', 'startdate');
         }
 
-        if (!Object.keys(data8.rows[0]).includes('startdate')) {
+
+        if (data8.rowCount > 0 && !Object.keys(data8.rows[0]).includes('startdate')) {
             data8.rows = objectkeyReplace(data8.rows, 'collectiondate', 'startdate');
+
         }
 
-        if (!Object.keys(data9.rows[0]).includes('startdate')) {
+
+        if (data9.rowCount > 0 && !Object.keys(data9.rows[0]).includes('startdate')) {
             data9.rows = objectkeyReplace(data9.rows, 'collectiondate', 'startdate');
+
         }
-
-        data1 = genericFormatForR(data1);
-        data2 = genericFormatForR(data2);
-        data3 = genericFormatForR(data3);
-        data4 = genericFormatForR(data4);
-        data5 = genericFormatForR(data5);
-        data6 = genericFormatForR(data6);
-        data7 = genericFormatForR(data7);
-        data8 = genericFormatForR(data8);
-        data9 = genericFormatForR(data9);
-
-        console.log("workng fine")
+        if (data1.rowCount > 0) {
+            data1 = genericFormatForR(data1);
+        }
+        if (data2.rowCount > 0) {
+            data2 = genericFormatForR(data2);
+        }
+        if (data3.rowCount > 0) {
+            data3 = genericFormatForR(data3);
+        }
+        if (data4.rowCount > 0) {
+            data4 = genericFormatForR(data4);
+        }
+        if (data5.rowCount > 0) {
+            data5 = genericFormatForR(data5);
+        }
+        if (data6.rowCount > 0) {
+            data6 = genericFormatForR(data6);
+        }
+        if (data7.rowCount > 0) {
+            data7 = genericFormatForR(data7);
+        }
+        if (data8.rowCount > 0) {
+            data8 = genericFormatForR(data8);
+        }
+        if (data9.rowCount > 0) {
+            data9 = genericFormatForR(data9);
+        }
         return {
             data1,
             data2,
