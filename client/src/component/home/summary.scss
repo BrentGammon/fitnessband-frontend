@@ -17,10 +17,11 @@
 .summaryContainer {
    // display: inline-block;
     height:100%;
-    padding-top: 10px;   
+    padding-top: 5px;   
     display:flex;
     flex-wrap: wrap;
     justify-content: center;
+    margin: auto;
    
 }
 
@@ -55,4 +56,3 @@
 #walkingRunningDistance{
     background-color: #ff9933;
 }
-

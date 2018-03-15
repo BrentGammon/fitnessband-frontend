@@ -7,3 +7,21 @@
 .navbar > a {
   margin-left: 20px;
 }
+
+.navbar a:link, a:visited {
+  background-color: grey;
+  color: black;
+  padding: 14px 2px 14px 2px;
+  margin-bottom:5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  transition: 1s;
+  border-radius: 25px;
+}
+
+
+.navbar a:hover, a:active {
+  background-color: black;
+  color: white;
+}
