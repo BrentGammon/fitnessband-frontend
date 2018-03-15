@@ -174,49 +174,80 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
     //user input / user input query
     if (userInputValues.includes(parameter1) && userInputValues.includes(parameter2)) {
         response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate); //check size here
-        image = await getBase64("http://localhost:8000/correlation", 'post',
-            response.data1.rows,
-            response.data2.rows,
-            parameter1,
-            parameter2
-        );
-        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+
+        if (response.data1.rowCount !== 0 || response.data2.rowCount !== 0) {
+            console.log("both sets have data")
+            image = await getBase64("http://localhost:8000/correlation", 'post',
+                response.data1.rows,
+                response.data2.rows,
+                parameter1,
+                parameter2
+            );
+            response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        } else {
+            console.log("one or both is empty")
+            image = undefined;
+            response = undefined;
+        }
     }
 
     //watch / watch query
     if (watchInputValues.includes(parameter1) && watchInputValues.includes(parameter2)) {
         response = await watchwatchQuery(parameter1, parameter2, userid, startdate, enddate);
-        console.log("==================================================");
-        image = await getBase64("http://localhost:8000/correlation", 'post',
-            response.data1.rows,
-            response.data2.rows,
-            parameter1,
-            parameter2
-        );
-        response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        if (response && response.data1.rowCount !== 0 && response.data2.rowCount !== 0) {
+            image = await getBase64("http://localhost:8000/correlation", 'post',
+                response.data1.rows,
+                response.data2.rows,
+                parameter1,
+                parameter2
+            );
+            response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
+        } else {
+            console.log("one or both is empty")
+            console.log("watch watch")
+            image = undefined;
+            response = undefined;
+        }
     }
 
 
+
+    //broken
     //watch / user query
     if ((watchInputValues.includes(parameter1) && userInputValues.includes(parameter2)) || (watchInputValues.includes(parameter2) && userInputValues.includes(parameter1))) {
         response = await watchuserQuery(parameter1, parameter2, userid, startdate, enddate);
-        image = await getBase64("http://localhost:8000/testendpoint", 'post',
-            response.data,
-            {},
-            parameter1,
-            parameter2
-        );
-        response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
+        if (response.data) {
+            image = await getBase64("http://localhost:8000/testendpoint", 'post',
+                response.data,
+                {},
+                parameter1,
+                parameter2
+            );
+            response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
+        } else {
+            console.log("one or both is empty")
+            image = undefined;
+            response = undefined;
+
+        }
     }
 
-
-    const data = {
-        image: image,
-        stats: JSON.parse(response.stats.data)
+    let data = {}
+    if (image !== undefined || response !== undefined) {
+        console.log("data 1")
+        data = {
+            image: image,
+            stats: JSON.parse(response.stats.data)
+        }
+    } else {
+        console.log("data 2")
+        data = {
+            image: undefined,
+            stats: undefined
+        }
     }
     res.send(data)
-
 });
 
 async function datasetInformation(dataset1, dataset2, parameter1, parameter2) {
@@ -258,30 +289,51 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
     const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
     try {
 
+
         if (userInputValues.includes(parameter1)) {
             parameter = parameter1;
-            moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
-            moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
-            moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
-            moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            //moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '1 month')", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
 
+            // enddate then startdate
+            // select stresslevel,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > to_timestamp('1507590000') and collectiondate < to_timestamp('1510185600')
+
+            moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(1)
+            moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(2)
+            moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(3)
+            moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(4)
             if (startdateColumn.includes(parameter2)) {
-                watch = await client.query(format("select * from %I where userid = %L and startdate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by startdate desc", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
+                watch = await client.query(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(5)
             } else {
-                watch = await client.query(format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
+                watch = await client.query(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(6)
             }
         }
 
         if (userInputValues.includes(parameter2)) {
             parameter = parameter2;
-            moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
-            moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
-            moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
-            moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", parameter2, userid, moment(startdate, "YYYY-MM-DD").unix()));
+            moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(1)
+            moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(2)
+            moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(3)
+            moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+            console.log(4)
             if (startdateColumn.includes(parameter1)) {
-                watch = await client.query(format("select * from %I where userid = %L and startdate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by startdate desc", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
+                watch = await client.query(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(5)
             } else {
-                watch = await client.query(format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", parameter1, userid, moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
+                watch = await client.query(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
+                console.log(6)
             }
         }
 
@@ -292,35 +344,65 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
 
 
         if (userInputValues.includes(parameter1)) {  //
-            moodHour.rows = userInputTotalKey(moodHour.rows, parameter1);
-            moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter1);
+            if (moodHour.rowCount > 0) {
+                moodHour.rows = userInputTotalKey(moodHour.rows, parameter1);
+                moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter1);
+            }
 
-            moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter1);
-            moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter1);
+            if (moodThreeHour.rowCount > 0) {
+                moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter1);
+                moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter1);
+            }
 
-            moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter1);
-            moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter1);
+            if (moodSixHour.rowCount > 0) {
+                moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter1);
+                moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter1);
+            }
 
-            moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter1);
-            moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter1);
+            if (moodTwelveHour.rowCount > 0) {
+                moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter1);
+                moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter1);
+            }
         } else if (userInputValues.includes(parameter2)) {
-            moodHour.rows = userInputTotalKey(moodHour.rows, parameter2);
-            moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter2);
 
-            moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter2);
-            moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter2);
+            if (moodHour.rowCount > 0) {
+                moodHour.rows = userInputTotalKey(moodHour.rows, parameter2);
+                moodHour.rows = userInputMWLevelKey(moodHour.rows, parameter2);
+            }
 
-            moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter2);
-            moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter2);
+            if (moodThreeHour.rowCount > 0) {
+                moodThreeHour.rows = userInputTotalKey(moodThreeHour.rows, parameter2);
+                moodThreeHour.rows = userInputMWLevelKey(moodThreeHour.rows, parameter2);
+            }
 
-            moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter2);
-            moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter2);
+            if (moodSixHour.rowCount > 0) {
+                moodSixHour.rows = userInputTotalKey(moodSixHour.rows, parameter2);
+                moodSixHour.rows = userInputMWLevelKey(moodSixHour.rows, parameter2);
+            }
+
+            if (moodTwelveHour.rowCount > 0) {
+                moodTwelveHour.rows = userInputTotalKey(moodTwelveHour.rows, parameter2);
+                moodTwelveHour.rows = userInputMWLevelKey(moodTwelveHour.rows, parameter2);
+            }
+
         }
 
-        moodHour.rows = objectkeyReplace(moodHour.rows, 'collectiondate', 'startdate');
-        moodThreeHour.rows = objectkeyReplace(moodThreeHour.rows, 'collectiondate', 'startdate');
-        moodSixHour.rows = objectkeyReplace(moodSixHour.rows, 'collectiondate', 'startdate');
-        moodTwelveHour.rows = objectkeyReplace(moodTwelveHour.rows, 'collectiondate', 'startdate');
+        if (moodHour.rowCount > 0) {
+            moodHour.rows = objectkeyReplace(moodHour.rows, 'collectiondate', 'startdate');
+        }
+
+        if (moodThreeHour.rowCount > 0) {
+            moodThreeHour.rows = objectkeyReplace(moodThreeHour.rows, 'collectiondate', 'startdate');
+        }
+
+        if (moodSixHour.rowCount > 0) {
+            moodSixHour.rows = objectkeyReplace(moodSixHour.rows, 'collectiondate', 'startdate');
+        }
+
+        if (moodTwelveHour.rowCount > 0) {
+            moodTwelveHour.rows = objectkeyReplace(moodTwelveHour.rows, 'collectiondate', 'startdate');
+        }
+
 
         if (Object.keys(watch.rows[0]).includes('startdate')) {
             watch.rows = addCollectionDate(watch.rows);
@@ -330,11 +412,19 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
             watch.rows = objectkeyReplace(watch.rows, 'collectiondate', 'startdate');
         }
 
-        moodHour = genericFormatForR(moodHour);
-        moodThreeHour = genericFormatForR(moodThreeHour);
-        moodSixHour = genericFormatForR(moodSixHour);
-        moodTwelveHour = genericFormatForR(moodTwelveHour);
 
+        if (moodHour.rowCount > 0) {
+            moodHour = genericFormatForR(moodHour);
+        }
+        if (moodThreeHour.rowCount > 0) {
+            moodThreeHour = genericFormatForR(moodThreeHour);
+        }
+        if (moodSixHour.rowCount > 0) {
+            moodSixHour = genericFormatForR(moodSixHour);
+        }
+        if (moodTwelveHour.rowCount > 0) {
+            moodTwelveHour = genericFormatForR(moodTwelveHour);
+        }
         watch = genericFormatForR(watch);
 
         moodHour = moodHour.rows;
@@ -380,8 +470,6 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
         parameter1,
         parameter2
     }
-
-
 }
 
 
@@ -454,25 +542,38 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     try {
         if (startdateColumn.includes(parameter1)) {
             data1 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter1, userid, startdate, enddate));
+            console.log(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter1, userid, startdate, enddate))
         } else {
             data1 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter1, userid, startdate, enddate));
+            console.log(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter1, userid, startdate, enddate))
         }
 
         if (startdateColumn.includes(parameter2)) {
             data2 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter2, userid, startdate, enddate));
+            console.log(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter2, userid, startdate, enddate))
         } else {
             data2 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter2, userid, startdate, enddate));
+            console.log(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter2, userid, startdate, enddate))
         }
 
-        if (!Object.keys(data1.rows[0]).includes('startdate')) {
-            data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+
+        if (data1.rowCount !== 0 || data2.rowCount !== 0) {
+            console.log("here 1")
+            if (!Object.keys(data1.rows[0]).includes('startdate')) {
+                data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
+            }
+
+            if (!Object.keys(data2.rows[0]).includes('startdate')) {
+                data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
+            }
+            data1 = genericFormatForR(data1);
+            data2 = genericFormatForR(data2);
+        } else {
+            console.log("here 2")
+            return null;
         }
 
-        if (!Object.keys(data2.rows[0]).includes('startdate')) {
-            data2.rows = objectkeyReplace(data2.rows, 'collectiondate', 'startdate');
-        }
-        data1 = genericFormatForR(data1);
-        data2 = genericFormatForR(data2);
+
 
     } finally {
         client.release();
@@ -488,174 +589,85 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
 
 
 routes.get("/user/dashboard/plot", async function (req, res) {
-    const client = new pg.Client(conString);
-    await client.connect();
+    const client = await pool.connect();
     let parameters = req.query.data;
     let uid = req.query.uid;
     let presentTime;
     let enddate;
-    console.log(req.query.startDateValue);
-    console.log(req.query.endDateValue);
-
-    if (req.query.startDateValue) {
-        presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
-        console.log(presentTime);
-    } else {
-        presentTime = moment(new Date()).format("YYYY-MM-DD");
-    }
-
-    if (req.query.endDateValue) {
-        enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
-        console.log(enddate);
-    } else {
-        enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
-    }
-
-
-    console.log(presentTime);
-    console.log(enddate);
-
-    console.log(1);
-
-    let queries = [];
-    let data = [];
-
-    if (parameters !== undefined) {
-
-        parameters.forEach(item => {
-            console.log(item)
-
-            if (item === 'walkingrunningdistance' || item === 'stepcounter' || item === 'activeenergyburned') {
-                queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
-            }
-
-            if (item === 'sleep' || item === 'deepsleep') {
-                queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
-            }
-
-            if (item === 'sleepheartrate') {
-                queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
-            }
-
-            if (item === 'flightsclimbed') {
-                queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
-            }
-
-            if (item === 'heartrate') {
-                queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
-            }
-
-            //mood version 
-            if (userInputValues.includes(item)) {
-                queries.push(format("SELECT %I as total, collectiondate as date from userinput where userid = %L AND collectiondate < %L AND collectiondate > %L", item, uid, presentTime, enddate));
-            }
-
-        })
-
-        console.log(2);
-        for (let i = 0; i < queries.length; i++) {
-            console.log(queries[i]);
-            let temp = await client.query(queries[i])
-            data.push(temp.rows);
-        }
-        console.log(3);
-
-
-        await client.end();
-
-        image = await getBase64("http://localhost:8000/dashboardplot", 'post',
-            data,
-            {},
-            parameters,
-            {}
-        );
-        //console.log(image)
-        res.send({ image })
-    } else {
-        image = null
-        res.send({ image })
-    }
-})
-
-
-
-routes.get("/demotest/:userid/:parameter1/:parameter2/:date/", async function (req, res) {
-    console.log("demotest")
-    const startdateColumn = ['activeenergyburned', 'stepcounter', 'deepsleep', 'sleep', 'sleepheartrate', 'walkingrunningdistance'];
-    const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "healthinesslevel"];
-    let query1;
-    let query2;
-
-    if (userInputValues.includes(parameter1)) {
-        query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
-            "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter1, userid, startdate, enddate);
-        //console.log(query1);
-        if (startdateColumn.includes(parameter2)) {
-            query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-                "< %L AND startdate > %L ORDER BY startdate DESC", parameter2, userid, startdate, enddate);
-            //console.log(query2);
+    let image;
+    try {
+        if (req.query.startDateValue) {
+            presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
+            console.log(presentTime);
         } else {
-            query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-                "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
-            //console.log(query2);
+            presentTime = moment(new Date()).format("YYYY-MM-DD");
         }
-    } else {
-        query1 = format("SELECT id, %I, collectiondate FROM userinput WHERE userid = %L AND collectiondate " +
-            "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter2, userid, startdate, enddate);
 
-        if (startdateColumn.includes(parameter1)) {
-            query2 = format("SELECT * FROM %I WHERE userid = %L AND startdate " +
-                "< %L AND startdate > %L ORDER BY startdate DESC", parameter1, userid, startdate, enddate);
+        if (req.query.endDateValue) {
+            enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
+            console.log(enddate);
         } else {
-            query2 = format("SELECT * FROM %I WHERE userid = %L AND collectiondate" +
-                "< %L AND collectiondate > %L ORDER BY collectiondate DESC", parameter1, userid, startdate, enddate);
+            enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
         }
-    }
-    let data1 = await client.query(query1);
-    let data2 = await client.query(query2);
-    data1.rows = objectkeyReplace(data1.rows, 'collectiondate');
 
-    if (userInputValues.includes(parameter1)) {
-        data1.rows = userInputTotalKey(data1.rows, parameter1);
-        //data1.rows = userInputMWLevelKey(data1.rows, parameter1);
-    } else if (userInputValues.includes(parameter2)) {
-        data1.rows = userInputTotalKey(data1.rows, parameter2);
-        //data1.rows = userInputMWLevelKey(data1.rows, parameter2);       
-    }
+        let queries = [];
+        let data = [];
 
 
-    const client = new pg.Client(conString);
-    await client.connect();
-    let date = new Date(req.params.date);
+        if (parameters !== undefined) {
 
-    let query1formatter = format("select * from %I where userid = %L and collectiondate  > date_trunc('day', to_timestamp(%L) - interval '3 month') order by collectiondate desc", req.params.parameter1, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
-    let query2formatter = format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > date_trunc('day', to_timestamp(%L) - interval '3 month')", req.params.parameter2, req.params.userid, moment(req.params.date, "YYYY-MM-DD").unix());
-    //query = format("SELECT ROUND(AVG(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName);
-    // select heartrate, collectiondate from heartrate where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate  > date_trunc('day', NOW() - interval '3 month') order by collectiondate desc
-    //select collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > date_trunc('day', NOW() - interval '3 month');
-    let watch = await client.query(query1formatter);
-    let mood = await client.query(query2formatter);
-    watch = watch.rows; //watch
-    mood = mood.rows; //mood
-    await client.end();
+            parameters.forEach(item => {
 
-    let gobalArray = [];
-    mood.forEach(moodItem => {
-        //console.log(moodItem)
-        let tempArray = [];
-        watch.forEach(watchItem => {
-            if (watchItem.collectiondate < moodItem.collectiondate && watchItem.collectiondate > moodItem.threehourwindow) {
-                tempArray.push(watchItem.heartrate)
+                if (item === 'walkingrunningdistance' || item === 'stepcounter' || item === 'activeenergyburned') {
+                    queries.push(format("SELECT total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
+                }
+
+                if (item === 'sleep' || item === 'deepsleep') {
+                    queries.push(format("SELECT duration as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
+                }
+
+                if (item === 'sleepheartrate') {
+                    queries.push(format("SELECT value as total, startdate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "startdate", presentTime, "startdate", enddate))
+                }
+
+                if (item === 'flightsclimbed') {
+                    queries.push(format("SELECT total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
+                }
+
+                if (item === 'heartrate') {
+                    queries.push(format("SELECT heartrate as total, collectiondate as %I from %I where userid = %L AND %I < %L AND %I > %L", 'date', item, uid, "collectiondate", presentTime, "collectiondate", enddate))
+                }
+
+                //mood version 
+                if (userInputValues.includes(item)) {
+                    queries.push(format("SELECT %I as total, collectiondate as date from userinput where userid = %L AND collectiondate < %L AND collectiondate > %L", item, uid, presentTime, enddate));
+                }
+
+            })
+            for (let i = 0; i < queries.length; i++) {
+                console.log(queries[i]);
+                let temp = await client.query(queries[i])
+                data.push(temp.rows);
             }
-        })
-        if (tempArray.length > 0) {
-            gobalArray.push([{ collectionDate: moodItem.collectiondate, window: moodItem.threehourwindow, mean: mean(tempArray), stress: moodItem.stresslevel }])
+
+
+            image = await getBase64("http://localhost:8000/dashboardplot", 'post',
+                data,
+                {},
+                parameters,
+                {}
+            );
+            //console.log(image)
+            //res.send({ image })
+        } else {
+            image = null
+            // res.send({ image })
         }
-    })
-    res.send(gobalArray);
+    } finally {
+        client.release();
+    }
+    res.send(image)
 })
-
-
 
 
 async function dashboardCharts(userid, presentTime, enddate) {
@@ -744,10 +756,6 @@ async function dashboardCharts(userid, presentTime, enddate) {
         client.release();
     }
 }
-
-
-
-
 
 
 //https://stackoverflow.com/questions/41846669/download-an-image-using-axios-and-convert-it-to-base64

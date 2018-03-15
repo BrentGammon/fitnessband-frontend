@@ -54,8 +54,7 @@ class DashboardPlot extends Component {
             }
         })
             .then(response => {
-                this.setState({ image: response.data.image });
-                //console.log(response.data)
+                this.setState({ image: response.data });
             })
             .catch(error => {
                 console.log(error);
