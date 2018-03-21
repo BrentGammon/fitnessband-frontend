@@ -32,17 +32,12 @@ class CurrentGoals extends Component {
 
 
                 goals.map((item, index) => {
-                    console.log(item.data)
-                    console.log(item.current)
-                    console.log(this.formatData(item.data.variable, item.current));
-                    console.log(item.data.goalvalue)
-                    console.log(this.formatData(item.data.variable, item.data.goalvalue));
 
                     return (
                         <tr className="currentGoal" key={item.data.id}>
                             <td>{item.data.variable.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })}</td>
-                            <td>{item.data.goalvalue}</td>
-                            <td>{this.formatData(item.data.variable, item.current)}</td>
+                            <td>{Math.round(item.data.goalvalue)}</td>
+                            <td className="value">{Math.round(this.formatData(item.data.variable, item.current))}</td>
                             <td>{Math.round((this.formatData(item.data.variable, item.current) / item.data.goalvalue) * 100)}%</td>
                             <td><i className="fa fa-times" aria-hidden="true" onClick={() => this.props.deleteGoal(item.data.id, item.data.userid, index)} /></td>
                         </tr>
