@@ -1,0 +1,13 @@
+.goalTable{
+    border: 1px solid black;
+
+}
+
+.currentGoal{
+    height: 25px;
+
+    >td {
+        padding-right: 30px;
+        padding-left: 30px;
+    } 
+}

@@ -5,6 +5,7 @@ import UserProfile from "../userprofile/UserProfile";
 import Summary from "./Summary";
 import './dashboard.scss';
 import DashboardPlot from './DashboardPlot';
+import Goals from '../goals/Goals';
 import axios from 'axios';
 
 class Dashboard extends Component {
@@ -62,6 +63,10 @@ class Dashboard extends Component {
 
               />
 
+
+            </div>
+            <div className="goalContainer">
+              <Goals uid={this.props.user.uid} />
             </div>
             <div className="dashboardPlotContainer">
               <DashboardPlot uid={this.props.user.uid} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance"]} />
