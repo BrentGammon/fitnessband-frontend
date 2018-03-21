@@ -97,6 +97,7 @@ class TimeSeries extends Component {
             error: null,
             query1date: "",
             image: null,
+            aggregationValue: "Day",
         };
         this.clickHandler = this.clickHandler.bind(this);
     }
@@ -151,20 +152,22 @@ class TimeSeries extends Component {
             this.setState({ timeError: null });
             this.clickHandler(
                 this.state.startDateValue,
-                this.state.endDateValue
+                this.state.endDateValue,
+                this.state.aggregationValue,
             );
         }
     }
 
-    clickHandler(sDV, eDV) {
+    clickHandler(sDV, eDV, aggrV) {
         let data = {
             uid: this.props.uid,
             startDate1: sDV.split('+')[0],
-            endDate1: eDV.split('+')[0]
+            endDate1: eDV.split('+')[0],
+            aggregationValue: aggrV,
         };
         console.log("yoyoyyoyoyyoyyoyoyyoyyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoy")
         axios
-            .get(`/api/get/charts/${data.uid}/${data.startDate1}/${data.endDate1}`)
+            .get(`/api/get/charts/${data.uid}/${data.startDate1}/${data.endDate1}/${data.aggregationValue}`)
             .then(response => {
                 console.log(response);
                 this.setState({ image: response.data.image });
@@ -185,7 +188,7 @@ class TimeSeries extends Component {
 
         const state = this.state;
         return (<div className="timeSeriesSection">
-
+        
             <div className="timeseriesCalendar" style={{ width: 240, margin: 20 }}>
                 <p>
                     StartDate:
@@ -205,6 +208,15 @@ class TimeSeries extends Component {
                     />
                 </p>
             </div>
+
+            <div className="aggMsg">
+                <span>Aggregate data by:</span>
+                <select ref="aggregationValue" onChange={(event) => this.setState({aggregationValue: event.target.value})}>
+                    <option value="Hour">Hour</option>
+                    <option value="Day">Day</option>
+                </select>
+            </div>
+
             {this.state.timeError ? <h2>{this.state.timeError}</h2> : ''}
             <button
                 className="btn"

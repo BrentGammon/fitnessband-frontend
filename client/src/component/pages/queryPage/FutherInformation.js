@@ -163,6 +163,15 @@ class FutherInformation extends Component {
 
                     </tbody>
                 </table>
+                <div className="description">
+                    <span>The t-value measures the size of the difference relative to the variation in your sample data.</span>
+                    <br></br>
+                    <span>The p-value, or calculated probability, is the probability of finding the observed, or more extreme, results when the null hypothesis of the study question is true.</span>
+                    <br></br>
+                    <span>The mean difference, or the difference in means, measures the absolute difference between the mean value in two different groups.</span>
+                    <br></br>
+                    <span>The confidence interval is half of the distance between the upper bound of the confidence interval and the lower bound of the confidence level.</span>
+                </div>
             </div>
         )
     }

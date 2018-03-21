@@ -338,6 +338,7 @@ class QueryPage extends Component {
     return (
       <div className="querysection">
         {!this.props.login ? <Redirect to="/" /> : ""}
+        <h2>Comaparison over two timeframes:</h2>
         <span>I feel</span>
 
         <select ref="comparision">
@@ -382,7 +383,7 @@ class QueryPage extends Component {
             ""
           )}
 
-        <h2>Query 1:</h2>
+        <h2>Visualize data correlation:</h2>
         <span>I would like to see if</span>
         {this.optionSelection1()}
         <span>is related to</span>

@@ -134,12 +134,13 @@ routes.get("/fitness/querying/correlation", async function (req, res) {
     res.send(result);
 });
 
-routes.get('/charts/:userid/:startDateValue/:endDateValue', async function (req, res) {
+routes.get('/charts/:userid/:startDateValue/:endDateValue/:aggregationValue', async function (req, res) {
     const startDateValue = req.params.startDateValue;
     const endDateValue = req.params.endDateValue;
     const presentTime = moment(new Date(startDateValue)).format("YYYY-MM-DD");
     const enddate = moment(new Date(endDateValue)).format("YYYY-MM-DD");
     const userid = req.params.userid;
+    const aggregationValue = req.params.aggregationValue;
     let response;
     let image;
     response = await dashboardCharts(userid, presentTime, enddate);
@@ -152,7 +153,8 @@ routes.get('/charts/:userid/:startDateValue/:endDateValue', async function (req,
         response.data6.rows,
         response.data7.rows,
         response.data8.rows,
-        response.data9.rows
+        response.data9.rows,
+        aggregationValue
     );
     const data = {
         image: image,
@@ -822,7 +824,7 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
     return value;
 }
 
-async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, data4, data5, data6, data7, data8, data9) {
+async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, data4, data5, data6, data7, data8, data9, aggrValue) {
     let value = null;
     let data = {};
     if (data !== null) {
@@ -843,6 +845,7 @@ async function getBase64dashboardcharts(url, httpMethod, data1, data2, data3, da
                 dataset7: data7,
                 dataset8: data8,
                 dataset9: data9,
+                aggregationValue: aggrValue,
             }
         }
     }
