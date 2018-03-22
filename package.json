@@ -9,7 +9,8 @@
     "server": "cd server && nodemon index.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "prod": "cd client && npm run build && cd .. && node server/index.js"
+    "prod": "cd client && npm run build && cd .. && node server/index.js",
+    "test": "cd client && npm test"
   },
   "author": "",
   "license": "ISC",
