@@ -17,13 +17,32 @@
   }
 
   .timeseriesCalendar{
-    position: absolute;
-    left: 700px;
-    top: 100px;
+    //position: absolute;
+    display: flex;
+    justify-content: center;
+    padding-top:30px;
+    //left: 700px;
+    //top: 100px;
+
+    > *{
+      padding-left: 10px;
+    }
   }
 
+
+
   .aggMsg{
-    position: absolute;
-    left: 700px;
-    top: 300px;
+    display:flex;
+    justify-content: center;
+    padding-top:30px;
+    //position: absolute;
+    // left: 700px;
+    // top: 300px;
   }
+
+
+  // .dashboardPlotContainer{
+  //   display: flex;
+  //   flex-wrap: wrap;
+  //   //justify-content: space-evenly;
+  // }

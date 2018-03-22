@@ -69,7 +69,7 @@ class Dashboard extends Component {
               <Goals uid={this.props.user.uid} />
             </div>
             <div className="dashboardPlotContainer">
-              <DashboardPlot />
+              <DashboardPlot uid={this.props.user.uid} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance"]} />
               <DashboardPlot uid={this.props.user.uid} options={["stressLevel", "tirednessLevel", "activityLevel", "healthinessLevel"]} />
             </div>
 

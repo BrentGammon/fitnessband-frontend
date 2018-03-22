@@ -14,7 +14,8 @@ class Record extends Component {
       active: null,
       healthy: null,
       uid: null,
-      error: []
+      error: [],
+      submitted: null
     };
     this.updateState = this.updateState.bind(this);
     this.clickHandler = this.clickHandler.bind(this);
@@ -48,7 +49,10 @@ class Record extends Component {
       this.setState({ error: [] });
       axios
         .post("/api/post/user/mood", object)
-        .then(function (response) {
+        .then(response => {
+          if (response.data[0].length === 6 && response.status === 200) {
+            this.setState({ submitted: true })
+          }
           console.log(response);
         })
         .catch(function (error) {
@@ -112,6 +116,7 @@ class Record extends Component {
         ) : (
             ""
           )}
+        {this.state.submitted ? <h1>Mood Submitted</h1> : ''}
         {!this.props.login ? <Redirect to="/" /> : ""}
       </div>
     );
