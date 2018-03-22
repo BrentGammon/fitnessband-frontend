@@ -99,7 +99,6 @@ class QueryPage extends Component {
   }
 
   dateState(e) {
-    console.log("date picker")
     this.setState({
       //query1date: e.target.value
     });

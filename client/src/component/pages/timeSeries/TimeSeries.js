@@ -165,7 +165,6 @@ class TimeSeries extends Component {
             endDate1: eDV.split('+')[0],
             aggregationValue: aggrV,
         };
-        console.log("yoyoyyoyoyyoyyoyoyyoyyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoyyoy")
         axios
             .get(`/api/get/charts/${data.uid}/${data.startDate1}/${data.endDate1}/${data.aggregationValue}`)
             .then(response => {
@@ -178,7 +177,7 @@ class TimeSeries extends Component {
                 console.log(error);
             })
     }
-    //.get(`/api/get/charts/${data.uid}/${data.startDate1}/${data.endDate1}`)
+
 
 
     render() {
@@ -188,7 +187,7 @@ class TimeSeries extends Component {
 
         const state = this.state;
         return (<div className="timeSeriesSection">
-        
+
             <div className="timeseriesCalendar" style={{ width: 240, margin: 20 }}>
                 <p>
                     StartDate:
@@ -211,7 +210,7 @@ class TimeSeries extends Component {
 
             <div className="aggMsg">
                 <span>Aggregate data by:</span>
-                <select ref="aggregationValue" onChange={(event) => this.setState({aggregationValue: event.target.value})}>
+                <select ref="aggregationValue" onChange={(event) => this.setState({ aggregationValue: event.target.value })}>
                     <option value="Hour">Hour</option>
                     <option value="Day">Day</option>
                 </select>
