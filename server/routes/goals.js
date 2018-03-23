@@ -38,38 +38,77 @@ routes.get('/:userid', async function (req, res) {
         for (let i = 0; i < goals.rows.length; i++) {
             //sum
             if (goals.rows[i].variable === 'steps') {
+                console.log(1)
                 let data = await client.query(format("SELECT SUM(total) from stepcounter where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
             }
             if (goals.rows[i].variable === 'activeEnergyBurned') {
+                console.log(2)
+
                 let data = await client.query(format("SELECT SUM(total) from activeenergyburned where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                console.log(format("SELECT SUM(total) from activeenergyburned where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange))
+                console.log(data.rows[0]);
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
+
             }
 
             if (goals.rows[i].variable === 'flightsClimbed') {
+                console.log(3)
                 let data = await client.query(format("SELECT SUM(total) from flightsClimbed where userid = %L and collectiondate <= to_timestamp(%L, 'DD-MM-YYYY') and collectiondate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
             }
 
             if (goals.rows[i].variable === 'walkingRunningDistance') {
+                console.log(4)
                 let data = await client.query(format("SELECT SUM(total) from walkingrunningdistance where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
             }
 
 
             if (goals.rows[i].variable === 'deepSleep') {
+                console.log(5)
                 let data = await client.query(format("SELECT SUM(duration) from deepsleep where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
             }
 
             if (goals.rows[i].variable === 'totalSleep') {
+                console.log(6)
                 let data = await client.query(format("SELECT SUM(duration) from sleep where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
             }
             //average
             if (goals.rows[i].variable === 'heartRate') {
+                console.log(7)
                 let data = await client.query(format("SELECT AVG(heartrate) FROM heartrate where userid = %L AND collectiondate <= to_timestamp(%L, 'DD-MM-YYYY') and collectiondate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange))
-                jsonArray.push({ data: goals.rows[i], "current": data.rows[0].avg });
+                if (data.rows[0]) {
+                    jsonArray.push({ data: goals.rows[i], "current": data.rows[0].avg });
+                } else {
+                    jsonArray.push({ data: goals.rows[i], "current": 0 });
+                }
             }
         }
 
@@ -78,6 +117,7 @@ routes.get('/:userid', async function (req, res) {
         client.release();
     }
 })
+
 
 routes.post('/', async function (req, res) {
     console.log(req.body);
