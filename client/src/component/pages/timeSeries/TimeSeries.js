@@ -211,8 +211,8 @@ class TimeSeries extends Component {
             <div className="aggMsg">
                 <span>Aggregate data by:</span>
                 <select ref="aggregationValue" onChange={(event) => this.setState({ aggregationValue: event.target.value })}>
-                    <option value="Hour">Hour</option>
                     <option value="Day">Day</option>
+                    <option value="Hour">Hour</option>
                 </select>
             </div>
 
