@@ -27,7 +27,6 @@ test("The div class name shouldn't be userinputitem__error when error prop is pa
 test("The value prop should be rendered", () => {
     const wrapper = shallow(<UserInputItem value={"value"} error={false} />);
     expect(wrapper.text()).toEqual("value");
-    //console.log(wrapper.debug());
 })
 
 test("The title prop should be rendered", () => {

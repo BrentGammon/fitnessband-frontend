@@ -2,7 +2,7 @@ const routes = require("express").Router();
 const express = require("express");
 const pg = require("pg");
 const { Pool } = require("pg")
-const conString = "postgres://postgres:password@localhost:5432/fitnessInfo";
+const conString = "postgres://bg240:lbla&ce@penguin.kent.ac.uk:5432/bg240";
 const format = require("pg-format");
 const moment = require("moment");
 moment.locale("en-gb");
@@ -19,10 +19,10 @@ const userInputValues = ["stresslevel", "tirednesslevel", "activitylevel", "heal
 const watchInputValues = ["activeenergyburned", "deepsleep", "flightsclimbed", "heartrate", "sleep", "sleepheartrate", "stepcounter", "walkingrunningdistance"];
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'fitnessInfo',
-    password: 'password',
+    user: 'bg240',
+    host: 'penguin.kent.ac.uk',
+    database: 'bg240',
+    password: 'lbla&ce',
     port: 5432
 
 });
@@ -160,7 +160,6 @@ routes.get('/charts/:userid/:startDateValue/:endDateValue/:aggregationValue', as
         image: image,
         //stats: JSON.parse(response.stats.data)
     }
-    console.log(7)
     res.send(data);
 });
 
@@ -180,7 +179,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
         response = await useruserQuery(parameter1, parameter2, userid, startdate, enddate); //check size here
 
         if (response.data1.rowCount !== 0 || response.data2.rowCount !== 0) {
-            console.log("both sets have data")
             image = await getBase64("http://localhost:8000/correlation", 'post',
                 response.data1.rows,
                 response.data2.rows,
@@ -189,7 +187,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             );
             response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
         } else {
-            console.log("one or both is empty")
             image = undefined;
             response = undefined;
         }
@@ -207,8 +204,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             );
             response.stats = await datasetInformation(response.data1.rows, response.data2.rows, parameter1, parameter2)
         } else {
-            console.log("one or both is empty")
-            console.log("watch watch")
             image = undefined;
             response = undefined;
         }
@@ -230,7 +225,6 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
             response.stats = await datasetInformationMoodWatch(response.data, parameter1, parameter2)
 
         } else {
-            console.log("one or both is empty")
             image = undefined;
             response = undefined;
 
@@ -239,13 +233,11 @@ routes.get("/query1/:userid/:parameter1/:parameter2/:date/", async function (req
 
     let data = {}
     if (image !== undefined || response !== undefined) {
-        console.log("data 1")
         data = {
             image: image,
             stats: JSON.parse(response.stats.data)
         }
     } else {
-        console.log("data 2")
         data = {
             image: undefined,
             stats: undefined
@@ -302,42 +294,26 @@ async function watchuserQuery(parameter1, parameter2, userid, startdate, enddate
             // select stresslevel,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' and collectiondate > to_timestamp('1507590000') and collectiondate < to_timestamp('1510185600')
 
             moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(1)
             moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(2)
             moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(3)
             moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(4)
             if (startdateColumn.includes(parameter2)) {
-                console.log(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
                 watch = await client.query(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-                console.log(5)
             } else {
-                console.log(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
                 watch = await client.query(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-                console.log(6)
             }
         }
 
         if (userInputValues.includes(parameter2)) {
             parameter = parameter2;
             moodHour = await client.query(format("select %I,collectiondate, collectiondate - interval '1 hour' as HourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(1)
             moodThreeHour = await client.query(format("select %I,collectiondate, collectiondate - interval '3 hour' as ThreeHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(2)
             moodSixHour = await client.query(format("select %I,collectiondate, collectiondate - interval '6 hour' as SixHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(3)
             moodTwelveHour = await client.query(format("select %I,collectiondate, collectiondate - interval '12 hour' as TweleveHourWindow  from userinput where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L)", parameter2, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-            console.log(4)
             if (startdateColumn.includes(parameter1)) {
-                console.log(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
                 watch = await client.query(format("select * from %I where userid = %L and startdate > to_timestamp(%L) and startdate < to_timestamp(%L) order by startdate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-                console.log(5)
             } else {
-                console.log(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()))
                 watch = await client.query(format("select * from %I where userid = %L and collectiondate > to_timestamp(%L) and collectiondate < to_timestamp(%L) order by collectiondate desc", parameter1, userid, moment(enddate, "YYYY-MM-DD").unix(), moment(startdate, "YYYY-MM-DD").unix()));
-                console.log(6)
             }
         }
 
@@ -546,23 +522,18 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
     try {
         if (startdateColumn.includes(parameter1)) {
             data1 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter1, userid, startdate, enddate));
-            console.log(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter1, userid, startdate, enddate))
         } else {
             data1 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter1, userid, startdate, enddate));
-            console.log(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter1, userid, startdate, enddate))
         }
 
         if (startdateColumn.includes(parameter2)) {
             data2 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter2, userid, startdate, enddate));
-            console.log(format("SELECT * FROM %I WHERE userid = %L AND startdate < %L AND startdate > %L", parameter2, userid, startdate, enddate))
         } else {
             data2 = await client.query(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter2, userid, startdate, enddate));
-            console.log(format("SELECT * FROM %I WHERE userid = %L AND collectiondate < %L AND collectiondate > %L", parameter2, userid, startdate, enddate))
         }
 
 
         if (data1.rowCount !== 0 || data2.rowCount !== 0) {
-            console.log("here 1")
             if (!Object.keys(data1.rows[0]).includes('startdate')) {
                 data1.rows = objectkeyReplace(data1.rows, 'collectiondate', 'startdate');
             }
@@ -573,7 +544,6 @@ async function watchwatchQuery(parameter1, parameter2, userid, startdate, enddat
             data1 = genericFormatForR(data1);
             data2 = genericFormatForR(data2);
         } else {
-            console.log("here 2")
             return null;
         }
 
@@ -602,14 +572,12 @@ routes.get("/user/dashboard/plot", async function (req, res) {
     try {
         if (req.query.startDateValue) {
             presentTime = moment(new Date(req.query.startDateValue)).format("YYYY-MM-DD");
-            console.log(presentTime);
         } else {
             presentTime = moment(new Date()).format("YYYY-MM-DD");
         }
 
         if (req.query.endDateValue) {
             enddate = moment(new Date(req.query.endDateValue)).format("YYYY-MM-DD");
-            console.log(enddate);
         } else {
             enddate = moment(new Date()).subtract(3, 'months').format("YYYY-MM-DD");
         }
@@ -649,7 +617,6 @@ routes.get("/user/dashboard/plot", async function (req, res) {
 
             })
             for (let i = 0; i < queries.length; i++) {
-                console.log(queries[i]);
                 let temp = await client.query(queries[i])
                 data.push(temp.rows);
             }
@@ -661,11 +628,8 @@ routes.get("/user/dashboard/plot", async function (req, res) {
                 parameters,
                 {}
             );
-            //console.log(image)
-            //res.send({ image })
         } else {
             image = null
-            // res.send({ image })
         }
     } finally {
         client.release();
@@ -820,7 +784,6 @@ async function getBase64(url, httpMethod, data1, data2, parameter1, parameter2) 
         ).catch(error => {
             value = error.data;
         });
-    console.log(value);
     return value;
 }
 
@@ -896,7 +859,6 @@ function genericFormatForR(data) {
         }
 
     }
-    //console.log(data.rows);
     return data
 }
 

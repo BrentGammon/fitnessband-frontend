@@ -174,7 +174,6 @@ class QueryPage extends Component {
 
       })
       .catch(error => {
-        console.log("gkdhgkdhfg")
         this.setState({ result: null });
         this.setState({ error: error.response });
       });
@@ -441,7 +440,7 @@ class QueryPage extends Component {
         {this.state.image ? (
           <img src={`data:image/png;base64, ${this.state.image}`} alt="plot" />
         ) : (
-            console.log("there is no image to display")
+            ''
           )}
 
 

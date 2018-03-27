@@ -18,14 +18,12 @@ const data = [{
 test("It shouldnt render any tables rows if no data is passed", () => {
     const wrapper = shallow(<CurrentGoals />);
     expect(wrapper.find('.currentGoal').length).toEqual(0);
-    //console.log(wrapper.debug());
 })
 
 
 test("It should render tables rows if data is passed in", () => {
     const wrapper = shallow(<CurrentGoals data={data} />);
     expect(wrapper.find('.currentGoal').length).toEqual(1);
-    //console.log(wrapper.debug());
 })
 
 test("formatData should have been called", () => {

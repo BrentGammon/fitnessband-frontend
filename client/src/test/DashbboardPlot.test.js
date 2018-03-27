@@ -24,7 +24,6 @@ test("shouldnt display an image tag if no image is set in state", () => {
 
 test("should display an image tag if image is set in state", () => {
     const wrapper = shallow(<DashboardPlot uid={"1234567"} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance"]} />);
-    console.log(wrapper.find('img'))
     wrapper.setState({ image: "2wfef4" })
     expect(wrapper.find('img').length).toEqual(1);
 })
