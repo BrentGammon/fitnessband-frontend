@@ -53,7 +53,6 @@ class Record extends Component {
           if (response.data[0].length === 6 && response.status === 200) {
             this.setState({ submitted: true })
           }
-          console.log(response);
         })
         .catch(function (error) {
           console.log(error);

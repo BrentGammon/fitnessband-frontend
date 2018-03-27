@@ -28,8 +28,6 @@ class Dashboard extends Component {
     axios
       .get(`/api/deleteRecords/delete/${data.uid}`)
       .then(response => {
-        console.log(response);
-        console.log('All data has been cleared successfully');
       }).catch(error => {
         console.log(error);
       })

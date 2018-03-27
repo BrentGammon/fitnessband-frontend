@@ -14,7 +14,6 @@ const { welchTTest } = require("../../utilties/statistical/statistical");
 routes.use(cors());
 
 routes.post("/user/sleepData", async function (req, res) {
-  console.log("sleepData");
   if (req.body.data) {
     const dataModel = req.body.data;
     let sleepObject = {};
@@ -190,7 +189,6 @@ async function saveSleepHeartRate(array) {
 }
 
 routes.post("/user/walkingRunningDistance", async function (req, res) {
-  console.log("walking");
   if (req.body.data) {
     const client = new pg.Client(conString);
     await client.connect();
@@ -220,7 +218,6 @@ routes.post("/user/walkingRunningDistance", async function (req, res) {
 });
 
 routes.post("/user/activeEnergyBurned", async function (req, res) {
-  console.log("activeEnergyBurned");
   if (req.body.data) {
     const client = new pg.Client(conString);
     await client.connect();
@@ -247,7 +244,6 @@ routes.post("/user/activeEnergyBurned", async function (req, res) {
 });
 
 routes.post("/user/flightsClimbed", async function (req, res) {
-  console.log("flightsClimbed");
   if (req.body.data) {
     const client = new pg.Client(conString);
     await client.connect();
@@ -272,7 +268,6 @@ routes.post("/user/flightsClimbed", async function (req, res) {
 
 routes.post("/user/stepCounter", async function (req, res, next) {
   if (req.body.data) {
-    console.log("stepCounter");
     const client = new pg.Client(conString);
     await client.connect();
     const dataModel = req.body.data;
@@ -301,7 +296,6 @@ routes.post("/user/stepCounter", async function (req, res, next) {
 
 routes.post("/user/heartrate", async function (req, res) {
   if (req.body.data) {
-    console.log("heartrate");
     const client = new pg.Client(conString);
     await client.connect();
     const dataModel = req.body.data;

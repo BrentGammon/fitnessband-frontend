@@ -168,11 +168,7 @@ class TimeSeries extends Component {
         axios
             .get(`/api/get/charts/${data.uid}/${data.startDate1}/${data.endDate1}/${data.aggregationValue}`)
             .then(response => {
-                console.log(response);
                 this.setState({ image: response.data.image });
-                //console.log(this.props.uid);
-                //console.log(data.startDate1);
-                console.log("blank");
             }).catch(error => {
                 console.log(error);
             })

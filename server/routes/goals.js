@@ -23,11 +23,8 @@ const pool = new Pool({
 
 routes.get('/:userid', async function (req, res) {
     const userid = req.params.userid;
-    console.log(userid);
     const client = await pool.connect();
     try {
-        console.log("YASSSSSSSS")
-        console.log(format("SELECT * FROM goals WHERE userid = %L", userid))
 
         let goals = await client.query(format("SELECT * FROM goals WHERE userid = %L", userid));
         const startRange = moment().format("DD-MM-YYYY");
@@ -38,7 +35,6 @@ routes.get('/:userid', async function (req, res) {
         for (let i = 0; i < goals.rows.length; i++) {
             //sum
             if (goals.rows[i].variable === 'steps') {
-                console.log(1)
                 let data = await client.query(format("SELECT SUM(total) from stepcounter where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
@@ -47,11 +43,7 @@ routes.get('/:userid', async function (req, res) {
                 }
             }
             if (goals.rows[i].variable === 'activeEnergyBurned') {
-                console.log(2)
-
                 let data = await client.query(format("SELECT SUM(total) from activeenergyburned where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
-                console.log(format("SELECT SUM(total) from activeenergyburned where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange))
-                console.log(data.rows[0]);
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
                 } else {
@@ -61,7 +53,6 @@ routes.get('/:userid', async function (req, res) {
             }
 
             if (goals.rows[i].variable === 'flightsClimbed') {
-                console.log(3)
                 let data = await client.query(format("SELECT SUM(total) from flightsClimbed where userid = %L and collectiondate <= to_timestamp(%L, 'DD-MM-YYYY') and collectiondate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
@@ -71,7 +62,6 @@ routes.get('/:userid', async function (req, res) {
             }
 
             if (goals.rows[i].variable === 'walkingRunningDistance') {
-                console.log(4)
                 let data = await client.query(format("SELECT SUM(total) from walkingrunningdistance where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
@@ -82,7 +72,6 @@ routes.get('/:userid', async function (req, res) {
 
 
             if (goals.rows[i].variable === 'deepSleep') {
-                console.log(5)
                 let data = await client.query(format("SELECT SUM(duration) from deepsleep where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
@@ -92,7 +81,6 @@ routes.get('/:userid', async function (req, res) {
             }
 
             if (goals.rows[i].variable === 'totalSleep') {
-                console.log(6)
                 let data = await client.query(format("SELECT SUM(duration) from sleep where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
@@ -102,7 +90,6 @@ routes.get('/:userid', async function (req, res) {
             }
             //average
             if (goals.rows[i].variable === 'heartRate') {
-                console.log(7)
                 let data = await client.query(format("SELECT AVG(heartrate) FROM heartrate where userid = %L AND collectiondate <= to_timestamp(%L, 'DD-MM-YYYY') and collectiondate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange))
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].avg });
@@ -120,7 +107,6 @@ routes.get('/:userid', async function (req, res) {
 
 
 routes.post('/', async function (req, res) {
-    console.log(req.body);
     const client = await pool.connect();
     try {
         let data = await client.query(format("INSERT INTO goals (userId, variable, goalValue) VALUES (%L, %L, %L)", req.body.uid, req.body.variable, req.body.goalValue));

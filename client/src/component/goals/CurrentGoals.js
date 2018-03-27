@@ -26,11 +26,7 @@ class CurrentGoals extends Component {
 
 
         if (goals) {
-            console.log(goals.length)
-            console.log("we have goals")
             return (
-
-
                 goals.map((item, index) => {
 
                     return (

@@ -27,7 +27,6 @@ class Goals extends Component {
             goalValue
         })
             .then(response => {
-                console.log(response)
                 if (response.data.rowCount && response.status === 200) {
                     this.getGoals();
                 }
@@ -41,7 +40,6 @@ class Goals extends Component {
     deleteGoal(id, uid, index) {
         axios.delete(`/api/goals/${uid}/${id}`)
             .then(response => {
-                console.log(response)
                 if (response.data.length === 0 && response.status === 200) {
                     this.getGoals();
                 }
@@ -53,10 +51,8 @@ class Goals extends Component {
 
     getGoals() {
         const userid = this.props.uid;
-        console.log(userid);
         axios.get(`/api/goals/${userid}`)
             .then(response => {
-                console.log(response.data)
                 this.setState({ goals: response.data })
             })
             .catch(error => {

@@ -5,7 +5,6 @@ class FutherInformationMoodWatch extends Component {
     render() {
         return (
             <div className="furtherInformation">
-                {console.log(this.props.extraData)}
 
                 <table>
                     <thead>
