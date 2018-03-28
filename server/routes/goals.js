@@ -2,7 +2,7 @@ const routes = require("express").Router();
 const express = require("express");
 const pg = require("pg");
 const { Pool } = require("pg")
-const conString = "postgres://postgres:password@localhost:5432/fitnessInfo";
+//const conString = "postgres://postgres:password@localhost:5432/fitnessInfo";
 const app = express();
 app.disable('view cache');
 const cors = require("cors");
@@ -12,10 +12,10 @@ const moment = require("moment");
 
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'fitnessInfo',
-    password: 'password',
+    user: 'bg240',
+    host: 'penguin.kent.ac.uk',
+    database: 'bg240',
+    password: 'lbla&ce',
     port: 5432
 
 });
@@ -27,6 +27,7 @@ routes.get('/:userid', async function (req, res) {
     try {
 
         let goals = await client.query(format("SELECT * FROM goals WHERE userid = %L", userid));
+        //console.log(goals.rows)
         const startRange = moment().format("DD-MM-YYYY");
         const endRange = moment().subtract(7, 'days').format("DD-MM-YYYY")
 
@@ -36,6 +37,8 @@ routes.get('/:userid', async function (req, res) {
             //sum
             if (goals.rows[i].variable === 'steps') {
                 let data = await client.query(format("SELECT SUM(total) from stepcounter where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
+                console.log(format("SELECT SUM(total) from stepcounter where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange))
+                console.log(data)
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
                 } else {
@@ -72,6 +75,7 @@ routes.get('/:userid', async function (req, res) {
 
 
             if (goals.rows[i].variable === 'deepSleep') {
+                // console.log("!@£$%^&*&*^%$£@$%^&*(&^%$£%^&*(*^&%$%£$@£%$^%&*()(&*^&%^$%£$@£@$£%$^&^*&(")
                 let data = await client.query(format("SELECT SUM(duration) from deepsleep where userid = %L and enddate <= to_timestamp(%L, 'DD-MM-YYYY') and enddate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].sum });
@@ -90,7 +94,10 @@ routes.get('/:userid', async function (req, res) {
             }
             //average
             if (goals.rows[i].variable === 'heartRate') {
+                //  console.log(format("SELECT AVG(heartrate) FROM heartrate where userid = %L AND collectiondate <= to_timestamp(%L, 'DD-MM-YYYY') and collectiondate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange));
                 let data = await client.query(format("SELECT AVG(heartrate) FROM heartrate where userid = %L AND collectiondate <= to_timestamp(%L, 'DD-MM-YYYY') and collectiondate >= to_timestamp(%L, 'DD-MM-YYYY') group by userid", userid, startRange, endRange))
+                // console.log(data.rows[0])
+                //  console.log(data)
                 if (data.rows[0]) {
                     jsonArray.push({ data: goals.rows[i], "current": data.rows[0].avg });
                 } else {
@@ -98,7 +105,7 @@ routes.get('/:userid', async function (req, res) {
                 }
             }
         }
-
+        //console.log(jsonArray)
         res.send(jsonArray)
     } finally {
         client.release();

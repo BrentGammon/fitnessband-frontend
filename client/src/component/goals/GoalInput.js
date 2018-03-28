@@ -37,11 +37,10 @@ class GoalInput extends Component {
                 <label htmlFor="var">Item</label>
                 <select id="var" onChange={this.setVariable}>
                     <option value="heartRate">Heart Rate</option>
-                    <option value="deepSlepp">Deep Sleep</option>
+                    <option value="deepSleep">Deep Sleep</option>
                     <option value="totalSleep">Total Sleep</option>
                     <option value="sleepHeartRate">Sleep Heart Rate</option>
                     <option value="activeEnergyBurned">Active Energy Burned</option>
-                    <option value="flightsClimbed">Flights Climbed</option>
                     <option value="steps">Steps</option>
                     <option value="flightsClimbed">Flights Climbed</option>
                     <option value="walkingRunningDistance">Walking Running Distance</option>
