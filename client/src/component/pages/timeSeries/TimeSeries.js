@@ -223,8 +223,7 @@ class TimeSeries extends Component {
         </button>
 
             <div className="dashboardPlotContainer">
-                <DashboardPlot uid={this.props.uid} startDateValue={this.state.startDateValue} endDateValue={this.state.endDateValue} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance"]} />
-                <DashboardPlot uid={this.props.uid} startDateValue={this.state.startDateValue} endDateValue={this.state.endDateValue} options={["stressLevel", "tirednessLevel", "activityLevel", "healthinessLevel"]} />
+                <DashboardPlot uid={this.props.uid} startDateValue={this.state.startDateValue} endDateValue={this.state.endDateValue} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance", "stressLevel", "tirednessLevel", "activityLevel", "healthinessLevel"]} />
             </div>
 
 

@@ -95,6 +95,7 @@ async function averageWatchData(userid, table, valueColumnName, timeStampColumnN
             return data;
         } else if (groupingType === 'sum') {
             //SELECT ROUND(SUM(a.total)) as stepcounter from (SELECT distinct userid, total, startdate, enddate from stepcounter where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2')a where userid = 'hr1YPbVK4FWQT6qbnLncnjdUd2W2' AND enddate > date_trunc('day', NOW() - interval '1 month') group by userid;
+
             //let data = await client.query(format("SELECT ROUND(SUM(a.%I)) as %I from (SELECT distinct %L, %I, %I, ,%I from %I where userid = %L)a where userid = %L and  %I > date_trunc('day', NOW() - interval '1 month') group by userid"),valueColumnName, alias,userid,valueColumnName)
             let data = await client.query(format("SELECT ROUND(SUM(%I)) as %I from %I where userid = %L AND %I > date_trunc('day', NOW() - interval '1 month') group by userid", valueColumnName, alias, table, userid, timeStampColumnName));
             return data;

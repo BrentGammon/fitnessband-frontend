@@ -6,7 +6,7 @@ class DashboardPlot extends Component {
     constructor() {
         super();
         this.state = {
-            selectedValues: [],
+            selectedValues: ['heartrate'],
             image: null
         }
         this.displayOptions = this.displayOptions.bind(this);
@@ -19,13 +19,21 @@ class DashboardPlot extends Component {
         return (
             x.map(item => {
                 let label = item.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
-                return (
-                    <div className="checkbox" key={item}><input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} />{label}</div>
-                )
+                if (label === 'Heart Rate') {
+                    return <div className="checkbox" key={item}><input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} checked />{label}</div>
+
+                } else {
+                    return (
+                        <div className="checkbox" key={item}><input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} />{label}</div>
+                    )
+                }
             })
         )
     }
 
+    componentWillMount() {
+        this.getData();
+    }
 
 
     updateState(value) {
@@ -70,8 +78,9 @@ class DashboardPlot extends Component {
                     :
                     <div className="dashboardPlotBlank"></div>
                 }
-
-                {this.displayOptions()}
+                <div className="displayOptionsContainer">
+                    {this.displayOptions()}
+                </div>
             </div>
         )
     }

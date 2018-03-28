@@ -1,12 +1,22 @@
 .checkbox {
-    padding-left: 5%;
-   }
+    //padding-left: 5%;
+    //margin: 0 auto;
+ }
     
    .dashboardPlot {
    
        > .dashboardPlotBlank {
-           height: 480px;
-           width: 480px;
+           height: 500px;
+           width: 1500px;
        }
    }
 
+
+
+   .displayOptionsContainer {
+       display: flex;
+       justify-content: space-evenly; 
+       > .checkbox {
+           padding-left : 10px;
+       }
+   }
