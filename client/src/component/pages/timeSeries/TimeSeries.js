@@ -183,7 +183,7 @@ class TimeSeries extends Component {
 
         const state = this.state;
         return (<div className="timeSeriesSection">
-
+            <h2>Time Series Display</h2>
             <div className="timeseriesCalendar">
                 <p>
                     StartDate:
@@ -212,6 +212,9 @@ class TimeSeries extends Component {
                 </select>
             </div>
 
+                <p className="msg">To visualise the independent attribute visualisation, define a date range. </p>
+                <p className="msg">By default the aggregation frame is by Day, this can be changed to Hour to aid in viewing the time series of the attributes over a short date range.</p>
+
             {this.state.timeError ? <h2>{this.state.timeError}</h2> : ''}
             <button
                 className="btn"
@@ -226,7 +229,7 @@ class TimeSeries extends Component {
                 <DashboardPlot uid={this.props.uid} startDateValue={this.state.startDateValue} endDateValue={this.state.endDateValue} options={["activeEnergyBurned", "deepSleep", "flightsClimbed", "heartRate", "sleep", "sleepHeartRate", "stepCounter", "walkingRunningDistance", "stressLevel", "tirednessLevel", "activityLevel", "healthinessLevel"]} />
             </div>
 
-
+            <h2>Independent Attribute Visualisation</h2>
             {this.state.image ? (
                 <img src={`data:image/png;base64, ${this.state.image}`} alt="time series plot" />
             ) : (
