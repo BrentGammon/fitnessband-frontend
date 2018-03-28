@@ -19,14 +19,10 @@ class DashboardPlot extends Component {
         return (
             x.map(item => {
                 let label = item.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); })
-                if (label === 'Heart Rate') {
-                    return <div className="checkbox" key={item}><input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} checked />{label}</div>
+                return (
+                    <div className="checkbox" key={item}><input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} />{label}</div>
+                )
 
-                } else {
-                    return (
-                        <div className="checkbox" key={item}><input className="checkbox" type="checkbox" value={item.toUpperCase()} onChange={() => this.updateState(item.toLowerCase())} />{label}</div>
-                    )
-                }
             })
         )
     }
