@@ -10,7 +10,7 @@ configure({ adapter: new Adapter() });
 
 test("It should render all options for the fitness data", () => {
     const wrapper = shallow(<GoalInput />);
-    expect(wrapper.find('option').length).toEqual(9);
+    expect(wrapper.find('option').length).toEqual(8);
 })
 
 
